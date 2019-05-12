@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>cn.xyz</groupId>
-    <artifactId>xyz-main</artifactId>
+    <artifactId>xyz-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <groupId>cn.xyz</groupId>
