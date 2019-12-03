@@ -352,7 +352,7 @@
 				</Cell>
 				<Cell ss:StyleID="s50" />
 			</Row>
-			<#list data.count as c>
+			<![CDATA[ < ]]>#list data.count as c<![CDATA[ > ]]>
 				<Row>
 					<Cell>
 						<Data ss:Type="String">${c.logi9lpn}</Data>
@@ -364,7 +364,7 @@
 						<Data ss:Type="String">${c.reason}</Data>
 					</Cell>
 				</Row>
-			</#list>
+			<![CDATA[ < ]]>/#list<![CDATA[ > ]]>
 			<Row>
 				<Cell>
 					<Data ss:Type="String">9L P/N</Data>
@@ -379,7 +379,7 @@
 					<Data ss:Type="String">T-code</Data>
 				</Cell>
 			</Row>
-			<#list data.count as c>
+			<![CDATA[ < ]]>#list data.count as c<![CDATA[ > ]]>
 				<Row>
 					<Cell>
 						<Data ss:Type="String">${c.logi9lpn}</Data>
@@ -394,7 +394,7 @@
 						<Data ss:Type="String">${c.tcode}</Data>
 					</Cell>
 				</Row>
-			</#list>
+			<![CDATA[ < ]]>/#list<![CDATA[ > ]]>
 		</Table>
 		<WorksheetOptions
 			xmlns="urn:schemas-microsoft-com:office:excel">
