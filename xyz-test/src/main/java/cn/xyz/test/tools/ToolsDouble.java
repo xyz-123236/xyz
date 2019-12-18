@@ -144,13 +144,15 @@ public class ToolsDouble {
 	}
 
 	public static void main(String[] args) {
-		// System.out.println(doubleToBigDecimal(301353.05));
-		// System.out.println(doubleToBigDecimal(-301353.05));
-		// System.out.println(doubleToBigDecimal(new Double(-301353.05)));
-		// System.out.println(doubleToBigDecimal(301353));
-		// System.out.println(doubleToBigDecimal(new Double(-301353)));
-
-		double d = 1.2700000091E9;// 5898895455898954895989;
+		double a = 301353.5;
+		System.out.println(Math.round(a));
+		 System.out.println(doubleToBigDecimal(301353.05));
+		 System.out.println(doubleToBigDecimal(-301353.05));
+		 System.out.println(doubleToBigDecimal(new Double(-301353.05)));
+		 System.out.println(doubleToBigDecimal(301353));
+		 System.out.println(doubleToBigDecimal(new Double(-301353)));
+		 System.out.println(a);
+		double d = 1270000009.1;// 5898895455898954895989;
 		System.out.println(doubleToBigDecimal(d));
 		System.out.println(d);
 		System.out.println(new Double(d).toString());
