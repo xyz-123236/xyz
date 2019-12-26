@@ -11,11 +11,11 @@
 		<mybatis.version>3.2.8</mybatis.version>
 		<mybatis.spring.version>1.2.2</mybatis.spring.version>
 		<mybatis.paginator.version>1.2.15</mybatis.paginator.version>
-		<mysql.version>5.1.32</mysql.version>
+		<mysql.version>6.0.5</mysql.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<jackson.version>2.4.2</jackson.version>
 		<druid.version>1.0.9</druid.version>
-		<httpclient.version>4.3.5</httpclient.version>
+		<httpclient.version>4.5.3</httpclient.version>
 		<jstl.version>1.2</jstl.version>
 		<servlet-api.version>2.5</servlet-api.version>
 		<jsp-api.version>2.0</jsp-api.version>
@@ -31,10 +31,6 @@
 		<hibernate-validator.version>5.3.6.Final</hibernate-validator.version>
 		<poi.version>3.17</poi.version>
 		<poi-ooxml.version>3.17</poi-ooxml.version>
-		<poi-ooxml-schemas.version>3.17</poi-ooxml-schemas.version>
-		<poi-examples.version>3.17</poi-examples.version>
-		<poi-excelant.version>3.17</poi-excelant.version>
-		<poi-scratchpad.version>3.17</poi-scratchpad.version>
 		<shiro-spring.version>1.4.0</shiro-spring.version>
 		<shiro-ehcache.version>1.4.0</shiro-ehcache.version>
 		<mybatis-generator-core.version>1.3.1</mybatis-generator-core.version>
@@ -200,27 +196,6 @@
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi-ooxml</artifactId>
 				<version>${poi-ooxml.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.poi</groupId>
-				<artifactId>poi-ooxml-schemas</artifactId>
-				<version>${poi-ooxml-schemas.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.poi</groupId>
-				<artifactId>poi-examples</artifactId>
-				<version>${poi-examples.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.poi</groupId>
-				<artifactId>poi-excelant</artifactId>
-				<version>${poi-excelant.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.poi</groupId>
-				<artifactId>poi-scratchpad</artifactId>
-				<version>${poi-scratchpad.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.zxing</groupId>
