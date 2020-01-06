@@ -37,7 +37,7 @@ public class DbBase {
             }
 		}
 	}
-	
+	//必须通过此构造方法创建对象
 	public DbBase(String databaseName) {
 		this.conn = openConnection(databaseName);
 	}
@@ -281,7 +281,8 @@ public class DbBase {
 		try {
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
-			JSONArray data = new JSONArray();
+			System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
+			/*JSONArray data = new JSONArray();
 			JSONObject a = new JSONObject();
 			a.put("batch_id", 23);
 			a.put("sn_detail", "xx");
@@ -289,7 +290,7 @@ public class DbBase {
 			JSONObject b = new JSONObject();
 			b.put("batch_id", 22);
 			b.put("sn_detail", "yy");
-			data.add(b);
+			data.add(b);*/
 			//String str = "insert into sn_detail (batch_id,sn_detail) values";
 			//System.out.println(str.replaceAll("values", ""));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (24,?)",a));

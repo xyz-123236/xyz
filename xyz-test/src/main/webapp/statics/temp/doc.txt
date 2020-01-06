@@ -19,3 +19,8 @@
 
 
 设置一个可以添加表格表头，数据库栏位，可以解决一些要同时取改jsp-table，db-table，excel-table
+	表栏位：id, pid, code(字段名-英文), name(显示名-中文), type(数据类型,字符/数字), width(宽度) , sort(排序)  //同excel设置
+	
+判断数据唯一的共用方法 only(JSONObject row, Integer id, String... params)
+
+日志写在static里，可以通过网页打开
