@@ -14,6 +14,8 @@ import java.util.Properties;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.test.tools.ToolsDate;
+
 public class DbBase {
 	Connection conn;
 	PreparedStatement pstm;
@@ -234,7 +236,7 @@ public class DbBase {
 	//输出sql
 	public void printSql(PreparedStatement pstm) {
 		String sql = pstm.toString();
-		System.out.println(sql.substring(sql.lastIndexOf(":")+1).trim());
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ sql.substring(sql.lastIndexOf(":")+1).trim().replaceAll(" +"," "));
 	}
 	//释放资源
 	public void closeResource(ResultSet rs){

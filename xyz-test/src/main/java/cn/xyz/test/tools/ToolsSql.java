@@ -1,28 +1,36 @@
 package cn.xyz.test.tools;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.main.dao.DbBase;
+import cn.xyz.test.pojo.Basic;
 
-public class ToolsSql {
+public class ToolsSql extends Basic{
 	private String sql = "";
 	private JSONObject obj;
 	
 	public ToolsSql(JSONObject obj) {
-		this.setObj(obj);
+		rows = obj.getInteger("rows");
+		page = obj.getInteger("page");
+		sort = obj.getString("sort");
+		order = obj.getString("order");
+		this.obj = obj;
 	}
 	
-	public String find() throws Exception {
+	public JSONArray find() throws Exception {
 		return find(new DbBase("mysql"));
 	}
-	public String find(DbBase db) throws Exception {
+	public JSONArray find(DbBase db) throws Exception {
 		if(!sql.toLowerCase().contains("limit") && obj.getIntValue("rows") > 0)
 		{
-			sql += " limit " + obj.getIntValue("rows");// rows 页面容量
-			sql += " offset "+ ((obj.getIntValue("page")-1)*obj.getIntValue("rows"));// page 开始页
+			sql += " limit " + rows;// rows 页面容量
+			sql += " offset "+ ((page-1)*rows);// page 开始页
 		}
 		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ sql.replaceAll(" +"," "));
-		return Result.successEasyui(db.executeQueryJson(sql), count(db));
+		//return Result.successEasyui(db.executeQueryJson(sql), count(db));
+		return db.executeQueryJson(sql);
 	}
 	public Integer count() throws Exception {
 		return count(new DbBase("mysql"));
@@ -240,8 +248,6 @@ public class ToolsSql {
 		return this;
 	}
 	public ToolsSql sort(String sortDafault) throws Exception {
-		String order = obj.getString("order");//升序还是降序
-		String sort = obj.getString("sort");//排序的列
 		if(!Tools.isEmpty(sort) || !Tools.isEmpty(sortDafault)) {
 			sql += " order by ";
 			if(!Tools.isEmpty(sort)) {
@@ -258,6 +264,9 @@ public class ToolsSql {
 			if(!Tools.isEmpty(sortDafault)) sql += sortDafault;
 		}
 		return this;
+	}
+	public String easyuiData(JSONArray data) {
+		return JSON.toJSONString(data.subList((page-1)*rows, page*rows>data.size()?data.size():page*rows));
 	}
 	private JSONObject deleteKey(JSONObject row, String...deleteKey) throws Exception {
 		if(Tools.isEmpty(row)) {
