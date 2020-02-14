@@ -14,6 +14,7 @@ import java.util.Properties;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.test.tools.Tools;
 import cn.xyz.test.tools.ToolsDate;
 
 public class DbBase {
@@ -78,7 +79,7 @@ public class DbBase {
 		return pstm.executeQuery();
 	}
 	//查询返回json
-	public JSONArray executeQueryJson(String sql, Object... params) throws Exception{
+	public JSONArray find(String sql, Object... params) throws Exception{
 		ResultSet rs = null;
 		try {
 			rs = executeQuery(sql, params);
@@ -96,10 +97,23 @@ public class DbBase {
 		} catch (Exception e) {
 			throw e;
 		}finally {
-			close(rs);
+			closeResource(rs);
 		}
 	}
-	
+	public JSONObject get(String sql, Object... params) throws Exception{
+		JSONArray data = find(sql, params);
+		if(Tools.isEmpty(data)) {
+			return null;
+		}
+		return data.getJSONObject(0);
+	}
+	public Integer count(String sql, Object... params) throws Exception {
+		JSONArray data = find(sql, params);
+		if(Tools.isEmpty(data)) {
+			return null;
+		}
+		return data.getJSONObject(0).getInteger("count");
+	}
 	//修改
 	public Integer executeUpdate(String sql, Object... params) throws Exception{
 		pstm = conn.prepareStatement(sql);
@@ -110,7 +124,7 @@ public class DbBase {
 	public Integer insert(String sql, JSONObject params) throws Exception{
 		ResultSet rs = null;
 		try {
-			sql = formatSql(sql,params);
+			//sql = formatSql(sql,params);
 			pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			this.fillPstm(pstm, params, sql);
 			pstm.executeUpdate();
@@ -125,14 +139,14 @@ public class DbBase {
 		} catch (Exception e) {
 			throw e;
 		}finally {
-			close(rs);
+			closeResource(rs);
 		}
 	}
 	//批量插入:用于excel
 	public boolean insertBatch(String sql, Object[][] params) throws Exception{
 		ResultSet rs = null;
 		try {
-			sql = formatSql(sql, new JSONObject());
+			//sql = formatSql(sql, new JSONObject());
 			pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			for (int i = 0; i < params.length; i++) {
                 this.fillPstm(pstm, params[i], sql);
@@ -148,14 +162,14 @@ public class DbBase {
 		} catch (Exception e) {
 			throw e;
 		}finally {
-			close(rs);
+			closeResource(rs);
 		}
 	}
 	//批量插入
 	public boolean insertBatch(String sql, JSONArray params) throws Exception{
 		ResultSet rs = null;
 		try {
-			sql = formatSql(sql,params);
+			//sql = formatSql(sql,params);
 			pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			for (int i = 0; i < params.size(); i++) {
                 this.fillPstm(pstm, params.getJSONObject(i), sql);
@@ -171,7 +185,7 @@ public class DbBase {
 		} catch (Exception e) {
 			throw e;
 		}finally {
-			close(rs);
+			closeResource(rs);
 		}
 	}
 	//填补？
@@ -184,7 +198,7 @@ public class DbBase {
 		printSql(pstm);
 	}
 	//用json填补？
-	public void fillPstm(PreparedStatement pstm, JSONObject params, String sql) throws SQLException {
+	/*public void fillPstm(PreparedStatement pstm, String sql, JSONObject params) throws SQLException {
 		if(params != null) {
 			//字段数组
 			String[] arr = sql.substring(sql.indexOf("(") + 1, sql.indexOf(")")).split(",");
@@ -197,27 +211,17 @@ public class DbBase {
 			}
 		}
 		printSql(pstm);
-	}
+	}*/
 	//重载
-	public String formatSql(String sql,JSONArray params) throws Exception {
+	/*public String formatSql(String sql,JSONArray params) throws Exception {
 		JSONObject obj = null; 
 		if(params != null) obj = params.getJSONObject(0);
 		return formatSql(sql, obj);
-	}
+	}*/
 	//处理sql
-	public String formatSql(String sql,JSONObject params) throws Exception {
+	/*public String formatSql(String sql,JSONObject params) throws Exception {
 		if(sql.indexOf("(") < 0) {//没有括号
-			if(params != null) {
-				String key = "";
-				String value = "";
-				for(String str:params.keySet()){
-					key += str + ",";
-					value += "?" + ",";
-				}
-				return "insert into "+sql+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
-			}else {
-				throw new Exception("SQL不正确");
-			}
+			r
 		}else if(sql.indexOf("(") == sql.lastIndexOf("(")) {
 			if(params != null) {
 				String[] arr = sql.substring(sql.indexOf("(") + 1, sql.indexOf(")")).split(",");
@@ -232,7 +236,7 @@ public class DbBase {
 			}
 		}
 		return sql;
-	}
+	}*/
 	//输出sql
 	public void printSql(PreparedStatement pstm) {
 		String sql = pstm.toString();
@@ -281,9 +285,10 @@ public class DbBase {
 	public static void main(String[] args) {
 		DbBase db = new DbBase("mysql");
 		try {
+			System.out.println(db.find("select * from t1"));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
-			System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
+			//System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
 			/*JSONArray data = new JSONArray();
 			JSONObject a = new JSONObject();
 			a.put("batch_id", 23);

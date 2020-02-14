@@ -272,7 +272,7 @@ public class ToolsExcel {
 	public static void main(String[] args) {
 		try {
 			DbBase db = new DbBase("mysql");
-			JSONArray data = db.executeQueryJson("select * from sn_detail");
+			JSONArray data = db.find("select * from sn_detail");
 			
 			JSONObject obj = new JSONObject();
 			obj.put("data", data);

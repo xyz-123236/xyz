@@ -1,6 +1,7 @@
 package cn.xyz.test.tools;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,12 +56,22 @@ public class Tools {
 	public static boolean isEmptyObject(Object obj) throws Exception {
 		Class<?> object = (Class<?>) obj.getClass();// 得到类对象
         Field[] fs = object.getDeclaredFields();//得到属性集合
-			for (Field f : fs) {//遍历属性
-			    f.setAccessible(true); // 设置属性是可以访问的(私有的也可以)
-			    if(!isEmpty(f.get(obj))) {// 得到此属性的值//只要有1个属性不为空,那么就不是所有的属性值都为空
-			        return false;
-			    }
-			}
+		for (Field f : fs) {//遍历属性
+		    f.setAccessible(true); // 设置属性是可以访问的(私有的也可以)
+		    if(!isEmpty(f.get(obj))) {// 得到此属性的值//只要有1个属性不为空,那么就不是所有的属性值都为空
+		        return false;
+		    }
+		}
         return true;
+	}
+	public static void test(String obj) throws ClassNotFoundException {
+		//获取字节码对象.class .getClass() Class.forName(全类名)
+        Class<?> clazz = (Class<?>) Class.forName(obj);
+      //1.获取方法
+        //  1.1 获取取clazz对应类中的所有方法--方法数组（一）
+          
+          Method[] methods = clazz.getMethods();//不能获取private方法,且获取从父类继承来的所有方法
+          methods = clazz.getDeclaredMethods();//所有方法
+        //调用invoke方法来调用
 	}
 }

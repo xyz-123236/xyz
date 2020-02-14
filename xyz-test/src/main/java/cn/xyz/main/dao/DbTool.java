@@ -1,4 +1,6 @@
-package cn.xyz.test.tools;
+package cn.xyz.main.dao;
+
+import java.util.Date;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -6,17 +8,19 @@ import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.main.dao.DbBase;
 import cn.xyz.test.pojo.Basic;
+import cn.xyz.test.tools.Tools;
+import cn.xyz.test.tools.ToolsDate;
 
-public class ToolsSql extends Basic{
+public class DbTool extends Basic{
 	private String sql;
 	private JSONObject obj;
 	private String user_code;
 	private Integer id;
 	
-	public ToolsSql(JSONObject obj) {
-		new ToolsSql(obj, null);
+	public DbTool(JSONObject obj) {
+		new DbTool(obj, null);
 	}
-	public ToolsSql(JSONObject obj, Integer id) {
+	public DbTool(JSONObject obj, Integer id) {
 		this.rows = obj.getInteger("rows");
 		this.page = obj.getInteger("page");
 		this.sort = obj.getString("sort");
@@ -59,8 +63,11 @@ public class ToolsSql extends Basic{
 	 * @return
 	 * @throws Exception 
 	 */
-	public ToolsSql insert(String table, JSONObject row, String[] deleteKey) throws Exception{
+	public DbTool insert(String table, JSONObject row, String usercode, String[] deleteKey) throws Exception{
+		sql = "";
 		if(Tools.isEmpty(row)) {
+			row.put("entby", usercode);
+			row.put("entdate", ToolsDate.getString());
 			deleteKey(row, deleteKey);
 			String key = "";
 			String value = "";
@@ -81,19 +88,31 @@ public class ToolsSql extends Basic{
 	 * @param row
 	 * @return
 	 */
-	public ToolsSql insert(String table, String retain, JSONObject row){
-		
+	public DbTool insert(String table, String retain, String usercode, JSONObject row){
+		sql = "";
 		return this;
 	}
 	
-	public ToolsSql insert(String table, JSONArray rows){
-		
+	public DbTool insert(String table, JSONArray rows, String usercode){
+		sql = "";
 		return this;
 	}
-	public ToolsSql update(String table, JSONObject row) throws Exception{
+	public DbTool update(String table, JSONObject row, String usercode, String[] deleteKey) throws Exception{
+		sql = "";
+		row.put("modifyby", usercode);
+		row.put("modifydate", ToolsDate.getString());
+		row = deleteKey(row, deleteKey);
 		if(Tools.isEmpty(this.id)) {
 			throw new Exception("new ToolsSql需要参数id");
 		}
+		return this;
+	}
+	public DbTool delete(String table, JSONObject row) {
+		sql = "";
+		return this;
+	}
+	public DbTool deleteLogic(String table, JSONObject row, String usercode) {
+		sql = "";
 		return this;
 	}
 	/*public ToolsSql insert(String table) {
@@ -127,23 +146,23 @@ public class ToolsSql extends Basic{
 	}*/
 	
 	
-	public ToolsSql select(String table) {
+	public DbTool select(String table) {
 		return select(table, "*");
 	}
-	public ToolsSql select(String table, String fields) {
+	public DbTool select(String table, String fields) {
 		sql = "";
 		sql += "select " + fields + " from " + table;
 		return this;
 	}
-	public ToolsSql left(String table, String on) {
+	public DbTool left(String table, String on) {
 		sql += " left join " + table + " on " + on;
 		return this;
 	}
-	public ToolsSql right(String table, String on) {
+	public DbTool right(String table, String on) {
 		sql += " right join " + table + " on " + on;
 		return this;
 	}
-	public ToolsSql inner(String table, String on) {
+	public DbTool inner(String table, String on) {
 		sql += " inner join " + table + " on " + on;
 		return this;
 	}
@@ -155,7 +174,7 @@ public class ToolsSql extends Basic{
 	 * @return
 	 * @throws Exception 
 	 */
-	public ToolsSql where(JSONObject obj, String...deleteKey) throws Exception {
+	public DbTool where(JSONObject obj, String...deleteKey) throws Exception {
 		return where(null, obj, deleteKey);
 	}
 	/**
@@ -167,7 +186,7 @@ public class ToolsSql extends Basic{
 	 * @return
 	 * @throws Exception 
 	 */
-	public ToolsSql where(String dateKey, JSONObject obj, String...deleteKey) throws Exception {
+	public DbTool where(String dateKey, JSONObject obj, String...deleteKey) throws Exception {
 		JSONObject row = (JSONObject)obj.clone();
 		sql += " where 1 = 1 ";
 		if(Tools.isEmpty(row)) {
@@ -194,10 +213,10 @@ public class ToolsSql extends Basic{
 		}
 		return this;
 	}
-	public ToolsSql where() throws Exception {
+	public DbTool where() throws Exception {
 		return where("");
 	}
-	public ToolsSql where(String condition) throws Exception {
+	public DbTool where(String condition) throws Exception {
 		if(Tools.isEmpty(condition)) {
 			sql += " where 1 = 1 ";
 		}else {
@@ -205,14 +224,14 @@ public class ToolsSql extends Basic{
 		}
 		return this;
 	}
-	public ToolsSql and(String sql) {
+	public DbTool and(String sql) {
 		sql += " and " + sql;
 		return this;
 	}
-	public ToolsSql and(String key, Object obj) throws Exception {
+	public DbTool and(String key, Object obj) throws Exception {
 		return and(key, obj, "%");
 	}
-	public ToolsSql and(String key, Object obj, String op) throws Exception {
+	public DbTool and(String key, Object obj, String op) throws Exception {
 		String[] arr = key.trim().split("\\.");
 		String field = key;
 		if(arr.length == 2) {
@@ -234,13 +253,13 @@ public class ToolsSql extends Basic{
 		}
 		return this;
 	}
-	public ToolsSql or(String key, JSONObject obj, String... fields) throws Exception {
+	public DbTool or(String key, JSONObject obj, String... fields) throws Exception {
 		return or(key, "%", obj, fields);
 	}
-	public ToolsSql or(String key, String op, JSONObject obj, String... fields) throws Exception {
+	public DbTool or(String key, String op, JSONObject obj, String... fields) throws Exception {
 		return or(((JSONObject)obj).getString(key).trim(), op, fields);
 	}
-	public ToolsSql or(String value, String op, String... fields) throws Exception {
+	public DbTool or(String value, String op, String... fields) throws Exception {
 		if(!Tools.isEmpty(value)) {
 			sql += " and (";
 			for (int i = 0; i < fields.length; i++) {
@@ -257,14 +276,14 @@ public class ToolsSql extends Basic{
 		}
 		return this;
 	}
-	public ToolsSql in(String sql) {
+	public DbTool in(String sql) {
 		sql += " in ("+sql+") ";
 		return this;
 	}
-	public ToolsSql in(String field, String str) {
+	public DbTool in(String field, String str) {
 		return in(field, str.split(","));
 	}
-	public ToolsSql in(String field, String... str)
+	public DbTool in(String field, String... str)
 	{
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < str.length; i++) { 
@@ -276,15 +295,15 @@ public class ToolsSql extends Basic{
 		sql += field + " in ("+sb.toString()+") ";
 		return this;
 	}
-	public ToolsSql empty(String field) {
+	public DbTool empty(String field) {
 		sql += " and ("+field+" is null or "+field+" = '') ";
 		return this;
 	}
-	public ToolsSql notEmpty(String field) {
+	public DbTool notEmpty(String field) {
 		sql += " and ("+field+" is not null and "+field+" != '') ";
 		return this;
 	}
-	public ToolsSql date(String key, JSONObject row) throws Exception {
+	public DbTool date(String key, JSONObject row) throws Exception {
 		String dateFrom = row.getString("dateFrom");
 		if(Tools.isEmpty(dateFrom)) dateFrom = row.getString("datefrom");
 		if(!Tools.isEmpty(dateFrom)) {
@@ -298,7 +317,7 @@ public class ToolsSql extends Basic{
 		}
 		return this;
 	}
-	public ToolsSql sort(String sortDafault) throws Exception {
+	public DbTool sort(String sortDafault) throws Exception {
 		if(!Tools.isEmpty(sort) || !Tools.isEmpty(sortDafault)) {
 			sql += " order by ";
 			if(!Tools.isEmpty(sort)) {
@@ -316,7 +335,40 @@ public class ToolsSql extends Basic{
 		}
 		return this;
 	}
-	public String easyuiData(JSONArray data) {
+	public DbTool group(String group) throws Exception {
+		if(!Tools.isEmpty(group)) {
+			sql += " group by " + group;
+		}
+		return this;
+	}
+	public DbTool limit() throws Exception {
+		if(!sql.toLowerCase().contains("limit") && rows > 0)
+		{
+			sql += " limit " + rows;// rows 页面容量
+			sql += " offset "+ ((page-1)*rows);// page 开始页
+		}
+		return this;
+	}
+	public String asSql(String as) throws Exception {
+		String asSql = " ("+sql+") as ";
+		if(Tools.isEmpty(as)) {
+			asSql += "temp ";
+		}else {
+			asSql += as;
+		}
+		return asSql;
+	}
+
+	public String countSql() throws Exception {
+		String countSql = "select count(*) as count "+ sql.substring(sql.toLowerCase().indexOf(" from "));
+		if(countSql.toLowerCase().contains(" order ")) {
+			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));
+		}else if(countSql.toLowerCase().contains(" limit ")) {
+			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" limit "));
+		}
+		return countSql;
+	}
+	public String limitData(JSONArray data) {
 		return JSON.toJSONString(data.subList((page-1)*rows, page*rows>data.size()?data.size():page*rows));
 	}
 	private JSONObject deleteKey(JSONObject row, String[] deleteKey) throws Exception {
@@ -345,7 +397,7 @@ public class ToolsSql extends Basic{
 	public String getSql() {
 		return sql;
 	}
-	public ToolsSql setSql(String sql) {
+	public DbTool setSql(String sql) {
 		this.sql = sql;
 		return this;
 	}
