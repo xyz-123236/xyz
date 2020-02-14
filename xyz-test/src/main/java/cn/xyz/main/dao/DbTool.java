@@ -1,108 +1,84 @@
 package cn.xyz.main.dao;
 
-import java.util.Date;
+import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.main.dao.DbBase;
 import cn.xyz.test.pojo.Basic;
 import cn.xyz.test.tools.Tools;
 import cn.xyz.test.tools.ToolsDate;
+import cn.xyz.test.tools.ToolsJson;
 
 public class DbTool extends Basic{
 	private String sql;
-	private JSONObject obj;
-	private String user_code;
-	private Integer id;
+	public static String[] DEFAULT_REMOVE_KEYS = {"page","rows","sort","order","jsp_name"};
 	
 	public DbTool(JSONObject obj) {
-		new DbTool(obj, null);
-	}
-	public DbTool(JSONObject obj, Integer id) {
 		this.rows = obj.getInteger("rows");
 		this.page = obj.getInteger("page");
 		this.sort = obj.getString("sort");
 		this.order = obj.getString("order");
-		this.obj = obj;
-		this.id = id;
 	}
-	
-	/*public JSONArray find() throws Exception {
-		return find(new DbBase("mysql"));
-	}
-	public JSONArray find(DbBase db) throws Exception {
-		if(!sql.toLowerCase().contains("limit") && obj.getIntValue("rows") > 0)
-		{
-			sql += " limit " + rows;// rows 页面容量
-			sql += " offset "+ ((page-1)*rows);// page 开始页
-		}
-		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ sql.replaceAll(" +"," "));
-		//return Result.successEasyui(db.executeQueryJson(sql), count(db));
-		return db.executeQueryJson(sql);
-	}
-	public Integer count() throws Exception {
-		return count(new DbBase("mysql"));
-	}
-	public Integer count(DbBase db) throws Exception {
-		String countSql = "select count(*) as count "+ sql.substring(sql.toLowerCase().indexOf(" from "));
-		if(countSql.toLowerCase().contains(" order ")) {
-			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));
-		}else if(countSql.toLowerCase().contains(" limit ")) {
-			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" limit "));
-		}
-		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ countSql.replaceAll(" +"," "));
-		return db.executeQueryJson(countSql).getJSONObject(0).getInteger("count");
-	}*/
 	/**
-	 * 删除一部分key不添加
+	 * 添加时清除一些字段
 	 * @param table
 	 * @param row
-	 * @param deleteKey 这些key要移除
+	 * @param entby
+	 * @param removeKey
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public DbTool insert(String table, JSONObject row, String usercode, String[] deleteKey) throws Exception{
+	public String insert(String table, JSONObject row, String entby, String...removeKey) throws Exception{
+		return insert(table, row, entby, true, removeKey);
+	}
+	/**
+	 * 添加时可以选择删除一些字段，还是只添加一些字段
+	 * @param table
+	 * @param row
+	 * @param entby
+	 * @param remove true表示移除keys，false只添加keys
+	 * @param keys
+	 * @return
+	 * @throws Exception
+	 */
+	public String insert(String table, JSONObject row, String entby, boolean remove, String...keys) throws Exception{
 		sql = "";
 		if(Tools.isEmpty(row)) {
-			row.put("entby", usercode);
+			row.put("entby", entby);
 			row.put("entdate", ToolsDate.getString());
-			deleteKey(row, deleteKey);
 			String key = "";
 			String value = "";
-			for(String str: row.keySet()){
-				key += str + ",";
-				value += row.get(key) + ",";
+			if(remove) {
+				ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, keys);
+				for(String str: row.keySet()){
+					key += str + ",";
+					value += row.get(key) + ",";
+				}
+			}else {
+				for (int i = 0; i < keys.length; i++) {
+					key += keys[i] + ",";
+					value += row.get(keys[i]) + ",";
+				}
 			}
-			sql += "insert into "+sql+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
+			sql += "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
 		}else {
-			throw new Exception("SQL不正确");
+			throw new Exception("没有要插入的数据");
 		}
-		return this;
-	}
-	/**
-	 * 只添加一些key
-	 * @param table
-	 * @param retain 只添加这些key
-	 * @param row
-	 * @return
-	 */
-	public DbTool insert(String table, String retain, String usercode, JSONObject row){
-		sql = "";
-		return this;
+		return sql;
 	}
 	
 	public DbTool insert(String table, JSONArray rows, String usercode){
 		sql = "";
 		return this;
 	}
-	public DbTool update(String table, JSONObject row, String usercode, String[] deleteKey) throws Exception{
+	public DbTool update(String table, JSONObject row, String usercode, String...removeKey) throws Exception{
 		sql = "";
 		row.put("modifyby", usercode);
 		row.put("modifydate", ToolsDate.getString());
-		row = deleteKey(row, deleteKey);
-		if(Tools.isEmpty(this.id)) {
+		JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
+		if(Tools.isEmpty(id)) {
 			throw new Exception("new ToolsSql需要参数id");
 		}
 		return this;
@@ -125,10 +101,10 @@ public class DbTool extends Basic{
 		sql += "insert into " + table + " (";
 		return this;
 	}
-	public long add(DBTool db, JSONObject row, String...deleteKey) throws Exception {
+	public long add(DBTool db, JSONObject row, String...removeKey) throws Exception {
 		row.put("entby", getUserName());
 		row.put("entdate", new Date());
-		row = deleteKey(row, deleteKey);
+		row = removeKey(row, removeKey);
 		return db.set(row).insert();
 	}
 	public Integer getId(DBTool db) {
@@ -138,10 +114,10 @@ public class DbTool extends Basic{
     	}
     	return null;
     }
-	public long update(DBTool db, String id, JSONObject row, String...deleteKey) throws Exception {
+	public long update(DBTool db, String id, JSONObject row, String...removeKey) throws Exception {
 		row.put("modifyby", getUserName());
 		row.put("modifydate", new Date());
-		row = deleteKey(row, deleteKey);
+		row = removeKey(row, removeKey);
 		return db.eq(id, row.getString(id)).set(row).update();
 	}*/
 	
@@ -174,8 +150,8 @@ public class DbTool extends Basic{
 	 * @return
 	 * @throws Exception 
 	 */
-	public DbTool where(JSONObject obj, String...deleteKey) throws Exception {
-		return where(null, obj, deleteKey);
+	public DbTool where(JSONObject obj, String...removeKey) throws Exception {
+		return where(null, obj, removeKey);
 	}
 	/**
 	 * 自动添加row中的条件
@@ -186,16 +162,15 @@ public class DbTool extends Basic{
 	 * @return
 	 * @throws Exception 
 	 */
-	public DbTool where(String dateKey, JSONObject obj, String...deleteKey) throws Exception {
-		JSONObject row = (JSONObject)obj.clone();
+	public DbTool where(String dateKey, JSONObject row, String...removeKey) throws Exception {
 		sql += " where 1 = 1 ";
 		if(Tools.isEmpty(row)) {
-			row = deleteKey(row, deleteKey);
-			for(String key:row.keySet()){
-				String value = row.getString(key);
+			JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
+			for(String key:obj.keySet()){
+				String value = obj.getString(key);
 				if("datefrom".equals(key)) {
 					if(!Tools.isEmpty(value)) {
-						String dateTo = row.getString("dateto");
+						String dateTo = obj.getString("dateto");
 						if(Tools.isEmpty(dateTo)) {
 							sql += " AND "+dateKey+" = '" + value + "' ";
 						}else {
@@ -356,6 +331,7 @@ public class DbTool extends Basic{
 		}else {
 			asSql += as;
 		}
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ asSql.replaceAll(" +"," "));
 		return asSql;
 	}
 
@@ -366,59 +342,25 @@ public class DbTool extends Basic{
 		}else if(countSql.toLowerCase().contains(" limit ")) {
 			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" limit "));
 		}
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ countSql.replaceAll(" +"," "));
 		return countSql;
 	}
 	public String limitData(JSONArray data) {
 		return JSON.toJSONString(data.subList((page-1)*rows, page*rows>data.size()?data.size():page*rows));
 	}
-	private JSONObject deleteKey(JSONObject row, String[] deleteKey) throws Exception {
-		if(Tools.isEmpty(row)) {
-			if(deleteKey != null && deleteKey.length > 0) {
-				for (int i = 0; i < deleteKey.length; i++) {
-					row.remove(deleteKey[i]);
-				}
-			}
-			row.remove("page");
-			row.remove("rows");
-			row.remove("sort");
-			row.remove("order");
-			row.remove("jsp_name");
-			for(String key:row.keySet()){
-				if(Tools.isEmpty(row.getString(key))) {
-					row.put(key, null);
-				}
-			}
-		}
-		return row;
-	}
+
 	
 	
 	
 	public String getSql() {
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ sql.replaceAll(" +"," "));
 		return sql;
 	}
 	public DbTool setSql(String sql) {
 		this.sql = sql;
 		return this;
 	}
-	public JSONObject getObj() {
-		return obj;
-	}
-	public void setObj(JSONObject obj) {
-		this.obj = obj;
-	}
-	public String getUser_code() {
-		return user_code;
-	}
-	public void setUser_code(String user_code) {
-		this.user_code = user_code;
-	}
-	public Integer getId() {
-		return id;
-	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
+
 	
 	public static void main(String[] args) {
 		String[] a = {"aa","bb"};

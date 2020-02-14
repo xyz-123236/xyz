@@ -146,7 +146,7 @@ public class DbBase {
 	public boolean insertBatch(String sql, Object[][] params) throws Exception{
 		ResultSet rs = null;
 		try {
-			//sql = formatSql(sql, new JSONObject());
+			sql = formatSql(sql, new JSONObject());
 			pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			for (int i = 0; i < params.length; i++) {
                 this.fillPstm(pstm, params[i], sql);
@@ -169,12 +169,13 @@ public class DbBase {
 	public boolean insertBatch(String sql, JSONArray params) throws Exception{
 		ResultSet rs = null;
 		try {
-			//sql = formatSql(sql,params);
+			sql = formatSql(sql,params);
 			pstm = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			for (int i = 0; i < params.size(); i++) {
                 this.fillPstm(pstm, params.getJSONObject(i), sql);
                 pstm.addBatch();
             }
+			System.out.println("===="+pstm.toString());
 			int[] result = pstm.executeBatch();
 			for (int i = 0; i < result.length; i++) {
 				if(result[i] != 1) {
@@ -213,15 +214,25 @@ public class DbBase {
 		printSql(pstm);
 	}*/
 	//重载
-	/*public String formatSql(String sql,JSONArray params) throws Exception {
+	public String formatSql(String sql,JSONArray params) throws Exception {
 		JSONObject obj = null; 
 		if(params != null) obj = params.getJSONObject(0);
 		return formatSql(sql, obj);
-	}*/
+	}
 	//处理sql
-	/*public String formatSql(String sql,JSONObject params) throws Exception {
+	public String formatSql(String sql,JSONObject params) throws Exception {
 		if(sql.indexOf("(") < 0) {//没有括号
-			r
+			if(params != null) {
+				String key = "";
+				String value = "";
+				for(String str:params.keySet()){
+					key += str + ",";
+					value += "?" + ",";
+				}
+				return "insert into "+sql+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
+			}else {
+				throw new Exception("SQL不正确");
+			}
 		}else if(sql.indexOf("(") == sql.lastIndexOf("(")) {
 			if(params != null) {
 				String[] arr = sql.substring(sql.indexOf("(") + 1, sql.indexOf(")")).split(",");
@@ -236,7 +247,7 @@ public class DbBase {
 			}
 		}
 		return sql;
-	}*/
+	}
 	//输出sql
 	public void printSql(PreparedStatement pstm) {
 		String sql = pstm.toString();
@@ -289,22 +300,22 @@ public class DbBase {
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
 			//System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
-			/*JSONArray data = new JSONArray();
+			JSONArray data = new JSONArray();
 			JSONObject a = new JSONObject();
-			a.put("batch_id", 23);
-			a.put("sn_detail", "xx");
+			a.put("code", 23);
+			a.put("name", "xx");
 			data.add(a);
 			JSONObject b = new JSONObject();
-			b.put("batch_id", 22);
-			b.put("sn_detail", "yy");
-			data.add(b);*/
+			b.put("code", 22);
+			b.put("name", "yy");
+			data.add(b);
 			//String str = "insert into sn_detail (batch_id,sn_detail) values";
 			//System.out.println(str.replaceAll("values", ""));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (24,?)",a));
 			//System.out.println(db.insert("sn_detail",a));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values",a));
 			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
-			//System.out.println(db.insertBatch("sn_detail",data));
+			System.out.println(db.insertBatch("t1",data));
 			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
 		} catch (Exception e) {
 			e.printStackTrace();

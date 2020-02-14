@@ -15,8 +15,8 @@ import java.util.Random;
 import org.apache.commons.lang3.time.DateUtils;
 
 public class ToolsDate {
-	public final static String DATE_PATTERN = "yyyy-MM-dd";
-	public final static String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+	public final static String DEFAULT_DATE_PATTERN = "yyyy-MM-dd";
+	public final static String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 	public static String[] months = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 	public static String[] patterns = {
 			"yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm", 
@@ -30,7 +30,7 @@ public class ToolsDate {
 		return DateUtils.parseDate(date.trim(), Locale.ENGLISH, patterns);
 	}
 	public static String getString() {
-		return getString(DATE_TIME_PATTERN, new Date());
+		return getString(DEFAULT_DATE_TIME_PATTERN, new Date());
 	}
 	public static String getString(String pattern) {
 		return getString(pattern, new Date());
@@ -161,7 +161,7 @@ public class ToolsDate {
 		cal.setTime(date);
 		cal.add(Calendar.DATE, days);
 		date = cal.getTime();
-		SimpleDateFormat format = new SimpleDateFormat(DATE_PATTERN);
+		SimpleDateFormat format = new SimpleDateFormat(DEFAULT_DATE_PATTERN);
 		return format.format(date);
 	}
 	public static String getMonthEn(Integer i) {

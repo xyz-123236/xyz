@@ -24,3 +24,5 @@
 判断数据唯一的共用方法 only(JSONObject row, Integer id, String... params)
 
 日志写在static里，可以通过网页打开
+
+添加修改记录
