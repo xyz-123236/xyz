@@ -1,4 +1,4 @@
-package cn.xyz.test.tools;
+package cn.xyz.common.tool;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;

@@ -15,25 +15,27 @@ import java.util.Random;
 import org.apache.commons.lang3.time.DateUtils;
 
 public class ToolsDate {
-	public final static String defaultPattern = "yyyy-MM-dd";
-	public final static String defaultTimePattern = "yyyy-MM-dd HH:mm:ss";
+	public final static String DEFAULT_DATE_PATTERN = "yyyy-MM-dd";
+	public final static String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 	public static String[] months = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 	public static String[] patterns = {
 			"yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm", 
 			"yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm",
 			"yyyy-MMM-dd", "dd-MMM-yyyy"};
 	
-	public static Date getDate(String date) throws ParseException {
-		if (isEmpty(date)) {
+	public static Date getDate(String date) throws Exception {
+		if (Tools.isEmpty(date)) {
 			return null;
 		}
 		return DateUtils.parseDate(date.trim(), Locale.ENGLISH, patterns);
 	}
-	
+	public static String getString() {
+		return getString(DEFAULT_DATE_TIME_PATTERN, new Date());
+	}
 	public static String getString(String pattern) {
 		return getString(pattern, new Date());
 	}
-	public static String getString(String pattern, String date) throws ParseException {
+	public static String getString(String pattern, String date) throws Exception {
 		return getString(pattern, getDate(date));
 	}
 	public static String getString(String pattern, Date date) {
@@ -48,7 +50,7 @@ public class ToolsDate {
 	public static String getDatePart(String part) {
 		return getDatePart(part, new Date());
 	}
-	public static String getDatePart(String part,String date) throws ParseException {
+	public static String getDatePart(String part,String date) throws Exception {
 		return getDatePart(part, getDate(date));
 	}
 	public static String getDatePart(String part,Date date) {
@@ -92,7 +94,7 @@ public class ToolsDate {
 	public static String getDatePart(Integer part) {
 		return getDatePart(part, new Date());
 	}
-	public static String getDatePart(Integer part,String date) throws ParseException {
+	public static String getDatePart(Integer part,String date) throws Exception {
 		return getDatePart(part, getDate(date));
 	}
 	public static String getDatePart(Integer part,Date date) {
@@ -159,82 +161,22 @@ public class ToolsDate {
 		cal.setTime(date);
 		cal.add(Calendar.DATE, days);
 		date = cal.getTime();
-		SimpleDateFormat format = new SimpleDateFormat(defaultPattern);
+		SimpleDateFormat format = new SimpleDateFormat(DEFAULT_DATE_PATTERN);
 		return format.format(date);
 	}
 	public static String getMonthEn(Integer i) {
 		return months[i-1];
 	}
 	
-	/*public static boolean isEmpty(String value) {
-		if(value == null || value.trim().length() == 0) {
-			return true;
-		}
-		return false;
-	}*/
-	public static boolean isEmpty(Object param) {
-		if (null == param) {
-	        return true;
-	    }
-		if(param instanceof String){
-			String value = (String) param;
-			if(value.trim().length() == 0) {
-				return true;
-			}
-		}
-		return false;
-	}
-	//判断该对象是否
-    public static boolean isEmptyObject(Object obj){
-		Class<?> objCla = (Class<?>) obj.getClass();// 得到类对象
-        Field[] fs = objCla.getDeclaredFields();//得到属性集合
-        try {
-			for (Field f : fs) {//遍历属性
-			    f.setAccessible(true); // 设置属性是可以访问的(私有的也可以)
-			    Object val = f.get(obj);// 得到此属性的值
-			    if(val != null && !isEmpty(val.toString())) {//只要有1个属性不为空,那么就不是所有的属性值都为空
-			        return false;
-			    }
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        return true;
-    }
-	public static boolean isEmptyArray(Object[] param) {
-		if (null == param) {
-			return true;
-	    }
-		if(param.getClass().isArray()) {
-			if(param.length < 1) {
-				return true;
-			}
-		}
-		return false;
-	}
-	public static boolean isEmptyList(List<?> list) {
-		if(list == null || list.isEmpty()) {
-			return true;
-		}
-		return false;
-	}
-	public static String createNo(String split) {
+
+	public static String createNo(String split) throws Exception {
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		if(isEmpty(split)) {
+		if(Tools.isEmpty(split)) {
 			return sdf.format(new Date()) + (new Random().nextInt(900) + 100);
 		}
 		return sdf.format(new Date()) + split + (new Random().nextInt(900) + 100);
 	}
-	public static void test(String obj) throws ClassNotFoundException {
-		//获取字节码对象.class .getClass() Class.forName(全类名)
-        Class<?> clazz = (Class<?>) Class.forName(obj);
-      //1.获取方法
-        //  1.1 获取取clazz对应类中的所有方法--方法数组（一）
-          
-          Method[] methods = clazz.getMethods();//不能获取private方法,且获取从父类继承来的所有方法
-          methods = clazz.getDeclaredMethods();//所有方法
-        //调用invoke方法来调用
-	}
+	
 	public static void main(String[] args) {
 		try {
 			/*for (int i = 0; i < 17; i++) {

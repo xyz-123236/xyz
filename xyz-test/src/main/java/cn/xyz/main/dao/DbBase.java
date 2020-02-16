@@ -21,9 +21,10 @@ public class DbBase {
 	Connection conn;
 	PreparedStatement pstm;
 	private static Properties properties = null;
+	private static final String FILE_NAME = "db.properties";
 	//加载配置文件
 	static {
-	    try(InputStream is = DbBase.class.getClassLoader().getResourceAsStream("db.properties")) {
+	    try(InputStream is = DbBase.class.getClassLoader().getResourceAsStream(FILE_NAME)) {
 	    	properties = new Properties();
 			properties.load(is);
 		} catch (IOException e) {
