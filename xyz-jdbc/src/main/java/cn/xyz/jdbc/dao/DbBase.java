@@ -1,4 +1,4 @@
-package cn.xyz.main.dao;
+package cn.xyz.jdbc.dao;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +14,16 @@ import java.util.Properties;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.test.tools.Tools;
-import cn.xyz.test.tools.ToolsDate;
+import cn.xyz.common.tool.ToolsDate;
 
 public class DbBase {
 	Connection conn;
 	PreparedStatement pstm;
 	private static Properties properties = null;
+	private static final String FILE_NAME = "db.properties";
 	//加载配置文件
 	static {
-	    try(InputStream is = DbBase.class.getClassLoader().getResourceAsStream("db.properties")) {
+	    try(InputStream is = DbBase.class.getClassLoader().getResourceAsStream(FILE_NAME)) {
 	    	properties = new Properties();
 			properties.load(is);
 		} catch (IOException e) {
@@ -37,14 +37,14 @@ public class DbBase {
 	
 	//获取连接
 	public static Connection openConnection(String databaseName) {
-		Connection connection = null;
+		Connection Connection = null;
 		try {
 			Class.forName(properties.getProperty(databaseName+"_driver"));
-			connection = DriverManager.getConnection(properties.getProperty(databaseName+"_url"), properties.getProperty(databaseName+"_user"), properties.getProperty(databaseName+"_password"));
+			Connection = DriverManager.getConnection(properties.getProperty(databaseName+"_url"), properties.getProperty(databaseName+"_user"), properties.getProperty(databaseName+"_password"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return connection;
+		return Connection;
 	}
 	//开启事务
 	public void startTransaction() throws Exception {
@@ -69,10 +69,8 @@ public class DbBase {
 		return this.pstm.executeQuery();
 	}
 	//查询返回json
-	public JSONArray find(String sql, Object... params) throws Exception{
-		ResultSet rs = null;
-		try {
-			rs = executeQuery(sql, params);
+	public JSONArray executeQueryJson(String sql, Object... params) throws Exception{
+		try(ResultSet rs = executeQuery(sql, params)) {
 			JSONArray data = new JSONArray();
 			while (rs.next()) {
 				JSONObject obj = new JSONObject();
@@ -86,24 +84,9 @@ public class DbBase {
 			return data;
 		} catch (Exception e) {
 			throw e;
-		}finally {
-			closeResource(rs);
 		}
 	}
-	public JSONObject get(String sql, Object... params) throws Exception{
-		JSONArray data = find(sql, params);
-		if(Tools.isEmpty(data)) {
-			return null;
-		}
-		return data.getJSONObject(0);
-	}
-	public Integer count(String sql, Object... params) throws Exception {
-		JSONArray data = find(sql, params);
-		if(Tools.isEmpty(data)) {
-			return null;
-		}
-		return data.getJSONObject(0).getInteger("count");
-	}
+	
 	//修改
 	public Integer executeUpdate(String sql, Object... params) throws Exception{
 		this.pstm = this.conn.prepareStatement(sql);
@@ -114,7 +97,7 @@ public class DbBase {
 	public Integer insert(String sql, JSONObject params) throws Exception{
 		ResultSet rs = null;
 		try {
-			//sql = formatSql(sql,params);
+			sql = formatSql(sql,params);
 			this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			this.fillPstm(this.pstm, params, sql);
 			this.pstm.executeUpdate();
@@ -129,7 +112,7 @@ public class DbBase {
 		} catch (Exception e) {
 			throw e;
 		}finally {
-			closeResource(rs);
+			close(rs);
 		}
 	}
 	//批量插入:用于excel
@@ -152,7 +135,7 @@ public class DbBase {
 		} catch (Exception e) {
 			throw e;
 		}finally {
-			closeResource(rs);
+			close(rs);
 		}
 	}
 	//批量插入
@@ -165,7 +148,6 @@ public class DbBase {
                 this.fillPstm(this.pstm, params.getJSONObject(i), sql);
                 this.pstm.addBatch();
             }
-			System.out.println("===="+this.pstm.toString());
 			int[] result = this.pstm.executeBatch();
 			for (int i = 0; i < result.length; i++) {
 				if(result[i] != 1) {
@@ -176,7 +158,7 @@ public class DbBase {
 		} catch (Exception e) {
 			throw e;
 		}finally {
-			closeResource(rs);
+			close(rs);
 		}
 	}
 	//填补？
@@ -189,7 +171,7 @@ public class DbBase {
 		printSql(this.pstm);
 	}
 	//用json填补？
-	/*public void fillPstm(PreparedStatement this.pstm, String sql, JSONObject params) throws SQLException {
+	public void fillPstm(PreparedStatement pstm, JSONObject params, String sql) throws SQLException {
 		if(params != null) {
 			//字段数组
 			String[] arr = sql.substring(sql.indexOf("(") + 1, sql.indexOf(")")).split(",");
@@ -202,15 +184,15 @@ public class DbBase {
 			}
 		}
 		printSql(this.pstm);
-	}*/
+	}
 	//重载
-	public String formatSql(String sql,JSONArray params) throws Exception {
+	public static String formatSql(String sql,JSONArray params) throws Exception {
 		JSONObject obj = null; 
 		if(params != null) obj = params.getJSONObject(0);
 		return formatSql(sql, obj);
 	}
 	//处理sql
-	public String formatSql(String sql,JSONObject params) throws Exception {
+	public static String formatSql(String sql,JSONObject params) throws Exception {
 		if(sql.indexOf("(") < 0) {//没有括号
 			if(params != null) {
 				String key = "";
@@ -286,26 +268,25 @@ public class DbBase {
 	public static void main(String[] args) {
 		DbBase db = new DbBase("mysql");
 		try {
-			System.out.println(db.find("select * from t1"));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
-			//System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
-			JSONArray data = new JSONArray();
+			System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
+			/*JSONArray data = new JSONArray();
 			JSONObject a = new JSONObject();
-			a.put("code", 23);
-			a.put("name", "xx");
+			a.put("batch_id", 23);
+			a.put("sn_detail", "xx");
 			data.add(a);
 			JSONObject b = new JSONObject();
-			b.put("code", 22);
-			b.put("name", "yy");
-			data.add(b);
+			b.put("batch_id", 22);
+			b.put("sn_detail", "yy");
+			data.add(b);*/
 			//String str = "insert into sn_detail (batch_id,sn_detail) values";
 			//System.out.println(str.replaceAll("values", ""));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (24,?)",a));
 			//System.out.println(db.insert("sn_detail",a));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values",a));
 			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
-			System.out.println(db.insertBatch("t1",data));
+			//System.out.println(db.insertBatch("sn_detail",data));
 			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
 		} catch (Exception e) {
 			e.printStackTrace();
