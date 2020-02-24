@@ -14,8 +14,8 @@ import java.util.Properties;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.common.tool.Tools;
-import cn.xyz.common.tool.ToolsDate;
+import cn.xyz.common.tools.Tools;
+import cn.xyz.common.tools.ToolsDate;
 
 public class DbBase {
 	Connection conn;
@@ -205,13 +205,13 @@ public class DbBase {
 		printSql(this.pstm);
 	}*/
 	//重载
-	public static String formatSql(String sql,JSONArray params) throws Exception {
+	public String formatSql(String sql,JSONArray params) throws Exception {
 		JSONObject obj = null; 
 		if(params != null) obj = params.getJSONObject(0);
 		return formatSql(sql, obj);
 	}
 	//处理sql
-	public static String formatSql(String sql,JSONObject params) throws Exception {
+	public String formatSql(String sql,JSONObject params) throws Exception {
 		if(sql.indexOf("(") < 0) {//没有括号
 			if(params != null) {
 				String key = "";

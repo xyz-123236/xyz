@@ -1,8 +1,6 @@
-package cn.xyz.common.tool;
+package cn.xyz.common.tools;
 
 import com.alibaba.fastjson.JSONObject;
-
-import cn.xyz.main.dao.DbTool;
 
 public class ToolsJson {
 	public static JSONObject removeKey(JSONObject row, Object...keys) throws Exception {
@@ -33,7 +31,7 @@ public class ToolsJson {
 		row.put("b","222");
 		String[] c = {"a","c"};
 		try {
-			removeKey(row,DbTool.DEFAULT_REMOVE_KEYS,c);
+			//removeKey(row,DbTool.DEFAULT_REMOVE_KEYS,c);
 			System.out.println(row);
 		} catch (Exception e) {
 			e.printStackTrace();

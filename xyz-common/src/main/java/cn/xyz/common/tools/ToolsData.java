@@ -1,9 +1,9 @@
-package cn.xyz.common.tool;
+package cn.xyz.common.tools;
 
 import javax.servlet.http.HttpSession;
 
-import cn.xyz.test.pojo.Config;
-import cn.xyz.test.pojo.SysUser;
+import cn.xyz.common.pojo.Config;
+import cn.xyz.common.pojo.SysUser;
 
 public class ToolsData {
 	public String getUsercode(HttpSession session) throws Exception {

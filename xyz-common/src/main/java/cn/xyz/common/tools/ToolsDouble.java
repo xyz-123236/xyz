@@ -1,4 +1,4 @@
-package cn.xyz.common.tool;
+package cn.xyz.common.tools;
 
 import java.math.BigDecimal;
 
@@ -128,6 +128,7 @@ public class ToolsDouble {
 		}
 		BigDecimal b = new BigDecimal(Double.toString(v));
 		BigDecimal one = new BigDecimal("1");
+		//return Math.round(v*Math.pow(10, scale))/Math.pow(10, scale);
 		return b.divide(one, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 
@@ -142,7 +143,6 @@ public class ToolsDouble {
 		}
 		return new BigDecimal(d);
 	}
-
 	public static void main(String[] args) {
 		double a = 301353.5;
 		System.out.println(Math.round(a));

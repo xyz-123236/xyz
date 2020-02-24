@@ -5,8 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.pojo.BasicPojo;
-import cn.xyz.common.tool.Tools;
-import cn.xyz.common.tool.ToolsDate;
+import cn.xyz.common.tools.Tools;
+import cn.xyz.common.tools.ToolsDate;
 
 
 public class ToolsSql extends BasicPojo{
@@ -32,7 +32,7 @@ public class ToolsSql extends BasicPojo{
 		}
 		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ this.sql.replaceAll(" +"," "));
 		//return Result.successEasyui(db.executeQueryJson(sql), count(db));
-		return db.executeQueryJson(this.sql);
+		return db.find(this.sql);
 	}
 	public Integer count() throws Exception {
 		return count(new DbBase("mysql"));
@@ -45,7 +45,7 @@ public class ToolsSql extends BasicPojo{
 			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" limit "));
 		}
 		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ countSql.replaceAll(" +"," "));
-		return db.executeQueryJson(countSql).getJSONObject(0).getInteger("count");
+		return db.find(countSql).getJSONObject(0).getInteger("count");
 	}
 	/*public ToolsSql insert(String table) {
 		sql = "";

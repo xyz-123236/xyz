@@ -1,4 +1,4 @@
-package cn.xyz.common.tool;
+package cn.xyz.common.tools;
 
 public class Money {
 	static double sum = 100;

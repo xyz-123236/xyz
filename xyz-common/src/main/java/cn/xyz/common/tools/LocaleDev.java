@@ -1,4 +1,4 @@
-package cn.xyz.common.tool;
+package cn.xyz.common.tools;
 
 import java.text.MessageFormat;
 import java.util.Locale;

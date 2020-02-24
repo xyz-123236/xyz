@@ -1,4 +1,4 @@
-package cn.xyz.main.dao;
+package cn.xyz.jdbc.dao;
 
 import javax.servlet.http.HttpSession;
 
@@ -6,10 +6,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.test.pojo.Basic;
-import cn.xyz.test.tools.Tools;
-import cn.xyz.test.tools.ToolsDate;
-import cn.xyz.test.tools.ToolsJson;
+import cn.xyz.common.pojo.Basic;
+import cn.xyz.common.tools.Tools;
+import cn.xyz.common.tools.ToolsDate;
+import cn.xyz.common.tools.ToolsJson;
 
 public class DbTool extends Basic{
 	private String sql;
@@ -78,9 +78,9 @@ public class DbTool extends Basic{
 		row.put("modifyby", usercode);
 		row.put("modifydate", ToolsDate.getString());
 		JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
-		if(Tools.isEmpty(id)) {
+		/*if(Tools.isEmpty(id)) {
 			throw new Exception("new ToolsSql需要参数id");
-		}
+		}*/
 		return this;
 	}
 	public DbTool delete(String table, JSONObject row) {

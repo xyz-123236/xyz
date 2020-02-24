@@ -1,4 +1,4 @@
-package cn.xyz.common.tool;
+package cn.xyz.common.tools;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,8 +27,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
-import cn.xyz.main.dao.DbBase;
 
 public class ToolsExcel {
 	// excel默认宽度；
@@ -271,22 +269,7 @@ public class ToolsExcel {
 	
 	public static void main(String[] args) {
 		try {
-			DbBase db = new DbBase("mysql");
-			JSONArray data = db.find("select * from sn_detail");
 			
-			JSONObject obj = new JSONObject();
-			obj.put("data", data);
-			obj.put("file_name", "test1");
-			obj.put("sheet_name", "sheet1");
-			obj.put("title", "title");
-			obj.put("prohibits", ",2,1,");
-			String[][] cells = {{"用户名","姓名","密码"}
-			,{"id","batch_id","sn_detail"}};
-			Integer[][] formats = {
-					{}
-					,{4000,4000,4000}	
-			};
-			export(obj, cells, formats);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
