@@ -2,6 +2,7 @@ package cn.xyz.jdbc.dao;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,10 +22,10 @@ public class DbBase {
 	Connection conn;
 	PreparedStatement pstm;
 	private static Properties properties = null;
-	private static final String FILE_NAME = "db.properties";
+	private static final String DB_FILE_NAME = "db.properties";
 	//加载配置文件
 	static {
-	    try(InputStream is = DbBase.class.getClassLoader().getResourceAsStream(FILE_NAME)) {
+	    try(InputStream is = DbBase.class.getClassLoader().getResourceAsStream(DB_FILE_NAME)) {
 	    	properties = new Properties();
 			properties.load(is);
 		} catch (IOException e) {
@@ -161,6 +162,7 @@ public class DbBase {
 		ResultSet rs = null;
 		try {
 			sql = formatSql(sql,params);
+			System.out.println(sql);
 			this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			for (int i = 0; i < params.size(); i++) {
                 this.fillPstm(this.pstm, params.getJSONObject(i), sql);
@@ -283,21 +285,55 @@ public class DbBase {
 		closeResource(rs);
 		closeConnection();
 	}
-	
+	//close是否关闭,params返回的序号
+	public CallableStatement call(String sql,boolean close,Integer... params) {
+		CallableStatement cstm = null;
+		try {
+			cstm = this.conn.prepareCall(sql);
+			cstm.execute();
+			JSONObject obj = new JSONObject();
+			for (int i = 0; i < params.length; i++) {
+				
+				obj.put(params[i]+"", cstm.getObject(params[i]));
+			}
+			//ResultSet rs = (ResultSet)cstm.getObject(2);
+			//return obj;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if(close) {
+			closeCall(cstm);
+			closeConnection();
+			return null;
+		}else {
+			return cstm;
+		}
+	}
+	public void closeCall(CallableStatement cstm) {
+		try {
+			if(cstm != null){
+				cstm.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) {
 		DbBase db = new DbBase("mysql");
 		try {
+			
 			System.out.println(db.find("select * from t1"));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
 			//System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
 			JSONArray data = new JSONArray();
 			JSONObject a = new JSONObject();
-			a.put("code", 23);
+			a.put("code", "23");
 			a.put("name", "xx");
 			data.add(a);
 			JSONObject b = new JSONObject();
-			b.put("code", 22);
+			b.put("code", "22");
 			b.put("name", "yy");
 			data.add(b);
 			//String str = "insert into sn_detail (batch_id,sn_detail) values";
