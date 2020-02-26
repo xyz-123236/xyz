@@ -44,7 +44,7 @@ public class DbTool extends Basic{
 	 * @throws Exception
 	 */
 	public String insert(String table, JSONObject row, String entby, boolean remove, String...keys) throws Exception{
-		sql = "";
+		this.sql = "";
 		if(Tools.isEmpty(row)) {
 			row.put("entby", entby);
 			row.put("entdate", ToolsDate.getString());
@@ -62,19 +62,19 @@ public class DbTool extends Basic{
 					value += row.get(keys[i]) + ",";
 				}
 			}
-			sql += "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
+			this.sql += "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
 		}else {
 			throw new Exception("没有要插入的数据");
 		}
-		return sql;
+		return this.sql;
 	}
 	
 	public DbTool insert(String table, JSONArray rows, String usercode){
-		sql = "";
+		this.sql = "";
 		return this;
 	}
 	public DbTool update(String table, JSONObject row, String usercode, String...removeKey) throws Exception{
-		sql = "";
+		this.sql = "";
 		row.put("modifyby", usercode);
 		row.put("modifydate", ToolsDate.getString());
 		JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
@@ -84,11 +84,11 @@ public class DbTool extends Basic{
 		return this;
 	}
 	public DbTool delete(String table, JSONObject row) {
-		sql = "";
+		this.sql = "";
 		return this;
 	}
 	public DbTool deleteLogic(String table, JSONObject row, String usercode) {
-		sql = "";
+		this.sql = "";
 		return this;
 	}
 	/*public ToolsSql insert(String table) {
@@ -126,20 +126,20 @@ public class DbTool extends Basic{
 		return select(table, "*");
 	}
 	public DbTool select(String table, String fields) {
-		sql = "";
-		sql += "select " + fields + " from " + table;
+		this.sql = "";
+		this.sql += "select " + fields + " from " + table;
 		return this;
 	}
 	public DbTool left(String table, String on) {
-		sql += " left join " + table + " on " + on;
+		this.sql += " left join " + table + " on " + on;
 		return this;
 	}
 	public DbTool right(String table, String on) {
-		sql += " right join " + table + " on " + on;
+		this.sql += " right join " + table + " on " + on;
 		return this;
 	}
 	public DbTool inner(String table, String on) {
-		sql += " inner join " + table + " on " + on;
+		this.sql += " inner join " + table + " on " + on;
 		return this;
 	}
 	/**
@@ -163,7 +163,7 @@ public class DbTool extends Basic{
 	 * @throws Exception 
 	 */
 	public DbTool where(String dateKey, JSONObject row, String...removeKey) throws Exception {
-		sql += " where 1 = 1 ";
+		this.sql += " where 1 = 1 ";
 		if(Tools.isEmpty(row)) {
 			JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
 			for(String key:obj.keySet()){
@@ -181,7 +181,7 @@ public class DbTool extends Basic{
 					
 				}else {
 					if(!Tools.isEmpty(value)) {
-						sql += " and "+key+" like '%"+value.trim()+"%' ";
+						this.sql += " and "+key+" like '%"+value.trim()+"%' ";
 					}
 				}
 			}
@@ -193,9 +193,9 @@ public class DbTool extends Basic{
 	}
 	public DbTool where(String condition) throws Exception {
 		if(Tools.isEmpty(condition)) {
-			sql += " where 1 = 1 ";
+			this.sql += " where 1 = 1 ";
 		}else {
-			sql += " where " + condition;
+			this.sql += " where " + condition;
 		}
 		return this;
 	}
@@ -292,7 +292,17 @@ public class DbTool extends Basic{
 		}
 		return this;
 	}
-	public DbTool sort(String sortDafault) throws Exception {
+	public DbTool order(String sortDafault) throws Exception {
+		return order(sortDafault, false);
+	}
+	/**
+	 * 	排序
+	 * @param sortDafault
+	 * @param removeDafault: sybase不支持同一个字段进行2次排序，mysql，hana出现2次则以前一个为准
+	 * @return
+	 * @throws Exception
+	 */
+	public DbTool order(String sortDafault, boolean removeDafault) throws Exception {
 		if(!Tools.isEmpty(sort) || !Tools.isEmpty(sortDafault)) {
 			sql += " order by ";
 			if(!Tools.isEmpty(sort)) {
@@ -306,7 +316,11 @@ public class DbTool extends Basic{
 					}
 				}
 			}
-			if(!Tools.isEmpty(sortDafault)) sql += sortDafault;
+			if(!Tools.isEmpty(sortDafault) && (Tools.isEmpty(sort) || !removeDafault)) {
+				sql += sortDafault;
+			}else {
+				sql = sql.substring(0, sql.lastIndexOf(","));
+			}
 		}
 		return this;
 	}
@@ -349,7 +363,19 @@ public class DbTool extends Basic{
 		return JSON.toJSONString(data.subList((page-1)*rows, page*rows>data.size()?data.size():page*rows));
 	}
 
-	
+	public String replaceProjection(String sql, String projection) {
+		return replaceProjection(sql, projection, true);
+	}
+	public String replaceProjection(String sql, String projection, boolean deleteLimit) {
+		int beginIndex = sql.toLowerCase().indexOf(" from ");
+		int endIndex1 = sql.toLowerCase().indexOf(" order ") > 1 ? sql.toLowerCase().indexOf(" order ") : sql.length();
+		int endIndex2 = sql.toLowerCase().indexOf(" limit ") > 1 ? sql.toLowerCase().indexOf(" limit ") : sql.length();
+		if(deleteLimit) {
+			return "select " + projection +sql.substring(beginIndex, endIndex1 < endIndex2 ? endIndex1 : endIndex2);
+		}else {
+			return "select " + projection +sql.substring(beginIndex);
+		}
+	} 
 	
 	
 	public String getSql() {
