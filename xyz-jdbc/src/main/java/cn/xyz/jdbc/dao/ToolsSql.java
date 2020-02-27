@@ -22,7 +22,7 @@ public class ToolsSql extends BasicPojo{
 	}
 	
 	public JSONArray find() throws Exception {
-		return find(new DbBase("mysql"));
+		return find(DbBase.getInstance("mysql"));
 	}
 	public JSONArray find(DbBase db) throws Exception {
 		if(!this.sql.toLowerCase().contains("limit") && this.obj.getIntValue("rows") > 0)
@@ -35,7 +35,7 @@ public class ToolsSql extends BasicPojo{
 		return db.find(this.sql);
 	}
 	public Integer count() throws Exception {
-		return count(new DbBase("mysql"));
+		return count(DbBase.getInstance("mysql"));
 	}
 	public Integer count(DbBase db) throws Exception {
 		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toLowerCase().indexOf(" from "));

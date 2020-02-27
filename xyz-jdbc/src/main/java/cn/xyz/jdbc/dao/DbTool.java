@@ -1,6 +1,7 @@
 package cn.xyz.jdbc.dao;
 
-import javax.servlet.http.HttpSession;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -16,10 +17,15 @@ public class DbTool extends Basic{
 	public static String[] DEFAULT_REMOVE_KEYS = {"page","rows","sort","order","jsp_name"};
 	
 	public DbTool(JSONObject obj) {
-		this.rows = obj.getInteger("rows");
-		this.page = obj.getInteger("page");
-		this.sort = obj.getString("sort");
-		this.order = obj.getString("order");
+		if(obj != null) {
+			this.rows = obj.getInteger("rows");
+			this.page = obj.getInteger("page");
+			this.sort = obj.getString("sort");
+			this.order = obj.getString("order");
+		}
+	}
+	public static DbTool getInstance(JSONObject obj) {
+		return new DbTool(obj);
 	}
 	/**
 	 * 添加时清除一些字段
@@ -46,21 +52,25 @@ public class DbTool extends Basic{
 	public String insert(String table, JSONObject row, String entby, boolean remove, String...keys) throws Exception{
 		this.sql = "";
 		if(Tools.isEmpty(row)) {
-			row.put("entby", entby);
-			row.put("entdate", ToolsDate.getString());
 			String key = "";
 			String value = "";
 			if(remove) {
+				row.put("entby", entby);
+				row.put("entdate", ToolsDate.getString());
 				ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, keys);
 				for(String str: row.keySet()){
 					key += str + ",";
-					value += row.get(key) + ",";
+					value += "'"+row.get(key) + "',";
 				}
 			}else {
 				for (int i = 0; i < keys.length; i++) {
 					key += keys[i] + ",";
 					value += row.get(keys[i]) + ",";
 				}
+				key += "entby" + ",";
+				value += "'"+entby + "',";
+				key += "entdate" + ",";
+				value += "'"+ToolsDate.getString() + "',";
 			}
 			this.sql += "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
 		}else {
@@ -68,7 +78,44 @@ public class DbTool extends Basic{
 		}
 		return this.sql;
 	}
-	
+	public String insertBatch(String table, JSONArray row, String entby, String...removeKey) throws Exception{
+		return insertBatch(table, row, entby, true, removeKey);
+	}
+	//处理sql
+	public String insertBatch(String table,JSONArray params, String entby, boolean remove, String...keys) throws Exception {
+		this.sql = "";
+		if(Tools.isEmpty(params)) {
+			Set<String> key_set = new HashSet<>();
+			if(remove) {
+				for (int i = 0; i < params.size(); i++) {
+					JSONObject obj = params.getJSONObject(i);
+					obj.put("entby", entby);
+					obj.put("entdate", ToolsDate.getString());
+					ToolsJson.removeKey(obj, DEFAULT_REMOVE_KEYS, keys);
+					for(String key: obj.keySet()){
+						key_set.add(key);
+					}
+				}
+			}else {
+				for (int j = 0; j < keys.length; j++) {
+					key_set.add(keys[j]);
+				}
+				key_set.add("entby");
+				key_set.add("entdate");
+			}
+			
+			if(!Tools.isEmpty(key_set)) {
+				String feilds = "";
+				String values = "";
+				for (String key : key_set) {
+					feilds += key + ",";
+					values += "?" + ",";
+				}
+				this.sql += "insert into "+table+" ("+feilds.substring(0,feilds.lastIndexOf(","))+ ") values ("+values.substring(0,values.lastIndexOf(","))+ ")";
+			}
+		}
+		return this.sql;
+	}
 	public DbTool insert(String table, JSONArray rows, String usercode){
 		this.sql = "";
 		return this;
@@ -83,6 +130,8 @@ public class DbTool extends Basic{
 		}*/
 		return this;
 	}
+	
+	
 	public DbTool delete(String table, JSONObject row) {
 		this.sql = "";
 		return this;
@@ -385,13 +434,6 @@ public class DbTool extends Basic{
 	public DbTool setSql(String sql) {
 		this.sql = sql;
 		return this;
-	}
-
-	
-	public static void main(String[] args) {
-		String[] a = {"aa","bb"};
-		String[] b = null;
-		System.out.println(a[1]+b);
 	}
 
 

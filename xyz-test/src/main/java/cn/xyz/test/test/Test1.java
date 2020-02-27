@@ -14,7 +14,7 @@ public class Test1 {
 
 	public static void main(String[] args) {
 		try {
-			DbBase db = new DbBase("mysql");
+			DbBase db = DbBase.getInstance("mysql");
 			JSONArray data = db.find("select * from sn_detail");
 			
 			JSONObject obj = new JSONObject();

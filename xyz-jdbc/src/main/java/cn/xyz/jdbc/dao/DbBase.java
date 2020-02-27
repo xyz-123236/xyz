@@ -32,11 +32,14 @@ public class DbBase {
 			e.printStackTrace();
 		}
 	}
-	//必须通过此构造方法创建对象
-	public DbBase(String databaseName) {
+	
+	private DbBase(String databaseName) {
 		this.conn = openConnection(databaseName);
 	}
-	
+	//必须通过此方法创建对象
+	public static DbBase getInstance(String databaseName) {
+		return new DbBase(databaseName);
+	}
 	//获取连接
 	public static Connection openConnection(String databaseName) {
 		Connection connection = null;
@@ -64,17 +67,24 @@ public class DbBase {
 	public void commit() throws Exception {
 		this.conn.commit();
 	}
+	//原生
+	public boolean execute(String sql, Object... params) throws Exception{
+		this.fillPstm(sql, params).execute();
+		return true;
+	}
 	//原生查询
 	public ResultSet executeQuery(String sql, Object... params) throws Exception{
-		this.pstm = this.conn.prepareStatement(sql);
-		this.fillPstm(this.pstm,params);
-		return this.pstm.executeQuery();
+		return this.fillPstm(sql, params).executeQuery();
+	}
+	//原生修改
+	public Integer executeUpdate(String sql, Object... params) throws Exception{
+		return this.fillPstm(sql, params).executeUpdate();
 	}
 	//查询返回json
 	public JSONArray find(String sql, Object... params) throws Exception{
 		ResultSet rs = null;
 		try {
-			rs = executeQuery(sql, params);
+			rs = this.executeQuery(sql, params);
 			JSONArray data = new JSONArray();
 			while (rs.next()) {
 				JSONObject obj = new JSONObject();
@@ -89,7 +99,7 @@ public class DbBase {
 		} catch (Exception e) {
 			throw e;
 		}finally {
-			closeResource(rs);
+			closeResource(rs);//不能关闭连接，db事务可能还要其他操作
 		}
 	}
 	public JSONObject get(String sql, Object... params) throws Exception{
@@ -100,57 +110,32 @@ public class DbBase {
 		return data.getJSONObject(0);
 	}
 	public Integer count(String sql, Object... params) throws Exception {
-		JSONArray data = find(sql, params);
+		JSONObject data = get(sql, params);
 		if(Tools.isEmpty(data)) {
 			return null;
 		}
-		return data.getJSONObject(0).getInteger("count");
+		return data.getInteger("count");
 	}
-	//修改
-	public Integer executeUpdate(String sql, Object... params) throws Exception{
-		this.pstm = this.conn.prepareStatement(sql);
-		this.fillPstm(this.pstm,params);
-		return this.pstm.executeUpdate();
-	}
-	//插入返回主键
-	public Integer insert(String sql, JSONObject params) throws Exception{
+	
+	/**
+	 * 
+	 * @param sql
+	 * @param params
+	 * @return 返回主键id
+	 * @throws Exception
+	 */
+	public Integer insert(String sql, Object... params) throws Exception{
 		ResultSet rs = null;
 		try {
-			//sql = formatSql(sql,params);
-			this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			this.fillPstm(this.pstm, params, sql);
-			this.pstm.executeUpdate();
+			this.fillPstm(sql, params).executeUpdate();
 			rs = this.pstm.getGeneratedKeys();
 			Integer id = null;
 			if (rs.next()) {  
 				id = rs.getInt(1);  
-		    }  else {  
+		    }  else {
 		        throw new Exception("返回主键失败"); 
 		    }
 			return id;
-		} catch (Exception e) {
-			throw e;
-		}finally {
-			closeResource(rs);
-		}
-	}
-	//批量插入:用于excel
-	public boolean insertBatch(String sql, Object[][] params) throws Exception{
-		ResultSet rs = null;
-		try {
-			sql = formatSql(sql, new JSONObject());
-			this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			for (int i = 0; i < params.length; i++) {
-                this.fillPstm(this.pstm, params[i], sql);
-                this.pstm.addBatch();
-            }
-			int[] result = this.pstm.executeBatch();
-			for (int i = 0; i < result.length; i++) {
-				if(result[i] != 1) {
-					return false;
-				}
-			}
-			return true;
 		} catch (Exception e) {
 			throw e;
 		}finally {
@@ -161,15 +146,7 @@ public class DbBase {
 	public boolean insertBatch(String sql, JSONArray params) throws Exception{
 		ResultSet rs = null;
 		try {
-			sql = formatSql(sql,params);
-			System.out.println(sql);
-			this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			for (int i = 0; i < params.size(); i++) {
-                this.fillPstm(this.pstm, params.getJSONObject(i), sql);
-                this.pstm.addBatch();
-            }
-			System.out.println("===="+this.pstm.toString());
-			int[] result = this.pstm.executeBatch();
+			int[] result = this.fillPstm(sql, params).executeBatch();
 			for (int i = 0; i < result.length; i++) {
 				if(result[i] != 1) {
 					return false;
@@ -182,17 +159,52 @@ public class DbBase {
 			closeResource(rs);
 		}
 	}
+	//批量插入:用于excel
+	/*public boolean insertBatch(String sql, Object[][] params) throws Exception{
+		ResultSet rs = null;
+		try {
+			sql = formatSql(sql, new JSONObject());
+			this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			for (int i = 0; i < params.length; i++) {
+                this.fillPstm(this.pstm, params[i]);
+                this.pstm.addBatch();
+            }
+			int[] result = this.pstm.executeBatch();
+			for (int i = 0; i < result.length; i++) {
+				if(result[i] != 1) {
+					return false;
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			throw e;
+		}finally {
+			closeResource(rs);
+		}
+	}*/
+	
 	//填补？
-	public void fillPstm(PreparedStatement pstm, Object... params) throws SQLException {
+	public PreparedStatement fillPstm(String sql, Object[] params) throws SQLException {
+		this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		if(params != null) {
 			for(int i = 0; i < params.length; i++){
 				this.pstm.setObject(i+1, params[i]);
 			}
 		}
-		printSql(this.pstm);
+		//printSql();
+		return this.pstm;
+	}
+	public PreparedStatement fillPstm(String sql, JSONArray params) throws SQLException {
+		this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		for (int i = 0; i < params.size(); i++) {
+            this.fillPstm(sql, params.getJSONObject(i));
+            this.pstm.addBatch();
+        }
+		//printSql();
+		return this.pstm;
 	}
 	//用json填补？
-	/*public void fillPstm(PreparedStatement this.pstm, String sql, JSONObject params) throws SQLException {
+	public PreparedStatement fillPstm(String sql, JSONObject params) throws SQLException {
 		if(params != null) {
 			//字段数组
 			String[] arr = sql.substring(sql.indexOf("(") + 1, sql.indexOf(")")).split(",");
@@ -204,47 +216,14 @@ public class DbBase {
 				if(i+jump < arr.length) this.pstm.setObject(i+1, params.getString(arr[i+jump].trim()));
 			}
 		}
-		printSql(this.pstm);
-	}*/
-	//重载
-	public String formatSql(String sql,JSONArray params) throws Exception {
-		JSONObject obj = null; 
-		if(params != null) obj = params.getJSONObject(0);
-		return formatSql(sql, obj);
+		//printSql();
+		return this.pstm;
 	}
-	//处理sql
-	public String formatSql(String sql,JSONObject params) throws Exception {
-		if(sql.indexOf("(") < 0) {//没有括号
-			if(params != null) {
-				String key = "";
-				String value = "";
-				for(String str:params.keySet()){
-					key += str + ",";
-					value += "?" + ",";
-				}
-				return "insert into "+sql+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
-			}else {
-				throw new Exception("SQL不正确");
-			}
-		}else if(sql.indexOf("(") == sql.lastIndexOf("(")) {
-			if(params != null) {
-				String[] arr = sql.substring(sql.indexOf("(") + 1, sql.indexOf(")")).split(",");
-				String value = "";
-				for (int i = 0; i < arr.length; i++) {
-					value += "?" + ",";
-				}
-				sql = sql.replaceAll("values", "");
-				return sql + " values ("+value.substring(0,value.lastIndexOf(","))+ ")";
-			}else {
-				throw new Exception("SQL不正确");
-			}
-		}
-		return sql;
-	}
+	
 	//输出sql
-	public void printSql(PreparedStatement pstm) {
+	public void printSql() {
 		String sql = this.pstm.toString();
-		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ sql.substring(sql.lastIndexOf(":")+1).trim().replaceAll(" +"," "));
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbBase: "+ sql.substring(sql.lastIndexOf(":")+1).trim().replaceAll(" +"," "));
 	}
 	//释放资源
 	public void closeResource(ResultSet rs){
@@ -339,10 +318,10 @@ public class DbBase {
 			//String str = "insert into sn_detail (batch_id,sn_detail) values";
 			//System.out.println(str.replaceAll("values", ""));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (24,?)",a));
-			//System.out.println(db.insert("sn_detail",a));
+			System.out.println(db.insert("t3",a));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values",a));
 			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
-			System.out.println(db.insertBatch("t1",data));
+			System.out.println(db.insertBatch("t3",data));
 			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
 		} catch (Exception e) {
 			e.printStackTrace();

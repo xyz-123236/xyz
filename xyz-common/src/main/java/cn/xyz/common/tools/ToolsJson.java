@@ -24,7 +24,36 @@ public class ToolsJson {
 		}
 		return obj;
 	}
-	
+	//清除空格：用于表单提交前后有空格
+	public JSONObject clearSpace(JSONObject row) {
+		for(String key:row.keySet()){
+			String value = row.getString(key);
+			if(value != null) {
+				row.put(key, value.trim());
+			}
+		}
+		return row;
+	}
+	//清除空key
+	public JSONObject clearNull(JSONObject row) throws Exception {
+		for(String key:row.keySet()){
+			String value = row.getString(key);
+			if(Tools.isEmpty(value)) {
+				row.remove(key);
+			}
+		}
+		return row;
+	}
+	//把空字符串转为null：用于数字类型，空字符串不能添加
+	public JSONObject toNull(JSONObject row) {
+		for(String key:row.keySet()){
+			String value = row.getString(key);
+			if(value != null && value.trim() == "") {
+				row.put(key, null);
+			}
+		}
+		return row;
+	}
 	public static void main(String[] args) {
 		JSONObject row = new JSONObject();
 		row.put("a","111");
