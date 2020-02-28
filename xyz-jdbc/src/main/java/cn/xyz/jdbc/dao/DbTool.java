@@ -14,7 +14,15 @@ import cn.xyz.common.tools.ToolsJson;
 
 public class DbTool extends Basic{
 	private String sql;
+	
+	//存入数据字典，加载时放入Application或Redis缓存
 	public static String[] DEFAULT_REMOVE_KEYS = {"page","rows","sort","order","jsp_name"};
+	public static String CREATE_BY = "create_by";
+	public static String CREATE_DATE = "create_date";
+	public static String UPDATE_BY = "update_by";
+	public static String UPDATE_DATE = "update_date";
+	public static String DATE_FROM = "date_from";
+	public static String DATE_TO = "date_to";
 	
 	public DbTool(JSONObject obj) {
 		if(obj != null) {
@@ -36,7 +44,7 @@ public class DbTool extends Basic{
 	 * @return
 	 * @throws Exception
 	 */
-	public String insert(String table, JSONObject row, String entby, String...removeKey) throws Exception{
+	public DbTool insert(String table, JSONObject row, String entby, String...removeKey) throws Exception{
 		return insert(table, row, entby, true, removeKey);
 	}
 	/**
@@ -49,14 +57,16 @@ public class DbTool extends Basic{
 	 * @return
 	 * @throws Exception
 	 */
-	public String insert(String table, JSONObject row, String entby, boolean remove, String...keys) throws Exception{
+	public DbTool insert(String table, JSONObject row, String entby, boolean remove, String...keys) throws Exception{
 		this.sql = "";
-		if(Tools.isEmpty(row)) {
+		if(!Tools.isEmpty(row)) {
 			String key = "";
 			String value = "";
 			if(remove) {
-				row.put("entby", entby);
-				row.put("entdate", ToolsDate.getString());
+				if(!Tools.isEmpty(CREATE_BY)) {
+					row.put(CREATE_BY, entby);
+					row.put(CREATE_DATE, ToolsDate.getString());
+				}
 				ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, keys);
 				for(String str: row.keySet()){
 					key += str + ",";
@@ -67,30 +77,34 @@ public class DbTool extends Basic{
 					key += keys[i] + ",";
 					value += row.get(keys[i]) + ",";
 				}
-				key += "entby" + ",";
-				value += "'"+entby + "',";
-				key += "entdate" + ",";
-				value += "'"+ToolsDate.getString() + "',";
+				if(!Tools.isEmpty(CREATE_BY)) {
+					key += CREATE_BY + ",";
+					value += "'"+entby + "',";
+					key += CREATE_DATE + ",";
+					value += "'"+ToolsDate.getString() + "',";
+				}
 			}
 			this.sql += "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
 		}else {
 			throw new Exception("没有要插入的数据");
 		}
-		return this.sql;
+		return this;
 	}
-	public String insertBatch(String table, JSONArray row, String entby, String...removeKey) throws Exception{
+	public DbTool insertBatch(String table, JSONArray row, String entby, String...removeKey) throws Exception{
 		return insertBatch(table, row, entby, true, removeKey);
 	}
 	//处理sql
-	public String insertBatch(String table,JSONArray params, String entby, boolean remove, String...keys) throws Exception {
+	public DbTool insertBatch(String table,JSONArray params, String entby, boolean remove, String...keys) throws Exception {
 		this.sql = "";
-		if(Tools.isEmpty(params)) {
+		if(!Tools.isEmpty(params)) {
 			Set<String> key_set = new HashSet<>();
 			if(remove) {
 				for (int i = 0; i < params.size(); i++) {
 					JSONObject obj = params.getJSONObject(i);
-					obj.put("entby", entby);
-					obj.put("entdate", ToolsDate.getString());
+					if(!Tools.isEmpty(CREATE_BY)) {
+						obj.put(CREATE_BY, entby);
+						obj.put(CREATE_DATE, ToolsDate.getString());
+					}
 					ToolsJson.removeKey(obj, DEFAULT_REMOVE_KEYS, keys);
 					for(String key: obj.keySet()){
 						key_set.add(key);
@@ -100,8 +114,10 @@ public class DbTool extends Basic{
 				for (int j = 0; j < keys.length; j++) {
 					key_set.add(keys[j]);
 				}
-				key_set.add("entby");
-				key_set.add("entdate");
+				if(!Tools.isEmpty(CREATE_BY)) {
+					key_set.add(CREATE_BY);
+					key_set.add(CREATE_DATE);
+				}
 			}
 			
 			if(!Tools.isEmpty(key_set)) {
@@ -114,7 +130,7 @@ public class DbTool extends Basic{
 				this.sql += "insert into "+table+" ("+feilds.substring(0,feilds.lastIndexOf(","))+ ") values ("+values.substring(0,values.lastIndexOf(","))+ ")";
 			}
 		}
-		return this.sql;
+		return this;
 	}
 	public DbTool insert(String table, JSONArray rows, String usercode){
 		this.sql = "";
@@ -122,8 +138,10 @@ public class DbTool extends Basic{
 	}
 	public DbTool update(String table, JSONObject row, String usercode, String...removeKey) throws Exception{
 		this.sql = "";
-		row.put("modifyby", usercode);
-		row.put("modifydate", ToolsDate.getString());
+		if(!Tools.isEmpty(UPDATE_BY)) {
+			row.put(UPDATE_BY, usercode);
+			row.put(UPDATE_DATE, ToolsDate.getString());
+		}
 		JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
 		/*if(Tools.isEmpty(id)) {
 			throw new Exception("new ToolsSql需要参数id");
@@ -213,23 +231,14 @@ public class DbTool extends Basic{
 	 */
 	public DbTool where(String dateKey, JSONObject row, String...removeKey) throws Exception {
 		this.sql += " where 1 = 1 ";
-		if(Tools.isEmpty(row)) {
+		if(!Tools.isEmpty(row)) {
 			JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
 			for(String key:obj.keySet()){
 				String value = obj.getString(key);
-				if("datefrom".equals(key)) {
-					if(!Tools.isEmpty(value)) {
-						String dateTo = obj.getString("dateto");
-						if(Tools.isEmpty(dateTo)) {
-							sql += " AND "+dateKey+" = '" + value + "' ";
-						}else {
-							sql += " AND "+dateKey+" >= '" + value + "' and "+dateKey+" <= '" + dateTo + "' ";
-						}
-					}
-				}else if("dateto".equals(key)) {
-					
+				if(DATE_FROM.equals(key)) {
+					this.date(dateKey, row);
 				}else {
-					if(!Tools.isEmpty(value)) {
+					if(!Tools.isEmpty(value) && !DATE_TO.equals(key)) {
 						this.sql += " and "+key+" like '%"+value.trim()+"%' ";
 					}
 				}
@@ -241,7 +250,7 @@ public class DbTool extends Basic{
 		return where("");
 	}
 	public DbTool where(String condition) throws Exception {
-		if(Tools.isEmpty(condition)) {
+		if(!Tools.isEmpty(condition)) {
 			this.sql += " where 1 = 1 ";
 		}else {
 			this.sql += " where " + condition;
@@ -270,9 +279,9 @@ public class DbTool extends Basic{
         }
 		if(!Tools.isEmpty(value)) {
 			if("%".equals(op)) {
-				sql += " and "+key+" like '%"+value+"%' ";
+				this.sql += " and "+key+" like '%"+value+"%' ";
 			}else {
-				sql += " and "+key+" "+op+" '"+value+"' ";
+				this.sql += " and "+key+" "+op+" '"+value+"' ";
 			}
 		}
 		return this;
@@ -285,18 +294,18 @@ public class DbTool extends Basic{
 	}
 	public DbTool or(String value, String op, String... fields) throws Exception {
 		if(!Tools.isEmpty(value)) {
-			sql += " and (";
+			this.sql += " and (";
 			for (int i = 0; i < fields.length; i++) {
 				if(i != 0) {
-					sql += " or ";
+					this.sql += " or ";
 				}
 				if("%".equals(op)) {
-					sql += fields[i] + " like '%"+value+"%' ";
+					this.sql += fields[i] + " like '%"+value+"%' ";
 				}else {
-					sql += fields[i] + " "+op+" '"+value+"' ";
+					this.sql += fields[i] + " "+op+" '"+value+"' ";
 				}
 			}
-			sql += ") ";
+			this.sql += ") ";
 		}
 		return this;
 	}
@@ -316,27 +325,25 @@ public class DbTool extends Basic{
 			}
 			sb.append("'"+str[i]+"'");
 		} 
-		sql += field + " in ("+sb.toString()+") ";
+		this.sql += field + " in ("+sb.toString()+") ";
 		return this;
 	}
 	public DbTool empty(String field) {
-		sql += " and ("+field+" is null or "+field+" = '') ";
+		this.sql += " and ("+field+" is null or "+field+" = '') ";
 		return this;
 	}
 	public DbTool notEmpty(String field) {
-		sql += " and ("+field+" is not null and "+field+" != '') ";
+		this.sql += " and ("+field+" is not null and "+field+" != '') ";
 		return this;
 	}
 	public DbTool date(String key, JSONObject row) throws Exception {
-		String dateFrom = row.getString("dateFrom");
-		if(Tools.isEmpty(dateFrom)) dateFrom = row.getString("datefrom");
+		String dateFrom = row.getString(DATE_FROM);
 		if(!Tools.isEmpty(dateFrom)) {
-			String dateTo = row.getString("dateTo");
-			if(Tools.isEmpty(dateTo)) dateTo = row.getString("dateto");
+			String dateTo = row.getString(DATE_TO);
 			if(Tools.isEmpty(dateTo)) {
-				sql += " AND "+key+" = '" + dateFrom + "' ";
+				this.sql += " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateFrom + " 23:59:59' ";
 			}else {
-				sql += " AND "+key+" >= '" + dateFrom + "' and "+key+" <= '" + dateTo + "' ";
+				this.sql += " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateTo + " 23:59:59' ";
 			}
 		}
 		return this;
@@ -353,37 +360,37 @@ public class DbTool extends Basic{
 	 */
 	public DbTool order(String sortDafault, boolean removeDafault) throws Exception {
 		if(!Tools.isEmpty(sort) || !Tools.isEmpty(sortDafault)) {
-			sql += " order by ";
-			if(!Tools.isEmpty(sort)) {
-				String[] orders = order.split(",");
-				String[] sorts = sort.split(",");
+			this.sql += " order by ";
+			if(!Tools.isEmpty(this.sort)) {
+				String[] orders = this.order.split(",");
+				String[] sorts = this.sort.split(",");
 				for (int i = 0; i < sorts.length; i++) {
 					if("asc".equals(orders[i].trim())) {
-						sql += sorts[i] + " asc, ";
+						this.sql += sorts[i] + " asc, ";
 					}else {
-						sql += sorts[i] + " desc, ";
+						this.sql += sorts[i] + " desc, ";
 					}
 				}
 			}
-			if(!Tools.isEmpty(sortDafault) && (Tools.isEmpty(sort) || !removeDafault)) {
-				sql += sortDafault;
+			if(!Tools.isEmpty(sortDafault) && (Tools.isEmpty(this.sort) || !removeDafault)) {
+				this.sql += sortDafault;
 			}else {
-				sql = sql.substring(0, sql.lastIndexOf(","));
+				this.sql = this.sql.substring(0, this.sql.lastIndexOf(","));
 			}
 		}
 		return this;
 	}
 	public DbTool group(String group) throws Exception {
 		if(!Tools.isEmpty(group)) {
-			sql += " group by " + group;
+			this.sql += " group by " + group;
 		}
 		return this;
 	}
 	public DbTool limit() throws Exception {
-		if(!sql.toLowerCase().contains("limit") && rows > 0)
+		if(!this.sql.toLowerCase().contains("limit") && rows > 0)
 		{
-			sql += " limit " + rows;// rows 页面容量
-			sql += " offset "+ ((page-1)*rows);// page 开始页
+			this.sql += " limit " + rows;// rows 页面容量
+			this.sql += " offset "+ ((page-1)*rows);// page 开始页
 		}
 		return this;
 	}
@@ -428,8 +435,8 @@ public class DbTool extends Basic{
 	
 	
 	public String getSql() {
-		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ sql.replaceAll(" +"," "));
-		return sql;
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ this.sql.replaceAll("\t", " ").replaceAll(" +"," "));
+		return this.sql;
 	}
 	public DbTool setSql(String sql) {
 		this.sql = sql;

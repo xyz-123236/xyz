@@ -191,7 +191,7 @@ public class DbBase {
 				this.pstm.setObject(i+1, params[i]);
 			}
 		}
-		//printSql();
+		printSql();
 		return this.pstm;
 	}
 	public PreparedStatement fillPstm(String sql, JSONArray params) throws SQLException {
@@ -216,7 +216,7 @@ public class DbBase {
 				if(i+jump < arr.length) this.pstm.setObject(i+1, params.getString(arr[i+jump].trim()));
 			}
 		}
-		//printSql();
+		printSql();
 		return this.pstm;
 	}
 	
@@ -298,33 +298,4 @@ public class DbBase {
 		}
 	}
 
-	public static void main(String[] args) {
-		DbBase db = new DbBase("mysql");
-		try {
-			
-			System.out.println(db.find("select * from t1"));
-			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
-			//System.out.println(db.executeQueryJson("select * from sn_detail"));
-			//System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
-			JSONArray data = new JSONArray();
-			JSONObject a = new JSONObject();
-			a.put("code", "23");
-			a.put("name", "xx");
-			data.add(a);
-			JSONObject b = new JSONObject();
-			b.put("code", "22");
-			b.put("name", "yy");
-			data.add(b);
-			//String str = "insert into sn_detail (batch_id,sn_detail) values";
-			//System.out.println(str.replaceAll("values", ""));
-			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (24,?)",a));
-			System.out.println(db.insert("t3",a));
-			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values",a));
-			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
-			System.out.println(db.insertBatch("t3",data));
-			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }

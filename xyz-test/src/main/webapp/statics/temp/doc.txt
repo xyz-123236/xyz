@@ -18,7 +18,8 @@
 
 数据字典里存储每个用户的文件上传大小(存字节大小)
 数据字典存储字段的中英文，用于key，table表头，excel表头
-
+key，code，name，value，isupdate(是否可以修改值，全局字段不能修改（create_by）,限制文件大小可以修改（file_size）)
+用搜索做（可以同时搜file 和 size），或者输入用逗号隔开，数据库模糊查询同时有多个的记录，redis缓存用程序同时匹配
 
 设置一个可以添加表格表头，数据库栏位，可以解决一些要同时取改jsp-table，db-table，excel-table
 	表栏位：id, pid, code(字段名-英文), name(显示名-中文), type(数据类型,字符/数字), width(宽度) , sort(排序)  //同excel设置
