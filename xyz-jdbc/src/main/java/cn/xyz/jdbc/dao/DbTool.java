@@ -359,7 +359,7 @@ public class DbTool extends Basic{
 	 * @throws Exception
 	 */
 	public DbTool order(String sortDafault, boolean removeDafault) throws Exception {
-		if(!Tools.isEmpty(sort) || !Tools.isEmpty(sortDafault)) {
+		if(!Tools.isEmpty(this.sort) || !Tools.isEmpty(sortDafault)) {
 			this.sql += " order by ";
 			if(!Tools.isEmpty(this.sort)) {
 				String[] orders = this.order.split(",");
@@ -387,15 +387,15 @@ public class DbTool extends Basic{
 		return this;
 	}
 	public DbTool limit() throws Exception {
-		if(!this.sql.toLowerCase().contains("limit") && rows > 0)
+		if(!this.sql.toLowerCase().contains("limit") && this.rows > 0)
 		{
-			this.sql += " limit " + rows;// rows 页面容量
-			this.sql += " offset "+ ((page-1)*rows);// page 开始页
+			this.sql += " limit " + this.rows;// rows 页面容量
+			this.sql += " offset "+ ((this.page-1)*this.rows);// page 开始页
 		}
 		return this;
 	}
 	public String asSql(String as) throws Exception {
-		String asSql = " ("+sql+") as ";
+		String asSql = " ("+this.sql+") as ";
 		if(Tools.isEmpty(as)) {
 			asSql += "temp ";
 		}else {
@@ -406,7 +406,7 @@ public class DbTool extends Basic{
 	}
 
 	public String countSql() throws Exception {
-		String countSql = "select count(*) as count "+ sql.substring(sql.toLowerCase().indexOf(" from "));
+		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toLowerCase().indexOf(" from "));
 		if(countSql.toLowerCase().contains(" order ")) {
 			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));
 		}else if(countSql.toLowerCase().contains(" limit ")) {
@@ -416,13 +416,13 @@ public class DbTool extends Basic{
 		return countSql;
 	}
 	public String limitData(JSONArray data) {
-		return JSON.toJSONString(data.subList((page-1)*rows, page*rows>data.size()?data.size():page*rows));
+		return JSON.toJSONString(data.subList((this.page-1)*this.rows, this.page*this.rows>data.size()?data.size():this.page*this.rows));
 	}
 
-	public String replaceProjection(String sql, String projection) {
+	public static String replaceProjection(String sql, String projection) {
 		return replaceProjection(sql, projection, true);
 	}
-	public String replaceProjection(String sql, String projection, boolean deleteLimit) {
+	public static String replaceProjection(String sql, String projection, boolean deleteLimit) {
 		int beginIndex = sql.toLowerCase().indexOf(" from ");
 		int endIndex1 = sql.toLowerCase().indexOf(" order ") > 1 ? sql.toLowerCase().indexOf(" order ") : sql.length();
 		int endIndex2 = sql.toLowerCase().indexOf(" limit ") > 1 ? sql.toLowerCase().indexOf(" limit ") : sql.length();

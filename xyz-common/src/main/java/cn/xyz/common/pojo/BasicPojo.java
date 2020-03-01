@@ -13,61 +13,61 @@ public class BasicPojo {
 	protected String remark;
 	
 	public Integer getPage() {
-		return page;
+		return this.page;
 	}
 	public void setPage(Integer page) {
 		this.page = page;
 	}
 	public Integer getRows() {
-		return rows;
+		return this.rows;
 	}
 	public void setRows(Integer rows) {
 		this.rows = rows;
 	}
 	public String getSort() {
-		return sort;
+		return this.sort;
 	}
 	public void setSort(String sort) {
 		this.sort = sort;
 	}
 	public String getOrder() {
-		return order;
+		return this.order;
 	}
 	public void setOrder(String order) {
 		this.order = order;
 	}
 	public String getJsp_name() {
-		return jsp_name;
+		return this.jsp_name;
 	}
 	public void setJsp_name(String jsp_name) {
 		this.jsp_name = jsp_name;
 	}
 	public String getCreate_by() {
-		return create_by;
+		return this.create_by;
 	}
 	public void setCreate_by(String create_by) {
 		this.create_by = create_by;
 	}
 	public String getCreate_date() {
-		return create_date;
+		return this.create_date;
 	}
 	public void setCreate_date(String create_date) {
 		this.create_date = create_date;
 	}
 	public String getUpdate_by() {
-		return update_by;
+		return this.update_by;
 	}
 	public void setUpdate_by(String update_by) {
 		this.update_by = update_by;
 	}
 	public String getUpdate_date() {
-		return update_date;
+		return this.update_date;
 	}
 	public void setUpdate_date(String update_date) {
 		this.update_date = update_date;
 	}
 	public String getRemark() {
-		return remark;
+		return this.remark;
 	}
 	public void setRemark(String remark) {
 		this.remark = remark;

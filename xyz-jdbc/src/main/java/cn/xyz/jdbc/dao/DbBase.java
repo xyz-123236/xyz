@@ -288,7 +288,7 @@ public class DbBase {
 			return cstm;
 		}
 	}
-	public void closeCall(CallableStatement cstm) {
+	public static void closeCall(CallableStatement cstm) {
 		try {
 			if(cstm != null){
 				cstm.close();

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
+import org.apache.commons.net.util.Base64;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
@@ -30,7 +31,7 @@ import com.alibaba.fastjson.JSONObject;
 
 public class ToolsExcel {
 	// excel默认宽度；
-	private static int width = 256 * 14;
+	public static final int WIDTH = 256 * 14;
 	// 默认字体
 	private static String excelfont = "微软雅黑";
 	
@@ -55,180 +56,180 @@ public class ToolsExcel {
 		String file_name = obj.getString("file_name");
 		String sheet_name = obj.getString("sheet_name");
 		String title = obj.getString("title");
-		String prohibits = obj.getString("prohibits");
-		
-		String[] heads = (String[]) cells[0];
-		String[] fileds = (String[]) cells[1];
-		Integer[] types = null;
-		Integer[] widths = null;
-		if(formats.length > 0 && !Tools.isEmpty(formats[0])) {
-			types = (Integer[]) formats[0];
-		} 
-		if(formats.length > 1 && !Tools.isEmpty(formats[1])) {
-			widths = (Integer[]) formats[1];
-		}
-		
-		// 创建一个工作薄
-		HSSFWorkbook wb = new HSSFWorkbook();
-		// 创建一个sheet
-		HSSFSheet sheet = wb.createSheet((!Tools.isEmpty(sheet_name)) ? sheet_name : "sheet1");
-		
-		HSSFCellStyle lock_style = wb.createCellStyle();
-		lock_style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		lock_style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-		lock_style.setLocked(true);
-        HSSFCellStyle un_lock_style = wb.createCellStyle();
-        un_lock_style.setLocked(false);
-        
-		int index = 0;//表行号
-		if (title != null) {// 创建表头，如果没有跳过
-			HSSFRow row = sheet.createRow(index);
-			// 表头样式
-			HSSFCellStyle style = wb.createCellStyle();
-			HSSFFont font = wb.createFont();
-			font.setBold(true);
-			font.setFontName(excelfont);
-			font.setColor(IndexedColors.BLACK.index);
-			font.setFontHeightInPoints((short) 20);
-			style.setFont(font);
-			style.setAlignment(HorizontalAlignment.CENTER);
-			style.setBorderBottom(BorderStyle.THIN);
-			style.setBorderLeft(BorderStyle.THIN);
-			style.setBorderRight(BorderStyle.THIN);
-			style.setBorderTop(BorderStyle.THIN);
-
-			HSSFCell cell = row.createCell(0);
-			cell.setCellValue(title);
-			cell.setCellStyle(style);
-			CellRangeAddress region = new CellRangeAddress(0, 0, 0, heads.length-1);
-	        sheet.addMergedRegion(region);
-			index++;
-
-		}
-		if (heads != null) {
-			HSSFRow row = sheet.createRow(index);
-			// 表头样式
-			HSSFCellStyle style = wb.createCellStyle();
-			HSSFFont font = wb.createFont();
-			font.setBold(true);
-			font.setFontName(excelfont);
-			font.setFontHeightInPoints((short) 14);
-			style.setFont(font);
-			style.setAlignment(HorizontalAlignment.CENTER);
-			style.setBorderBottom(BorderStyle.THIN);
-			style.setBorderLeft(BorderStyle.THIN);
-			style.setBorderRight(BorderStyle.THIN);
-			style.setBorderTop(BorderStyle.THIN);
-			for (int i = 0; i < heads.length; i++) {
-				if(Tools.isEmpty(widths))sheet.setColumnWidth(i, widths[i]);
-				HSSFCell cell = row.createCell(i);
-				cell.setCellValue(heads[i]);
-				cell.setCellStyle(style);
+		//String prohibits = obj.getString("prohibits");
+		file_name = "E:\\file\\temp\\"+file_name + ".xls";
+		try(HSSFWorkbook wb = new HSSFWorkbook();
+			OutputStream out = new FileOutputStream(file_name);) {
+			String[] heads = (String[]) cells[0];
+			String[] fileds = (String[]) cells[1];
+			Integer[] types = null;
+			Integer[] widths = null;
+			if(formats.length > 0 && !Tools.isEmpty(formats[0])) {
+				types = (Integer[]) formats[0];
+			} 
+			if(formats.length > 1 && !Tools.isEmpty(formats[1])) {
+				widths = (Integer[]) formats[1];
 			}
-			index++;
-		}
-		// 表格主体 解析list
-		if (data != null) {
-			List<HSSFCellStyle> styleList = new ArrayList<HSSFCellStyle>();
-
-			for (int i = 0; i < heads.length; i++) { // 列数
+			
+			// 创建一个工作薄
+			
+			// 创建一个sheet
+			HSSFSheet sheet = wb.createSheet((!Tools.isEmpty(sheet_name)) ? sheet_name : "sheet1");
+			
+			HSSFCellStyle lock_style = wb.createCellStyle();
+			lock_style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+			lock_style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+			lock_style.setLocked(true);
+			HSSFCellStyle un_lock_style = wb.createCellStyle();
+			un_lock_style.setLocked(false);
+			
+			int index = 0;//表行号
+			if (title != null) {// 创建表头，如果没有跳过
+				HSSFRow row = sheet.createRow(index);
+				// 表头样式
 				HSSFCellStyle style = wb.createCellStyle();
 				HSSFFont font = wb.createFont();
+				font.setBold(true);
 				font.setFontName(excelfont);
-				font.setFontHeightInPoints((short) 10);
+				font.setColor(IndexedColors.BLACK.index);
+				font.setFontHeightInPoints((short) 20);
 				style.setFont(font);
+				style.setAlignment(HorizontalAlignment.CENTER);
 				style.setBorderBottom(BorderStyle.THIN);
 				style.setBorderLeft(BorderStyle.THIN);
 				style.setBorderRight(BorderStyle.THIN);
 				style.setBorderTop(BorderStyle.THIN);
-				if(Tools.isEmpty(types)) {
-					style.setAlignment(HorizontalAlignment.LEFT);
-				}else {
-					if (types[i] == 1) {
-						style.setAlignment(HorizontalAlignment.LEFT);
-					} else if (types[i] == 2) {
-						style.setAlignment(HorizontalAlignment.CENTER);
-					} else if (types[i] == 3) {
-						style.setAlignment(HorizontalAlignment.RIGHT);
-						// int类型
-					} else if (types[i] == 4) {
-						style.setAlignment(HorizontalAlignment.RIGHT);
-						// int类型
-						style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0"));
-					} else if (types[i] == 5) {
-						// float类型
-						style.setAlignment(HorizontalAlignment.RIGHT);
-						style.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0.00"));
-					} else if (types[i] == 6) {
-						// 百分比类型
-						style.setAlignment(HorizontalAlignment.RIGHT);
-						style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00%"));
-					}
-				}
-				styleList.add(style);
+
+				HSSFCell cell = row.createCell(0);
+				cell.setCellValue(title);
+				cell.setCellStyle(style);
+				CellRangeAddress region = new CellRangeAddress(0, 0, 0, heads.length-1);
+			    sheet.addMergedRegion(region);
+				index++;
+
 			}
-			
-			for (int i = 0; i < data.size(); i++) { // 行数
+			if (heads != null) {
 				HSSFRow row = sheet.createRow(index);
-				JSONObject map = data.getJSONObject(i);
-				for (int j = 0; j < fileds.length; j++) { // 列数
-					HSSFCell cell = row.createCell(j);
-					Object o = map.get(fileds[j]);
-					if(Tools.isEmpty(types)) {
-						cell.setCellValue(map.get(fileds[j]) + "");
-					}else {
-						if (o == null || "".equals(o)) {
-							cell.setCellValue("");
-						} else if (types[j] == 4) {
-							// int
-							cell.setCellValue((Long.valueOf((map.get(fileds[j])) + "")).longValue());
-						} else if (types[j] == 5 || types[j] == 6) {
-							// float
-							cell.setCellValue((Double.valueOf((map.get(fileds[j])) + "")).doubleValue());
-						} else {
-							cell.setCellValue(map.get(fileds[j]) + "");
-						}
-					}
-					cell.setCellStyle(styleList.get(j));
-					if(j == 2) {
-						cell.getCellStyle().cloneStyleFrom(lock_style);
-					}else {
-						cell.getCellStyle().cloneStyleFrom(un_lock_style);
-					}
+				// 表头样式
+				HSSFCellStyle style = wb.createCellStyle();
+				HSSFFont font = wb.createFont();
+				font.setBold(true);
+				font.setFontName(excelfont);
+				font.setFontHeightInPoints((short) 14);
+				style.setFont(font);
+				style.setAlignment(HorizontalAlignment.CENTER);
+				style.setBorderBottom(BorderStyle.THIN);
+				style.setBorderLeft(BorderStyle.THIN);
+				style.setBorderRight(BorderStyle.THIN);
+				style.setBorderTop(BorderStyle.THIN);
+				for (int i = 0; i < heads.length; i++) {
+					if(Tools.isEmpty(widths))sheet.setColumnWidth(i, widths[i]);
+					HSSFCell cell = row.createCell(i);
+					cell.setCellValue(heads[i]);
+					cell.setCellStyle(style);
 				}
 				index++;
 			}
-			//添加一行空行：用于解除锁定行
-			HSSFRow row = sheet.createRow(index);
-			for (int j = 0; j < fileds.length; j++) { // 列数
-				HSSFCell cell = row.createCell(j);
-				cell.setCellValue("");
-				cell.getCellStyle().cloneStyleFrom(un_lock_style);
+			// 表格主体 解析list
+			if (data != null) {
+				List<HSSFCellStyle> styleList = new ArrayList<HSSFCellStyle>();
+
+				for (int i = 0; i < heads.length; i++) { // 列数
+					HSSFCellStyle style = wb.createCellStyle();
+					HSSFFont font = wb.createFont();
+					font.setFontName(excelfont);
+					font.setFontHeightInPoints((short) 10);
+					style.setFont(font);
+					style.setBorderBottom(BorderStyle.THIN);
+					style.setBorderLeft(BorderStyle.THIN);
+					style.setBorderRight(BorderStyle.THIN);
+					style.setBorderTop(BorderStyle.THIN);
+					if(Tools.isEmpty(types)) {
+						style.setAlignment(HorizontalAlignment.LEFT);
+					}else {
+						if (types[i] == 1) {
+							style.setAlignment(HorizontalAlignment.LEFT);
+						} else if (types[i] == 2) {
+							style.setAlignment(HorizontalAlignment.CENTER);
+						} else if (types[i] == 3) {
+							style.setAlignment(HorizontalAlignment.RIGHT);
+							// int类型
+						} else if (types[i] == 4) {
+							style.setAlignment(HorizontalAlignment.RIGHT);
+							// int类型
+							style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0"));
+						} else if (types[i] == 5) {
+							// float类型
+							style.setAlignment(HorizontalAlignment.RIGHT);
+							style.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0.00"));
+						} else if (types[i] == 6) {
+							// 百分比类型
+							style.setAlignment(HorizontalAlignment.RIGHT);
+							style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00%"));
+						}
+					}
+					styleList.add(style);
+				}
+				
+				for (int i = 0; i < data.size(); i++) { // 行数
+					HSSFRow row = sheet.createRow(index);
+					JSONObject map = data.getJSONObject(i);
+					for (int j = 0; j < fileds.length; j++) { // 列数
+						HSSFCell cell = row.createCell(j);
+						Object o = map.get(fileds[j]);
+						if(Tools.isEmpty(types)) {
+							cell.setCellValue(map.get(fileds[j]) + "");
+						}else {
+							if (o == null || "".equals(o)) {
+								cell.setCellValue("");
+							} else if (types[j] == 4) {
+								// int
+								cell.setCellValue((Long.valueOf((map.get(fileds[j])) + "")).longValue());
+							} else if (types[j] == 5 || types[j] == 6) {
+								// float
+								cell.setCellValue((Double.valueOf((map.get(fileds[j])) + "")).doubleValue());
+							} else {
+								cell.setCellValue(map.get(fileds[j]) + "");
+							}
+						}
+						cell.setCellStyle(styleList.get(j));
+						if(j == 2) {
+							cell.getCellStyle().cloneStyleFrom(lock_style);
+						}else {
+							cell.getCellStyle().cloneStyleFrom(un_lock_style);
+						}
+					}
+					index++;
+				}
+				//添加一行空行：用于解除锁定行
+				HSSFRow row = sheet.createRow(index);
+				for (int j = 0; j < fileds.length; j++) { // 列数
+					HSSFCell cell = row.createCell(j);
+					cell.setCellValue("");
+					cell.getCellStyle().cloneStyleFrom(un_lock_style);
+				}
+				sheet.protectSheet("123456");
 			}
-			sheet.protectSheet("123456");
-		}
-		
-		file_name = "E:\\file\\temp\\"+file_name + ".xls";
-		// 创建文件输出流，准备输出电子表格  
-        OutputStream out = new FileOutputStream(file_name);  
-        wb.write(out);
-        out.close();
-        wb.close();
-		/*String filename = "";
-		try {
-			filename = encodeChineseDownloadFileName(request, fileName);
+			 
+			wb.write(out);
+			/*String filename = "";
+			try {
+				filename = encodeChineseDownloadFileName(request, fileName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			response.setHeader("Content-disposition", filename);
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-disposition", "attachment;filename=" + filename);
+			response.setHeader("Pragma", "No-cache");
+			OutputStream ouputStream = response.getOutputStream();
+			wb.write(ouputStream);
+			ouputStream.flush();
+			ouputStream.close();
+			session.setAttribute("state", "open");*/
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		}
-		response.setHeader("Content-disposition", filename);
-		response.setContentType("application/vnd.ms-excel");
-		response.setHeader("Content-disposition", "attachment;filename=" + filename);
-		response.setHeader("Pragma", "No-cache");
-		OutputStream ouputStream = response.getOutputStream();
-		wb.write(ouputStream);
-		ouputStream.flush();
-		ouputStream.close();
-		session.setAttribute("state", "open");*/
 
 	}
 	/**
@@ -243,7 +244,7 @@ public class ToolsExcel {
 		if (null != agent) {
 			if (-1 != agent.indexOf("Firefox")) {// Firefox
 				filename = "=?UTF-8?B?"
-						+ (new String(org.apache.commons.codec.binary.Base64.encodeBase64(pFileName.getBytes("UTF-8"))))
+						+ (new String(Base64.encodeBase64(pFileName.getBytes("UTF-8"))))
 						+ "?=";
 			} else if (-1 != agent.indexOf("Chrome")) {// Chrome
 				filename = new String(pFileName.getBytes(), "ISO8859-1");
@@ -269,7 +270,7 @@ public class ToolsExcel {
 	
 	public static void main(String[] args) {
 		try {
-			
+			System.out.println(1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -160,9 +160,9 @@ public class ToolsDate {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		cal.add(Calendar.DATE, days);
-		date = cal.getTime();
+		Date date2 = cal.getTime();
 		SimpleDateFormat format = new SimpleDateFormat(DEFAULT_DATE_PATTERN);
-		return format.format(date);
+		return format.format(date2);
 	}
 	public static String getMonthEn(Integer i) {
 		return months[i-1];

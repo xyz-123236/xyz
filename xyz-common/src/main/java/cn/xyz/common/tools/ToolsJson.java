@@ -25,7 +25,7 @@ public class ToolsJson {
 		return obj;
 	}
 	//清除空格：用于表单提交前后有空格
-	public JSONObject clearSpace(JSONObject row) {
+	public static JSONObject clearSpace(JSONObject row) {
 		for(String key:row.keySet()){
 			String value = row.getString(key);
 			if(value != null) {
@@ -35,7 +35,7 @@ public class ToolsJson {
 		return row;
 	}
 	//清除空key
-	public JSONObject clearNull(JSONObject row) throws Exception {
+	public static JSONObject clearNull(JSONObject row) throws Exception {
 		for(String key:row.keySet()){
 			String value = row.getString(key);
 			if(Tools.isEmpty(value)) {
@@ -45,7 +45,7 @@ public class ToolsJson {
 		return row;
 	}
 	//把空字符串转为null：用于数字类型，空字符串不能添加
-	public JSONObject toNull(JSONObject row) {
+	public static JSONObject toNull(JSONObject row) {
 		for(String key:row.keySet()){
 			String value = row.getString(key);
 			if(value != null && value.trim() == "") {
