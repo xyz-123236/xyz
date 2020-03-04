@@ -10,10 +10,14 @@
 	<artifactId>xyz-test</artifactId>
 	<packaging>war</packaging>
 	<dependencies>
-		<dependency>
+		<!-- <dependency>
 			<groupId>cn.xyz</groupId>
 			<artifactId>xyz-jdbc</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency> -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
