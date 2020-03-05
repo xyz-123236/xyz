@@ -22,6 +22,8 @@ public class DbBase {
 	String dbName;
 	Connection conn;
 	PreparedStatement pstm;
+	public static final String MYSQL = "mysql";
+	public static final String SYBASE = "sybase";
 	//private static Properties properties = null;
 	//private static final String DB_FILE_NAME = "db.properties";
 	
@@ -198,7 +200,7 @@ public class DbBase {
 	public static void main(String[] args) {
 		DbBase db = null;
 		try {
-			db = DbBase.getInstance("mysql");
+			db = DbBase.getInstance(DbBase.MYSQL);
 			System.out.println(db.find("select * from user"));
 		} catch (Exception e) {
 			e.printStackTrace();
