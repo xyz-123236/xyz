@@ -5,11 +5,19 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.alibaba.fastjson.JSONObject;
+
 public class Test2 {
 	public static void main(String[] args) {
-		String regex = "^[1-9]\\d*$";
+		String a = "02";
+		System.out.println(Integer.parseInt(a));
+		/*JSONObject obj = new JSONObject();
+		obj.put("from", "2020-10-01");
+		obj.put("to", "2020-10-11");
+		System.out.println(obj.getDate("from").compareTo(obj.getDate("to")));*/
+		/*String regex = "^[1-9]\\d*$";
 		String a = "a270009998";
-		System.out.println(a.matches(regex));
+		System.out.println(a.matches(regex));*/
 		/*List<String> list = new ArrayList<>();
 		list.add("aa");
 		list.add("bb");
