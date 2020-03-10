@@ -9,8 +9,12 @@ import com.alibaba.fastjson.JSONObject;
 
 public class Test2 {
 	public static void main(String[] args) {
-		String a = "02";
-		System.out.println(Integer.parseInt(a));
+		String a = "chengxin396@126.com";
+		String b = "chengxin396@126.com";
+		System.out.println(a.length());
+		System.out.println(a.length());
+		//String a = "02";
+		//System.out.println(Integer.parseInt(a));
 		/*JSONObject obj = new JSONObject();
 		obj.put("from", "2020-10-01");
 		obj.put("to", "2020-10-11");

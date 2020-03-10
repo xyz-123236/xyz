@@ -1,60 +1,27 @@
 package cn.xyz.test;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
-import javax.sql.DataSource;
-
-import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-public class DbBase {
-	String dbName;
-	Connection conn;
-	PreparedStatement pstm;
+public abstract class DbBase {
+	protected String db_name;
+	protected Connection conn;
+	protected PreparedStatement pstm;
+	public static final String ORACLE = "oracle";
 	public static final String MYSQL = "mysql";
+	public static final String SQLSERVER = "sqlserver";
+	public static final String POSTGRESQL = "postgresql";
+	public static final String MONGODB = "mongodb";
 	public static final String SYBASE = "sybase";
-	//private static Properties properties = null;
-	//private static final String DB_FILE_NAME = "db.properties";
+	public static final String HANA = "hana";
 	
-	//加载配置文件
-	/*static {
-	    try(InputStream is = DbBase.class.getClassLoader().getResourceAsStream(DB_FILE_NAME)) {
-	    	properties = new Properties();
-			properties.load(is);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}*/
-	private DbBase(String dbName) {
-		this.dbName = dbName;
-	}
-	//必须通过此方法创建对象
-	public static DbBase getInstance() throws Exception {
-		return new DbBase("mysql");
-	}
-	public static DbBase getInstance(String dbName) throws Exception {
-		return new DbBase(dbName);
-	}
-	//获取连接
-	private Connection getConnection() throws Exception {
-		if(this.conn == null || this.conn.isClosed()) {
-			/*Class.forName(properties.getProperty(dbName+"_driver"));
-			this.conn = DriverManager.getConnection(properties.getProperty(dbName+"_url"), properties.getProperty(dbName+"_user"), properties.getProperty(dbName+"_password"));*/
-			this.conn = DbDruid.getConnection(this.dbName);
-		}
-		return this.conn;
-	}
+	public abstract Connection getConnection() throws Exception ;
 	//开启事务
 	public DbBase startTransaction() throws Exception {
 		this.getConnection().setAutoCommit(false);
@@ -197,13 +164,5 @@ public class DbBase {
 			this.closeConnection();
 		}
 	}
-	public static void main(String[] args) {
-		DbBase db = null;
-		try {
-			db = DbBase.getInstance(DbBase.MYSQL);
-			System.out.println(db.find("select * from user"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 }
