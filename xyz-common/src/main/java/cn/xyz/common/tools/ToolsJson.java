@@ -12,12 +12,12 @@ public class ToolsJson {
 				if(key.getClass().isArray()){//用于keys是：String,String,String...(最后一个是数组)
 					String[] o = (String[])key;
 					for (int j = 0; j < o.length; j++) {
-						row.remove(o[j].trim());
+						obj.remove(o[j].trim());
 					}
 				}else {
 					String[] s = ((String)key).split(",");
 					for (int j = 0; j < s.length; j++) {
-						row.remove(s[j].trim());
+						obj.remove(s[j].trim());
 					}
 				}
 			}

@@ -1,36 +1,57 @@
 package cn.xyz.common.tools;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-
-import org.apache.commons.lang3.time.DateUtils;
+import java.util.regex.Pattern;
 
 public class ToolsDate {
+	//加入数据库，启动加入缓存（设置能修改与不能修改）
 	public final static String DEFAULT_DATE_PATTERN = "yyyy-MM-dd";
 	public final static String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 	public static String[] months = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+	//加入数据库，启动加入缓存
 	public static String[] patterns = {
-			"yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm", 
-			"yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm",
-			"yyyy-MMM-dd", "dd-MMM-yyyy"};
-	
+			"yyyy-MM-dd", "yyyy-MMM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm", 
+			"yyyy/MM/dd", "yyyy/MMM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm",
+			"dd-MMM-yyyy", "dd/MMM/yyyy"};
 	public static Date getDate(String date) throws Exception {
 		if (Tools.isEmpty(date)) {
 			return null;
 		}
-		return DateUtils.parseDate(date.trim(), Locale.ENGLISH, patterns);
+		String pattern ="";
+		for (int i = 0; i < date.length(); i++) {
+			String s = date.substring(i,i+1);
+			if(Pattern.matches("[0-9a-zA-Z]", s)) {
+				pattern += "[0-9a-zA-Z]";
+			}else {
+				pattern += s;
+			}
+		}
+		for (int i = 0; i < patterns.length; i++) {
+			if(Pattern.matches(pattern, patterns[i])) {
+				pattern = patterns[i];
+				break;
+			}
+		}
+		DateFormat format = new SimpleDateFormat(pattern, Locale.ENGLISH);
+		return format.parse(date);
+		//return DateUtils.parseDate(date.trim(), Locale.ENGLISH, patterns);
 	}
 	public static String getString() {
+		return getString(DEFAULT_DATE_PATTERN, new Date());
+	}
+	public static String getString(Date date) {
+		return getString(DEFAULT_DATE_PATTERN, date);
+	}
+	public static String getLongString() {
 		return getString(DEFAULT_DATE_TIME_PATTERN, new Date());
+	}
+	public static String getLongString(Date date) {
+		return getString(DEFAULT_DATE_TIME_PATTERN, date);
 	}
 	public static String getString(String pattern) {
 		return getString(pattern, new Date());
@@ -100,14 +121,14 @@ public class ToolsDate {
 	public static String getDatePart(Integer part,Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(part == 44) {
+		if(part == 44) {//季度
 			return Integer.toString(cal.get(Calendar.MONTH) / 3 + 1);
 		}
 		Integer result = cal.get(part);
-		if(part == Calendar.MONTH) {
+		if(part == Calendar.MONTH) {//月
 			result += 1;
 		}
-		if(part == Calendar.WEEK_OF_YEAR) {
+		if(part == Calendar.WEEK_OF_YEAR) {//周
 			if(result == 1)
 			{
 				if(cal.get(Calendar.MONTH) > 1)
@@ -182,6 +203,7 @@ public class ToolsDate {
 			/*for (int i = 0; i < 17; i++) {
 				System.out.println(getDatePart(i, new Date()));
 			}*/
+			System.out.println(getLongString(getDate("2020-Nov-16")));
 			System.out.println(new Date(1541088000000l));
 			System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", new Date(1541088000000l)));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", addDays(new Date(),4)));
