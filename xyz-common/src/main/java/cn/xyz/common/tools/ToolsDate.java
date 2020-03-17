@@ -14,14 +14,15 @@ public class ToolsDate {
 	public final static String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 	public static String[] months = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 	//加入数据库，启动加入缓存
+	//数据字典添加格式时要把"/"换成"-"(或提示分隔符用"-")
 	public static String[] patterns = {
 			"yyyy-MM-dd", "yyyy-MMM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm", 
-			"yyyy/MM/dd", "yyyy/MMM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm",
-			"dd-MMM-yyyy", "dd/MMM/yyyy"};
+			"dd-MMM-yyyy"};
 	public static Date getDate(String date) throws Exception {
 		if (Tools.isEmpty(date)) {
 			return null;
 		}
+		date = date.replaceAll("/", "-");
 		String pattern ="";
 		for (int i = 0; i < date.length(); i++) {
 			String s = date.substring(i,i+1);
@@ -203,7 +204,7 @@ public class ToolsDate {
 			/*for (int i = 0; i < 17; i++) {
 				System.out.println(getDatePart(i, new Date()));
 			}*/
-			System.out.println(getLongString(getDate("2020-Nov-16")));
+			System.out.println(getLongString(getDate("2020/Nov/16")));
 			System.out.println(new Date(1541088000000l));
 			System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", new Date(1541088000000l)));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", addDays(new Date(),4)));
