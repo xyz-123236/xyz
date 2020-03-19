@@ -43,24 +43,24 @@ public class ToolsDate {
 		//return DateUtils.parseDate(date.trim(), Locale.ENGLISH, patterns);
 	}
 	public static String getString() {
-		return getString(DEFAULT_DATE_PATTERN, new Date());
+		return getString(new Date(), DEFAULT_DATE_PATTERN);
 	}
 	public static String getString(Date date) {
-		return getString(DEFAULT_DATE_PATTERN, date);
+		return getString(date, DEFAULT_DATE_PATTERN);
 	}
 	public static String getLongString() {
-		return getString(DEFAULT_DATE_TIME_PATTERN, new Date());
+		return getString(new Date(), DEFAULT_DATE_TIME_PATTERN);
 	}
 	public static String getLongString(Date date) {
-		return getString(DEFAULT_DATE_TIME_PATTERN, date);
+		return getString(date, DEFAULT_DATE_TIME_PATTERN);
 	}
 	public static String getString(String pattern) {
-		return getString(pattern, new Date());
+		return getString(new Date(), pattern);
 	}
-	public static String getString(String pattern, String date) throws Exception {
-		return getString(pattern, getDate(date));
+	public static String getString(String date, String pattern) throws Exception {
+		return getString(getDate(date), pattern);
 	}
-	public static String getString(String pattern, Date date) {
+	public static String getString(Date date, String pattern) {
 		if (date == null) {
 			return null;
 		}
@@ -206,9 +206,9 @@ public class ToolsDate {
 			}*/
 			System.out.println(getLongString(getDate("2020/Nov/16")));
 			System.out.println(new Date(1541088000000l));
-			System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", new Date(1541088000000l)));
+			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", new Date(1541088000000l)));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", addDays(new Date(),4)));
-			System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", add("M",-3, getDate("2019-05-31"))));
+			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", add("M",-3, getDate("2019-05-31"))));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", add("d",4, new Date())));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", add("H",50, new Date())));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", add("h",50, new Date())));

@@ -1,11 +1,14 @@
 package cn.xyz.jdbc.dao;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fujikon.lib.ToolsSql;
+import com.fujikon.lib.t;
 
 import cn.xyz.common.pojo.Basic;
 import cn.xyz.common.tools.Tools;
@@ -81,7 +84,7 @@ public class DbTool extends Basic{
 					key += CREATE_BY + ",";
 					value += "'"+entby + "',";
 					key += CREATE_DATE + ",";
-					value += "'"+ToolsDate.getString() + "',";
+					value += "'"+ToolsDate.getString(pattern, date)() + "',";
 				}
 			}
 			this.sql += "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
@@ -136,18 +139,38 @@ public class DbTool extends Basic{
 		this.sql = "";
 		return this;
 	}
-	public DbTool update(String table, JSONObject row, String usercode, String...removeKey) throws Exception{
+	public DbTool update(String table, JSONObject row, String usercode, Object...removeKey) throws Exception{
+		return update(table, row, usercode, true, removeKey);
+	}
+	public DbTool update(String table, JSONObject row, String usercode, boolean remove, Object...keys) throws Exception{
 		this.sql = "";
-		if(!Tools.isEmpty(UPDATE_BY)) {
-			row.put(UPDATE_BY, usercode);
-			row.put(UPDATE_DATE, ToolsDate.getString());
+		if(!Tools.isEmpty(row)) {
+			String set = "";
+			if(remove) {
+				if(!Tools.isEmpty(UPDATE_BY)) {
+					row.put(UPDATE_BY, usercode);
+					row.put(UPDATE_DATE, ToolsDate.getString());
+				}
+				JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, keys);
+				for(String str: obj.keySet()){
+					set += str + "='"+obj.get(str)+"',";
+				}
+			}else {
+				for (int i = 0; i < keys.length; i++) {
+					set += keys[i] + "='"+row.get(keys[i])+"',";
+				}
+				if(!Tools.isEmpty(UPDATE_BY)) {
+					set += UPDATE_BY + "='"+usercode+"',";
+					set += UPDATE_DATE + "='"+ToolsDate.getString()+"',";
+				}
+			}
+			this.sql += "update "+table+" set "+set.substring(0,set.lastIndexOf(","));
+		}else {
+			throw new Exception("没有要插入的数据");
 		}
-		JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
-		/*if(Tools.isEmpty(id)) {
-			throw new Exception("new ToolsSql需要参数id");
-		}*/
 		return this;
 	}
+
 	
 	
 	public DbTool delete(String table, JSONObject row) {
