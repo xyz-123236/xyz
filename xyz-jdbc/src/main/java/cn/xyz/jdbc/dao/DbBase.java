@@ -124,23 +124,38 @@ public class DbBase {
 	 * @return 返回主键id
 	 * @throws Exception
 	 */
-	public Integer insert(String sql, Object... params) throws Exception{
+	public JSONArray insert(String sql, Object... params) throws Exception{
 		ResultSet rs = null;
 		try {
 			this.fillPstm(sql, params).executeUpdate();
 			rs = this.pstm.getGeneratedKeys();
-			Integer id = null;
+			/*Integer id = null;
 			if (rs.next()) {  
 				id = rs.getInt(1);  
 		    }  else {
 		        throw new Exception("返回主键失败"); 
 		    }
-			return id;
+			return id;*/
+			return rsToJson(rs);
 		} catch (Exception e) {
 			throw e;
 		}finally {
 			closeResource(rs);
 		}
+	}
+	public static JSONArray rsToJson(ResultSet rs) throws SQLException {
+		JSONArray data = new JSONArray();
+		while (rs.next()) {
+			JSONObject obj = new JSONObject();
+			ResultSetMetaData md = rs.getMetaData();// 获取键名
+			int columnCount = md.getColumnCount();// 获取行的数量
+			for (int i = 1; i <= columnCount; i++) {
+				obj.put(md.getColumnLabel(i), rs.getObject(i));// 别名
+				// obj.put(md.getColumnName(i), rs.getObject(i));//数据库原字段名
+			}
+			data.add(obj);
+		}
+		return data;
 	}
 	//批量插入
 	public boolean insertBatch(String sql, JSONArray params) throws Exception{
@@ -194,8 +209,10 @@ public class DbBase {
 		printSql();
 		return this.pstm;
 	}
+	//this.pstm.addBatch(sql)支持添加不同的SQL语句，所以，可以不用先拼接插入或修改的key集合
 	public PreparedStatement fillPstm(String sql, JSONArray params) throws SQLException {
 		this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		this.pstm.clearBatch();
 		for (int i = 0; i < params.size(); i++) {
             this.fillPstm(sql, params.getJSONObject(i));
             this.pstm.addBatch();

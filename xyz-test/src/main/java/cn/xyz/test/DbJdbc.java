@@ -31,9 +31,6 @@ public class DbJdbc extends DbBase{
 	public Connection getConnection() throws Exception {
 		if(this.conn == null || this.conn.isClosed()) {
 			Class.forName(properties.getProperty(this.db_name+"_driver"));
-			System.out.println(properties.getProperty(this.db_name+"_url"));
-			System.out.println(properties.getProperty(this.db_name+"_user"));
-			System.out.println(properties.getProperty(this.db_name+"_password"));
 			this.conn = DriverManager.getConnection(properties.getProperty(this.db_name+"_url"), properties.getProperty(this.db_name+"_user"), properties.getProperty(this.db_name+"_password"));
 		}
 		return this.conn;

@@ -54,13 +54,9 @@ public class DbDruid extends DbBase{
 		return ds;
 	}
 	
-    public Connection getConnection(String dbName) throws SQLException {
-        return this.getDataSource().getConnection();
- 
-    }
     public Connection getConnection() throws Exception {
 		if(this.conn == null || this.conn.isClosed()) {
-			this.conn = this.getConnection(this.db_name);
+			this.conn = this.getDataSource().getConnection();
 		}
 		return this.conn;
 	}
