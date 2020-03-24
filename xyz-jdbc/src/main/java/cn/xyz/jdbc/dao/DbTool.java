@@ -7,8 +7,6 @@ import java.util.Set;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fujikon.lib.ToolsSql;
-import com.fujikon.lib.t;
 
 import cn.xyz.common.pojo.Basic;
 import cn.xyz.common.tools.Tools;
@@ -84,7 +82,7 @@ public class DbTool extends Basic{
 					key += CREATE_BY + ",";
 					value += "'"+entby + "',";
 					key += CREATE_DATE + ",";
-					value += "'"+ToolsDate.getString(pattern, date)() + "',";
+					value += "'"+ToolsDate.getString() + "',";
 				}
 			}
 			this.sql += "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
@@ -454,8 +452,27 @@ public class DbTool extends Basic{
 		}else {
 			return "select " + projection +sql.substring(beginIndex);
 		}
-	} 
-	
+	}
+	/**
+	 * 分割数组，分批插入
+	 * @param table
+	 * @param data
+	 * @return
+	 */
+	public static boolean addBatch(String table, JSONArray data) {
+		int x = (int)Math.ceil((double)(data.size())/128);
+		for (int j = 0; j < x; j++) {
+			int a=j*128;
+			int b=((j+1)*128) > data.size() ? data.size() : (j+1)*128 ;
+			//db.addBatch(table, data.subList(a, b));
+		}
+		/*for (int i = 1; i <= data.size(); i++) {
+			if((i & 127) == 0 || i == data.size()) {
+				
+			}
+		}*/
+		return false;
+	}
 	
 	public String getSql() {
 		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ this.sql.replaceAll("\t", " ").replaceAll(" +"," "));
