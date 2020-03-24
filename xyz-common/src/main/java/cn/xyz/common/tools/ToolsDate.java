@@ -22,10 +22,10 @@ public class ToolsDate {
 		if (Tools.isEmpty(date)) {
 			return null;
 		}
-		date = date.replaceAll("/", "-");
+		String str = date.replaceAll("/", "-");
 		String pattern ="";
-		for (int i = 0; i < date.length(); i++) {
-			String s = date.substring(i,i+1);
+		for (int i = 0; i < str.length(); i++) {
+			String s = str.substring(i,i+1);
 			if(Pattern.matches("[0-9a-zA-Z]", s)) {
 				pattern += "[0-9a-zA-Z]";
 			}else {
@@ -39,7 +39,7 @@ public class ToolsDate {
 			}
 		}
 		DateFormat format = new SimpleDateFormat(pattern, Locale.ENGLISH);
-		return format.parse(date);
+		return format.parse(str);
 		//return DateUtils.parseDate(date.trim(), Locale.ENGLISH, patterns);
 	}
 	public static String getString() {

@@ -3,8 +3,8 @@ package cn.xyz.test.testJdbc;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.jdbc.dao.DbBase;
-import cn.xyz.jdbc.dao.DbTool;
+import cn.xyz.orm.db.DbBase;
+import cn.xyz.orm.db.DbTool;
 
 public class Test1 {
 

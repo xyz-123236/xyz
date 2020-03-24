@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.tools.ToolsExcel;
-import cn.xyz.jdbc.dao.DbBase;
+import cn.xyz.orm.db.DbBase;
 import cn.xyz.test.pojo.Config;
 
 public class Test1 {

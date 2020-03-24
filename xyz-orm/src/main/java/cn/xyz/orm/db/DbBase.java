@@ -1,4 +1,4 @@
-package cn.xyz.jdbc.dao;
+package cn.xyz.orm.db;
 
 import java.io.IOException;
 import java.io.InputStream;
