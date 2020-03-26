@@ -4,6 +4,7 @@ excel解析增加参数list<String> fields,把每行转换成JSONObject，方便
 清除key，添加修改/创建放在service做（继承一个servicebasce或公共类）
 
 find返回jsonobject,包括count和data
+把conn放在外面，用于service控制事务
 
 超级管理员不需要分配权限，拥有所有权限
 其他用户可以分配已有的权限给别人（需要有分配权，用户管理（只能建下层角色））,并可以下层也可使用分配权
