@@ -5,6 +5,7 @@ excel解析增加参数list<String> fields,把每行转换成JSONObject，方便
 
 find返回jsonobject,包括count和data
 把conn放在外面，用于service控制事务
+where条件and改为query对象：使用setString（key，value），setint(),setdate()添加不同的值（可以通过数据库字段类型处理）
 
 超级管理员不需要分配权限，拥有所有权限
 其他用户可以分配已有的权限给别人（需要有分配权，用户管理（只能建下层角色））,并可以下层也可使用分配权
