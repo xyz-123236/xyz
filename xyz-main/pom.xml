@@ -12,7 +12,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>cn.xyz</groupId>
-			<artifactId>xyz-common</artifactId>
+			<artifactId>xyz-orm</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

@@ -14,7 +14,7 @@ import cn.xyz.common.tools.ToolsDate;
 import cn.xyz.common.tools.ToolsJson;
 
 public class DbTool extends Basic{
-	private String sql;
+	private StringBuffer sql;
 	
 	//存入数据字典，加载时放入Application或Redis缓存
 	public static String[] DEFAULT_REMOVE_KEYS = {"page","rows","sort","order","jsp_name"};
@@ -59,7 +59,7 @@ public class DbTool extends Basic{
 	 * @throws Exception
 	 */
 	public DbTool insert(String table, JSONObject row, String entby, boolean remove, String...keys) throws Exception{
-		this.sql = "";
+		this.sql = new StringBuffer();
 		if(!Tools.isEmpty(row)) {
 			String key = "";
 			String value = "";
@@ -85,7 +85,7 @@ public class DbTool extends Basic{
 					value += "'"+ToolsDate.getString() + "',";
 				}
 			}
-			this.sql += "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")";
+			this.sql.append( "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")");
 		}else {
 			throw new Exception("没有要插入的数据");
 		}
@@ -96,7 +96,7 @@ public class DbTool extends Basic{
 	}
 	//处理sql
 	public DbTool insertBatch(String table,JSONArray params, String entby, boolean remove, String...keys) throws Exception {
-		this.sql = "";
+		this.sql = new StringBuffer();
 		if(!Tools.isEmpty(params)) {
 			Set<String> key_set = new HashSet<>();
 			if(remove) {
@@ -128,20 +128,20 @@ public class DbTool extends Basic{
 					feilds += key + ",";
 					values += "?" + ",";
 				}
-				this.sql += "insert into "+table+" ("+feilds.substring(0,feilds.lastIndexOf(","))+ ") values ("+values.substring(0,values.lastIndexOf(","))+ ")";
+				this.sql.append("insert into "+table+" ("+feilds.substring(0,feilds.lastIndexOf(","))+ ") values ("+values.substring(0,values.lastIndexOf(","))+ ")");
 			}
 		}
 		return this;
 	}
 	public DbTool insert(String table, JSONArray rows, String usercode){
-		this.sql = "";
+		this.sql = new StringBuffer();
 		return this;
 	}
 	public DbTool update(String table, JSONObject row, String usercode, Object...removeKey) throws Exception{
 		return update(table, row, usercode, true, removeKey);
 	}
 	public DbTool update(String table, JSONObject row, String usercode, boolean remove, Object...keys) throws Exception{
-		this.sql = "";
+		this.sql = new StringBuffer();
 		if(!Tools.isEmpty(row)) {
 			String set = "";
 			if(remove) {
@@ -162,7 +162,7 @@ public class DbTool extends Basic{
 					set += UPDATE_DATE + "='"+ToolsDate.getString()+"',";
 				}
 			}
-			this.sql += "update "+table+" set "+set.substring(0,set.lastIndexOf(","));
+			this.sql.append( "update "+table+" set "+set.substring(0,set.lastIndexOf(",")));
 		}else {
 			throw new Exception("没有要插入的数据");
 		}
@@ -172,11 +172,11 @@ public class DbTool extends Basic{
 	
 	
 	public DbTool delete(String table, JSONObject row) {
-		this.sql = "";
+		this.sql = new StringBuffer();
 		return this;
 	}
 	public DbTool deleteLogic(String table, JSONObject row, String usercode) {
-		this.sql = "";
+		this.sql = new StringBuffer();
 		return this;
 	}
 	/*public ToolsSql insert(String table) {
@@ -214,20 +214,20 @@ public class DbTool extends Basic{
 		return select(table, "*");
 	}
 	public DbTool select(String table, String fields) {
-		this.sql = "";
-		this.sql += "select " + fields + " from " + table;
+		this.sql = new StringBuffer();
+		this.sql.append( "select " + fields + " from " + table);
 		return this;
 	}
 	public DbTool left(String table, String on) {
-		this.sql += " left join " + table + " on " + on;
+		this.sql.append( " left join " + table + " on " + on);
 		return this;
 	}
 	public DbTool right(String table, String on) {
-		this.sql += " right join " + table + " on " + on;
+		this.sql.append( " right join " + table + " on " + on);
 		return this;
 	}
 	public DbTool inner(String table, String on) {
-		this.sql += " inner join " + table + " on " + on;
+		this.sql.append( " inner join " + table + " on " + on);
 		return this;
 	}
 	/**
@@ -251,7 +251,7 @@ public class DbTool extends Basic{
 	 * @throws Exception 
 	 */
 	public DbTool where(String dateKey, JSONObject row, String...removeKey) throws Exception {
-		this.sql += " where 1 = 1 ";
+		this.sql.append( " where 1 = 1 ");
 		if(!Tools.isEmpty(row)) {
 			JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
 			for(String key:obj.keySet()){
@@ -260,7 +260,7 @@ public class DbTool extends Basic{
 					this.date(dateKey, row);
 				}else {
 					if(!Tools.isEmpty(value) && !DATE_TO.equals(key)) {
-						this.sql += " and "+key+" like '%"+value.trim()+"%' ";
+						this.sql.append( " and "+key+" like '%"+value.trim()+"%' ");
 					}
 				}
 			}
@@ -272,9 +272,9 @@ public class DbTool extends Basic{
 	}
 	public DbTool where(String condition) throws Exception {
 		if(!Tools.isEmpty(condition)) {
-			this.sql += " where 1 = 1 ";
+			this.sql.append( " where 1 = 1 ");
 		}else {
-			this.sql += " where " + condition;
+			this.sql.append( " where " + condition);
 		}
 		return this;
 	}
@@ -300,9 +300,9 @@ public class DbTool extends Basic{
         }
 		if(!Tools.isEmpty(value)) {
 			if("%".equals(op)) {
-				this.sql += " and "+key+" like '%"+value+"%' ";
+				this.sql.append( " and "+key+" like '%"+value+"%' ");
 			}else {
-				this.sql += " and "+key+" "+op+" '"+value+"' ";
+				this.sql.append( " and "+key+" "+op+" '"+value+"' ");
 			}
 		}
 		return this;
@@ -315,18 +315,18 @@ public class DbTool extends Basic{
 	}
 	public DbTool or(String value, String op, String... fields) throws Exception {
 		if(!Tools.isEmpty(value)) {
-			this.sql += " and (";
+			this.sql.append( " and (");
 			for (int i = 0; i < fields.length; i++) {
 				if(i != 0) {
-					this.sql += " or ";
+					this.sql.append( " or ");
 				}
 				if("%".equals(op)) {
-					this.sql += fields[i] + " like '%"+value+"%' ";
+					this.sql.append( fields[i] + " like '%"+value+"%' ");
 				}else {
-					this.sql += fields[i] + " "+op+" '"+value+"' ";
+					this.sql.append( fields[i] + " "+op+" '"+value+"' ");
 				}
 			}
-			this.sql += ") ";
+			this.sql.append( ") ");
 		}
 		return this;
 	}
@@ -346,15 +346,15 @@ public class DbTool extends Basic{
 			}
 			sb.append("'"+str[i]+"'");
 		} 
-		this.sql += field + " in ("+sb.toString()+") ";
+		this.sql.append( field + " in ("+sb.toString()+") ");
 		return this;
 	}
 	public DbTool empty(String field) {
-		this.sql += " and ("+field+" is null or "+field+" = '') ";
+		this.sql.append( " and ("+field+" is null or "+field+" = '') ");
 		return this;
 	}
 	public DbTool notEmpty(String field) {
-		this.sql += " and ("+field+" is not null and "+field+" != '') ";
+		this.sql.append( " and ("+field+" is not null and "+field+" != '') ");
 		return this;
 	}
 	public DbTool date(String key, JSONObject row) throws Exception {
@@ -362,9 +362,9 @@ public class DbTool extends Basic{
 		if(!Tools.isEmpty(dateFrom)) {
 			String dateTo = row.getString(DATE_TO);
 			if(Tools.isEmpty(dateTo)) {
-				this.sql += " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateFrom + " 23:59:59' ";
+				this.sql.append( " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateFrom + " 23:59:59' ");
 			}else {
-				this.sql += " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateTo + " 23:59:59' ";
+				this.sql.append( " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateTo + " 23:59:59' ");
 			}
 		}
 		return this;
@@ -381,37 +381,37 @@ public class DbTool extends Basic{
 	 */
 	public DbTool order(String sortDafault, boolean removeDafault) throws Exception {
 		if(!Tools.isEmpty(this.sort) || !Tools.isEmpty(sortDafault)) {
-			this.sql += " order by ";
+			this.sql.append( " order by ");
 			if(!Tools.isEmpty(this.sort)) {
 				String[] orders = this.order.split(",");
 				String[] sorts = this.sort.split(",");
 				for (int i = 0; i < sorts.length; i++) {
 					if("asc".equals(orders[i].trim())) {
-						this.sql += sorts[i] + " asc, ";
+						this.sql.append( sorts[i] + " asc, ");
 					}else {
-						this.sql += sorts[i] + " desc, ";
+						this.sql.append( sorts[i] + " desc, ");
 					}
 				}
 			}
 			if(!Tools.isEmpty(sortDafault) && (Tools.isEmpty(this.sort) || !removeDafault)) {
-				this.sql += sortDafault;
+				this.sql.append( sortDafault);
 			}else {
-				this.sql = this.sql.substring(0, this.sql.lastIndexOf(","));
+				this.sql = new StringBuffer( this.sql.substring(0, this.sql.lastIndexOf(",")));
 			}
 		}
 		return this;
 	}
 	public DbTool group(String group) throws Exception {
 		if(!Tools.isEmpty(group)) {
-			this.sql += " group by " + group;
+			this.sql.append( " group by " + group);
 		}
 		return this;
 	}
 	public DbTool limit() throws Exception {
-		if(!this.sql.toLowerCase().contains("limit") && this.rows > 0)
+		if(!this.sql.toString().toLowerCase().contains("limit") && this.rows > 0)
 		{
-			this.sql += " limit " + this.rows;// rows 页面容量
-			this.sql += " offset "+ ((this.page-1)*this.rows);// page 开始页
+			this.sql.append( " limit " + this.rows);// rows 页面容量
+			this.sql.append( " offset "+ ((this.page-1)*this.rows));// page 开始页
 		}
 		return this;
 	}
@@ -427,7 +427,7 @@ public class DbTool extends Basic{
 	}
 
 	public String countSql() throws Exception {
-		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toLowerCase().indexOf(" from "));
+		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toString().toLowerCase().indexOf(" from "));
 		if(countSql.toLowerCase().contains(" order ")) {
 			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));
 		}else if(countSql.toLowerCase().contains(" limit ")) {
@@ -475,11 +475,11 @@ public class DbTool extends Basic{
 	}
 	
 	public String getSql() {
-		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ this.sql.replaceAll("\t", " ").replaceAll(" +"," "));
-		return this.sql;
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ this.sql.toString().replaceAll("\t", " ").replaceAll(" +"," "));
+		return this.sql.toString();
 	}
 	public DbTool setSql(String sql) {
-		this.sql = sql;
+		this.sql = new StringBuffer(sql);
 		return this;
 	}
 
