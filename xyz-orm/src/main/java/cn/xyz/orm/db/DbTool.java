@@ -256,6 +256,23 @@ public class DbTool extends Basic{
 			JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
 			for(String key:obj.keySet()){
 				String value = obj.getString(key);
+				/*if(obj.get(key) instanceof Date) {
+					this.date(key.substring(0, key.indexOf("_from")), row);
+				}*/
+				if(key.indexOf("_date_from") > 0) {
+					this.date(key.substring(0, key.indexOf("_from")), row);
+				}else if(key.indexOf("_from") > 0) {
+					String dateFrom = row.getString(DATE_FROM);
+					if(!Tools.isEmpty(dateFrom)) {
+						String a = "锯锯锯锯锯锯锯锯";
+						String dateTo = row.getString(DATE_TO);
+						if(Tools.isEmpty(dateTo)) {
+							this.sql.append( " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateFrom + " 23:59:59' ");
+						}else {
+							this.sql.append( " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateTo + " 23:59:59' ");
+						}
+					}
+				}
 				if(DATE_FROM.equals(key)) {
 					this.date(dateKey, row);
 				}else {
@@ -459,6 +476,16 @@ public class DbTool extends Basic{
 	 * @param data
 	 * @return
 	 */
+	public String[] getBatchSql(String table, JSONArray data, String username) throws Exception {
+		int n = (int)Math.ceil((double)(data.size())/128);
+		String[] s = new String[n];
+		for (int i = 0; i < n; i++) {
+			int begin=i*128;
+			int end=((i+1)*128) > data.size() ? data.size() : (i+1)*128 ;
+			//s[i] = ToolsSql.getInstance().insertBatch(table, JSON.parseArray(JSON.toJSONString(data.subList(begin, end))), username).getSql();
+		}
+		return s;
+	}
 	public static boolean addBatch(String table, JSONArray data) {
 		int x = (int)Math.ceil((double)(data.size())/128);
 		for (int j = 0; j < x; j++) {

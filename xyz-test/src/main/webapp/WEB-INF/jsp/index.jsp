@@ -4,8 +4,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<s:include value="../../head.jsp"></s:include>
-<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery.form.js"></script>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- <s:include value="../../head.jsp"></s:include> -->
 </head>
 <body>
 	<%-- <s:include value="../../include/head.jsp"></s:include>
@@ -83,9 +84,9 @@
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#master-edit-dialog').dialog('close')" style="width: 90px">关闭</a>
 	</div>
 	
-<input id="path" type="hidden" value="${pageContext.request.contextPath}">
+<%-- <input id="path" type="hidden" value="${pageContext.request.contextPath}"> --%>
 
-<script type="text/javascript" src="${pageContext.request.contextPath}/js/datagrid-common.js"></script>
+<script type="text/javascript" src="common/datagrid-common.js"></script>
 <script type="text/javascript">
 	$(function(){
 		_params.type = 'allowanceUser';//处理的类

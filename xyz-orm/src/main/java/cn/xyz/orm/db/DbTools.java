@@ -1,4 +1,4 @@
-package cn.xyz.test;
+package cn.xyz.orm.db;
 
 import java.util.List;
 

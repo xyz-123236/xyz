@@ -7,14 +7,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.tools.ToolsExcel;
-import cn.xyz.orm.db.DbBase;
+import cn.xyz.orm.db.DbBase3;
 import cn.xyz.test.pojo.Config;
 
 public class Test1 {
 
 	public static void main(String[] args) {
 		try {
-			DbBase db = DbBase.getInstance("mysql");
+			DbBase3 db = DbBase3.getInstance("mysql");
 			JSONArray data = db.find("select * from sn_detail");
 			
 			JSONObject obj = new JSONObject();

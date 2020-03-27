@@ -1,4 +1,4 @@
-package cn.xyz.test;
+package cn.xyz.orm.db;
 
 public class And {
 	protected And() {}

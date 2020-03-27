@@ -22,9 +22,9 @@ public class ToolsSql extends BasicPojo{
 	}
 	
 	public JSONArray find() throws Exception {
-		return find(DbBase.getInstance("mysql"));
+		return find(DbBase3.getInstance("mysql"));
 	}
-	public JSONArray find(DbBase db) throws Exception {
+	public JSONArray find(DbBase3 db) throws Exception {
 		if(!this.sql.toLowerCase().contains("limit") && this.obj.getIntValue("rows") > 0)
 		{
 			this.sql += " limit " + this.rows;// rows 页面容量
@@ -35,9 +35,9 @@ public class ToolsSql extends BasicPojo{
 		return db.find(this.sql);
 	}
 	public Integer count() throws Exception {
-		return count(DbBase.getInstance("mysql"));
+		return count(DbBase3.getInstance("mysql"));
 	}
-	public Integer count(DbBase db) throws Exception {
+	public Integer count(DbBase3 db) throws Exception {
 		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toLowerCase().indexOf(" from "));
 		if(countSql.toLowerCase().contains(" order ")) {
 			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));
