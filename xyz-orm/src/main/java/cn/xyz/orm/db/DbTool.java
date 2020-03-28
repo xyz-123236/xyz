@@ -1,5 +1,6 @@
 package cn.xyz.orm.db;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -453,9 +454,7 @@ public class DbTool extends Basic{
 		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ countSql.replaceAll(" +"," "));
 		return countSql;
 	}
-	public String limitData(JSONArray data) {
-		return JSON.toJSONString(data.subList((this.page-1)*this.rows, this.page*this.rows>data.size()?data.size():this.page*this.rows));
-	}
+	
 
 	public static String replaceProjection(String sql, String projection) {
 		return replaceProjection(sql, projection, true);
@@ -469,6 +468,29 @@ public class DbTool extends Basic{
 		}else {
 			return "select " + projection +sql.substring(beginIndex);
 		}
+	}
+	public JSONArray sortData(JSONArray data) throws Exception {
+		if(!Tools.isEmpty(data)) {
+			if("asc".equals(this.order)) {
+				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)));
+			}else if("desc".equals(this.order)){
+				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)).reversed());
+			}
+		}
+		return data;
+	}
+	public JSONArray limitData(JSONArray data) throws Exception {
+		if(!Tools.isEmpty(data)){
+			int begin = (this.page-1)*this.rows;
+			int end = (begin+this.rows) > data.size()?data.size():(begin+this.rows);
+			JSONArray t = new JSONArray();
+			for (int i = begin; i < end; i++) {
+				t.add(data.getJSONObject(i));
+			}
+			return t;
+			//return JSON.parseArray(JSON.toJSONString(data.subList(begin, end)));
+		}
+		return data;
 	}
 	/**
 	 * 分割数组，分批插入
