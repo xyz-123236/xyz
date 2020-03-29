@@ -1,5 +1,7 @@
 package cn.xyz.main.service.sys;
 
-public interface SysUserService {
+import com.alibaba.fastjson.JSONArray;
 
+public interface SysUserService {
+	public boolean isAdmin(JSONArray data) throws Exception;
 }

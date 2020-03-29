@@ -1,8 +1,11 @@
 package cn.xyz.orm.db;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
@@ -471,11 +474,32 @@ public class DbTool extends Basic{
 	}
 	public JSONArray sortData(JSONArray data) throws Exception {
 		if(!Tools.isEmpty(data)) {
-			if("asc".equals(this.order)) {
+			/*if("asc".equals(this.order)) {
 				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)));
 			}else if("desc".equals(this.order)){
 				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)).reversed());
-			}
+			}*/
+			JSONArray sortData = new JSONArray();
+	        List<JSONObject> list = new ArrayList<JSONObject>();
+	        for (int i = 0; i < data.size(); i++) {
+	        	list.add(data.getJSONObject(i));
+	        }
+	        Collections.sort(list, (JSONObject a, JSONObject b)-> {
+                String valA = a.getString(this.sort) == null? "" :a.getString(this.sort);
+                String valB = b.getString(this.sort) == null? "" :b.getString(this.sort);
+                //是升序还是降序
+                if("asc".equals(this.order)) {
+                	return valA.compareTo(valB);
+                }else if("desc".equals(this.order)){
+                    return valB.compareTo(valA);
+                }else {
+                	return 0;
+                }
+	        });
+	        for (int i = 0; i < list.size(); i++) {
+	        	sortData.add(list.get(i));
+	        }
+	        return sortData;
 		}
 		return data;
 	}
