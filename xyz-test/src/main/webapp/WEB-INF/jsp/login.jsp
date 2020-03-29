@@ -7,6 +7,9 @@
 <title>Insert title here</title>
 </head>
 <body>
-test
+<form action="/test2/test" method="post" enctype="multipart/form-data">
+	<input type="file" name="file" value="">
+	<input type="submit">
+</form>
 </body>
 </html>

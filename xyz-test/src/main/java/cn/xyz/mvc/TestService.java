@@ -1,5 +1,7 @@
 package cn.xyz.mvc;
 
+import com.alibaba.fastjson.JSONObject;
+
 public interface TestService {
-    void printParam(String param);
+    void printParam(JSONObject param);
 }

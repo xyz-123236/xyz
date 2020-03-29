@@ -390,9 +390,7 @@ public class DbTool extends Basic{
 		}
 		return this;
 	}
-	public DbTool order(String sortDafault) throws Exception {
-		return order(sortDafault, false);
-	}
+	
 	/**
 	 * 	排序
 	 * @param sortDafault
@@ -400,25 +398,33 @@ public class DbTool extends Basic{
 	 * @return
 	 * @throws Exception
 	 */
-	public DbTool order(String sortDafault, boolean removeDafault) throws Exception {
+	public DbTool order(String... sortDafault) throws Exception {
 		if(!Tools.isEmpty(this.sort) || !Tools.isEmpty(sortDafault)) {
 			this.sql.append( " order by ");
+			StringBuffer order_sql = new StringBuffer();
 			if(!Tools.isEmpty(this.sort)) {
 				String[] orders = this.order.split(",");
 				String[] sorts = this.sort.split(",");
 				for (int i = 0; i < sorts.length; i++) {
 					if("asc".equals(orders[i].trim())) {
-						this.sql.append( sorts[i] + " asc, ");
+						order_sql.append( sorts[i] + " asc, ");
 					}else {
-						this.sql.append( sorts[i] + " desc, ");
+						order_sql.append( sorts[i] + " desc, ");
 					}
 				}
 			}
-			if(!Tools.isEmpty(sortDafault) && (Tools.isEmpty(this.sort) || !removeDafault)) {
-				this.sql.append( sortDafault);
-			}else {
-				this.sql = new StringBuffer( this.sql.substring(0, this.sql.lastIndexOf(",")));
+			if(!Tools.isEmpty(sortDafault)){
+				for (int i = 0; i < sortDafault.length; i++) {
+					String[] sorts = sortDafault[i].split(",");
+					for (int j = 0; j < sorts.length; j++) {
+						if(order_sql.indexOf(" "+ sorts[j].trim() +" ") < 0) {
+							order_sql.append(sorts[j] + " asc, ");
+						}
+					}
+				}
 			}
+			this.sql = this.sql.append(order_sql);
+			this.sql = new StringBuffer( this.sql.substring(0, this.sql.lastIndexOf(",")));
 		}
 		return this;
 	}
@@ -436,18 +442,18 @@ public class DbTool extends Basic{
 		}
 		return this;
 	}
-	public String asSql(String as) throws Exception {
+	public String asTable(String table) throws Exception {
 		String asSql = " ("+this.sql+") as ";
-		if(Tools.isEmpty(as)) {
+		if(Tools.isEmpty(table)) {
 			asSql += "temp ";
 		}else {
-			asSql += as;
+			asSql += table;
 		}
 		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ asSql.replaceAll(" +"," "));
 		return asSql;
 	}
 
-	public String countSql() throws Exception {
+	public String countSql() throws Exception {//hana不支持对order进行count，mysql支持
 		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toString().toLowerCase().indexOf(" from "));
 		if(countSql.toLowerCase().contains(" order ")) {
 			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));

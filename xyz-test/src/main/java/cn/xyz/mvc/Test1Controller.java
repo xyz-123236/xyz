@@ -3,6 +3,8 @@ package cn.xyz.mvc;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
+
 @MyController()
 @MyRequestMapping("test1")
 public class Test1Controller {
@@ -12,10 +14,10 @@ public class Test1Controller {
 
     @MyRequestMapping("test")
     public void myTest(HttpServletRequest request, HttpServletResponse response,
-                      @MyRequestParam("param") String param){
+                      JSONObject obj){
         try {
-            response.getWriter().write( "Test1Controller:the param you send is :"+param);
-            this.testService.printParam(param);
+            response.getWriter().write( "Test1Controller:the param you send is :"+obj);
+            this.testService.printParam(obj);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -5,14 +5,25 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
+import com.alibaba.fastjson.JSONObject;
+
+import cn.xyz.common.tools.*;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Logger;
 
 
 public class MyDispatcherServlet extends HttpServlet {
@@ -81,19 +92,70 @@ public class MyDispatcherServlet extends HttpServlet {
         }
     }
 
-    private void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    private void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if(this.handlerMapping.isEmpty()){
             return;
         }
-        String url =req.getRequestURI();
-        String contextPath = req.getContextPath();
+        String url =request.getRequestURI();
+        String contextPath = request.getContextPath();
         url=url.replace(contextPath, "").replaceAll("/+", "/");
         // 去掉url前面的斜杠"/"，所有的@MyRequestMapping可以不用写斜杠"/"
         if(url.lastIndexOf('/')!=0){
             url=url.substring(1);
         }
+        
+         System.out.println( request.getAttribute("content-type"));
+        request.setCharacterEncoding("utf-8");  //设置编码
+        //获得磁盘文件条目工厂  
+        DiskFileItemFactory factory = new DiskFileItemFactory();  
+        //获取文件需要上传到的路径  
+        String path2 = request.getSession().getServletContext().getRealPath(File.separator)+"upload"+File.separator+ToolsDate.getString("yyyyMMdd")+File.separator;  
+        System.out.println(path2);
+        String path = "E:/file/upload/"+ToolsDate.getString() + File.separator; 
+        String url2 = "/file/upload/"+ToolsDate.getString() + File.separator;
+          
+        //如果没以下两行设置的话，上传大的 文件 会占用 很多内存，  
+        //设置暂时存放的 存储室 , 这个存储室，可以和 最终存储文件 的目录不同  
+        /** 
+         * 原理 它是先存到 暂时存储室，然后在真正写到 对应目录的硬盘上，  
+         * 按理来说 当上传一个文件时，其实是上传了两份，第一个是以 .tem 格式的  
+         * 然后再将其真正写到 对应目录的硬盘上 
+         */  
+		factory.setRepository(new File(path));  
+        //设置 缓存的大小，当上传文件的容量超过该缓存时，直接放到 暂时存储室  
+        factory.setSizeThreshold(1024*1024) ;  
+     
+        //高水平的API文件上传处理  
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        // 设置上传内容的大小限制（单位：字节）
+        upload.setSizeMax(100*1024*1024L);
+        JSONObject obj = new JSONObject();
+        try {  
+            //可以上传多个文件  
+            List<FileItem> list = (List<FileItem>)upload.parseRequest(request);
+            for(FileItem item : list) {  
+                //获取表单的属性名字  
+                String name = item.getFieldName();
+                //如果获取的 表单信息是普通的 文本 信息  
+                if(item.isFormField()) {
+                    obj.put(name, item.getString());
+                } else {  //对传入的非 简单的字符串进行处理 ，比如说二进制的 图片，电影这些 
+                	obj.put(name, ToolsFile.upload(item, path, url2, response));
+                }  
+            }
+        }
+        catch (Exception e) {  
+            e.printStackTrace();  
+        }  
+          
+          
+        //request.getRequestDispatcher("filedemo.jsp").forward(request, response);  
+        
+        
+        
+        
         if(!this.handlerMapping.containsKey(url)){
-            resp.getWriter().write("404 NOT FOUND!");
+        	response.getWriter().write("404 NOT FOUND!");
             System.out.println("404 NOT FOUND!");
             return;
         }
@@ -102,7 +164,7 @@ public class MyDispatcherServlet extends HttpServlet {
         Class<?>[] parameterTypes = method.getParameterTypes();
 
         //获取请求的参数
-        Map<String, String[]> parameterMap = req.getParameterMap();
+        Map<String, String[]> parameterMap = request.getParameterMap();
         //保存参数值
         Object [] paramValues= new Object[parameterTypes.length];
         //方法的参数列表
@@ -111,20 +173,24 @@ public class MyDispatcherServlet extends HttpServlet {
             String requestParam = parameterTypes[i].getSimpleName();
             if (requestParam.equals("HttpServletRequest")){
                 //参数类型已明确，这边强转类型
-                paramValues[i]=req;
+                paramValues[i]=request;
                 continue;
             }
             if (requestParam.equals("HttpServletResponse")){
-                paramValues[i]=resp;
+                paramValues[i]=response;
+                continue;
+            }
+            if (requestParam.equals("JSONObject")){
+                paramValues[i] = obj;
                 continue;
             }
             //文件怎么接收
-            if(requestParam.equals("String")){//不合理
+            /*if(requestParam.equals("JSONObject")){//不合理
                 for (Map.Entry<String, String[]> param : parameterMap.entrySet()) {
                     String value =Arrays.toString(param.getValue()).replaceAll("\\[|\\]", "").replaceAll(",\\s", ",");
                     paramValues[i]=value;
                 }
-            }
+            }*/
         }
         //利用反射机制来调用
         try {
@@ -249,7 +315,7 @@ public class MyDispatcherServlet extends HttpServlet {
                 }
                 field.setAccessible(true);
                 try {
-                    field.set(entry.getValue(),this.ioc.get(beanName));
+                    field.set(entry.getValue(),this.ioc.get(beanName));//列.set(对象，值)
                 }catch (Exception e){
                     e.printStackTrace();
                     continue;

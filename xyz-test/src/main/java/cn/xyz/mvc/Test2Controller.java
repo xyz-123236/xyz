@@ -11,7 +11,8 @@ public class Test2Controller {
     public static void myTest(HttpServletRequest request, HttpServletResponse response,
                       @MyRequestParam("param") String param){
         try {
-            response.getWriter().write( "Test2Controller:the param you send is :"+param);
+            //response.getWriter().write( "Test2Controller:the param you send is :"+param);
+        	response.sendRedirect("/WEB-INF/jsp/login.jsp");
         } catch (Exception e) {
             e.printStackTrace();
         }
