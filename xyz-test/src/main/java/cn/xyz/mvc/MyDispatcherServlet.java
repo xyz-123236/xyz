@@ -190,7 +190,7 @@ public class MyDispatcherServlet extends HttpServlet {
         
         
         
-        if(!this.handlerMapping.containsKey(url)){
+        if(!this.handlerMapping.containsKey(url)){//需要处理/*,view/{url}(@PathVariable)
         	//System.out.println(url);
         	//response.getWriter().write("404 NOT FOUND!");
             System.out.println("404 NOT FOUND:"+url);
@@ -238,6 +238,7 @@ public class MyDispatcherServlet extends HttpServlet {
             if(method.isAnnotationPresent(MyResponseBoby.class)){
             	response.getWriter().write(obj2);
             }else if(obj2.indexOf("redirect:") >= 0) {
+            	//重定向带数据：使用model，再拼接url
             	response.sendRedirect(obj2.substring(9));
             }else {
             	if(request.getHeader("x-requested-with") == null) {
@@ -303,7 +304,7 @@ public class MyDispatcherServlet extends HttpServlet {
      * Author: CXJ
      * Date: 2018/6/16 19:09
      */
-    private void doInstance() {
+    private void doInstance() {//需要判断名称是否重复
 
         if (this.classNames.isEmpty()) {
             return;
@@ -412,7 +413,7 @@ public class MyDispatcherServlet extends HttpServlet {
      * Author: CXJ
      * Date: 2018/6/16 19:12
      */
-    private void initHandlerMapping(){
+    private void initHandlerMapping(){//需要判断路径是否重复
 
         if(this.ioc.isEmpty()){
             return;
