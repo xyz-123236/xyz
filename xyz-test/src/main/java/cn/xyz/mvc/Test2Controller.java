@@ -3,6 +3,8 @@ package cn.xyz.mvc;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.xyz.mvc.annotation.*;
+
 @MyController
 @MyRequestMapping("test2")
 public class Test2Controller {

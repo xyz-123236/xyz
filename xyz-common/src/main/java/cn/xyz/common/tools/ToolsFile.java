@@ -32,8 +32,7 @@ public class ToolsFile {
 		return createFileName("");
 	}
 	public static String createFileName(String split) {
-		split = split == null?"":split;
-		return ToolsDate.getString("yyyyMMddHHmmssSSS") + split + (new Random().nextInt(900) + 100);
+		return ToolsDate.getString("yyyyMMddHHmmssSSS") + (split == null?"":split) + (new Random().nextInt(900) + 100);
 	}
 	private static String getExt(String fileName) {
 		if (fileName == null)
@@ -90,18 +89,15 @@ public class ToolsFile {
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
-		java.io.BufferedInputStream bis = null;
-		java.io.BufferedOutputStream bos = null;
-	
 		//String downLoadPath =filePath.replaceAll("/", "\\\\\\\\");   //replace replaceAll区别
 		
-		try {
+		try(BufferedInputStream bis = new BufferedInputStream(new FileInputStream(savePath));
+				BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());) {
 			long fileLength = new File(savePath).length();
 			response.setContentType("application/x-msdownload;");
 			response.setHeader("Content-disposition", "attachment; filename=" + new String(fileName.getBytes("utf-8"), "ISO8859-1"));
 			response.setHeader("Content-Length", String.valueOf(fileLength));
-			bis = new BufferedInputStream(new FileInputStream(savePath));
-			bos = new BufferedOutputStream(response.getOutputStream());
+			
 			byte[] buff = new byte[2048];
 			int bytesRead;
 			while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
@@ -109,19 +105,6 @@ public class ToolsFile {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (bis != null)
-				try {
-					bis.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			if (bos != null)
-				try {
-					bos.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 		}
 	}
 	public static void main(String[] args) {

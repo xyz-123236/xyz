@@ -1,4 +1,4 @@
-package cn.xyz.mvc;
+package cn.xyz.mvc.servlet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.UploadContext;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
@@ -15,16 +14,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.tools.*;
+import cn.xyz.mvc.annotation.*;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -50,19 +47,19 @@ public class MyDispatcherServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init();
         System.out.println("初始化MyDispatcherServlet");
-        //1.加载配置文件，填充properties字段；
+        //1.加载配置文件，填充properties字段�?
         doLoadConfig(config.getInitParameter("contextConfigLocation"));
 
-        //2.根据properties，初始化所有相关联的类,扫描用户设定的包下面所有的类
+        //2.根据properties，初始化�?有相关联的类,扫描用户设定的包下面�?有的�?
         doScanner(this.properties.getProperty("scanPackage"));
 
-        //3.拿到扫描到的类,通过反射机制,实例化,并且放到ioc容器中(k-v  beanName-bean) beanName默认是首字母小写
+        //3.拿到扫描到的�?,通过反射机制,实例�?,并且放到ioc容器�?(k-v  beanName-bean) beanName默认是首字母小写
         doInstance();
 
-        // 4.自动化注入依赖
+        // 4.自动化注入依�?
         doAutowired();
 
-        //5.初始化HandlerMapping(将url和method对应上)
+        //5.初始化HandlerMapping(将url和method对应�?)
         initHandlerMapping();
 
         doAutowired2();
@@ -105,7 +102,7 @@ public class MyDispatcherServlet extends HttpServlet {
         }
         String contextPath = request.getContextPath();
         url=url.replace(contextPath, "").replaceAll("/+", "/");
-        // 去掉url前面的斜杠"/"，所有的@MyRequestMapping可以不用写斜杠"/"
+        // 去掉url前面的斜�?"/"，所有的@MyRequestMapping可以不用写斜�?"/"
         if(url.lastIndexOf('/')!=0){
             url=url.substring(1);
         }
@@ -117,21 +114,21 @@ public class MyDispatcherServlet extends HttpServlet {
         	request.setCharacterEncoding("utf-8");  //设置编码
             //获得磁盘文件条目工厂  
             DiskFileItemFactory factory = new DiskFileItemFactory();  
-            //获取文件需要上传到的路径  
+            //获取文件�?要上传到的路�?  
             String path2 = request.getSession().getServletContext().getRealPath(File.separator)+"upload"+File.separator+ToolsDate.getString("yyyyMMdd")+File.separator;  
             //System.out.println(path2);
             String path = "E:"+File.separator+"file"+File.separator+"upload"+File.separator+ToolsDate.getString("yyyyMMdd") + File.separator; 
             String url2 = "/file/upload/"+ToolsDate.getString() + "/";
               
-            //如果没以下两行设置的话，上传大的 文件 会占用 很多内存，  
-            //设置暂时存放的 存储室 , 这个存储室，可以和 最终存储文件 的目录不同  
+            //如果没以下两行设置的话，上传大的 文件 会占�? 很多内存�?  
+            //设置暂时存放�? 存储�? , 这个存储室，可以�? �?终存储文�? 的目录不�?  
             /** 
-             * 原理 它是先存到 暂时存储室，然后在真正写到 对应目录的硬盘上，  
-             * 按理来说 当上传一个文件时，其实是上传了两份，第一个是以 .tem 格式的  
-             * 然后再将其真正写到 对应目录的硬盘上 
+             * 原理 它是先存�? 暂时存储室，然后在真正写�? 对应目录的硬盘上�?  
+             * 按理来说 当上传一个文件时，其实是上传了两份，第一个是�? .tem 格式�?  
+             * 然后再将其真正写�? 对应目录的硬盘上 
              */  
     		factory.setRepository(new File(path));  
-            //设置 缓存的大小，当上传文件的容量超过该缓存时，直接放到 暂时存储室  
+            //设置 缓存的大小，当上传文件的容量超过该缓存时，直接放�? 暂时存储�?  
             factory.setSizeThreshold(1024*1024) ;  
          
             //高水平的API文件上传处理  
@@ -142,9 +139,9 @@ public class MyDispatcherServlet extends HttpServlet {
                 //可以上传多个文件  
                 List<FileItem> list = (List<FileItem>)upload.parseRequest(request);
                 for(FileItem item : list) {  
-                    //获取表单的属性名字  
+                    //获取表单的属性名�?  
                     String name = item.getFieldName();
-                    //如果获取的 表单信息是普通的 文本 信息  
+                    //如果获取�? 表单信息是普通的 文本 信息  
                     if(item.isFormField()) {
                     	if(obj.containsKey(name)) {
                     		if(obj.get(name) instanceof String) {
@@ -158,7 +155,7 @@ public class MyDispatcherServlet extends HttpServlet {
                     	}else {
                     		obj.put(name, item.getString());
                     	}
-                    } else {  //对传入的非 简单的字符串进行处理 ，比如说二进制的 图片，电影这些 
+                    } else {  //对传入的�? �?单的字符串进行处�? ，比如说二进制的 图片，电影这�? 
                     	//System.out.println(item.getSize());
                     	if(item != null && item.getSize() > 0)
                     	obj.put(name, ToolsFile.upload(item, path, url2, response));
@@ -190,21 +187,21 @@ public class MyDispatcherServlet extends HttpServlet {
         
         
         
-        if(!this.handlerMapping.containsKey(url)){//需要处理/*,view/{url}(@PathVariable)
+        if(!this.handlerMapping.containsKey(url)){//�?要处�?/*,view/{url}(@PathVariable)
         	//System.out.println(url);
         	//response.getWriter().write("404 NOT FOUND!");
             System.out.println("404 NOT FOUND:"+url);
             return;
         }
         Method method =this.handlerMapping.get(url);
-        //获取方法的参数列表
+        //获取方法的参数列�?
         Class<?>[] parameterTypes = method.getParameterTypes();
 
-        //获取请求的参数
+        //获取请求的参�?
         Map<String, String[]> parameterMap = request.getParameterMap();
-        //保存参数值
+        //保存参数�?
         Object [] paramValues= new Object[parameterTypes.length];
-        //方法的参数列表
+        //方法的参数列�?
         for (int i = 0; i<parameterTypes.length; i++){
             //根据参数名称，做某些处理
             String requestParam = parameterTypes[i].getSimpleName();
@@ -222,16 +219,16 @@ public class MyDispatcherServlet extends HttpServlet {
                 continue;
             }
             //文件怎么接收
-            /*if(requestParam.equals("JSONObject")){//不合理
+            /*if(requestParam.equals("JSONObject")){//不合�?
                 for (Map.Entry<String, String[]> param : parameterMap.entrySet()) {
                     String value =Arrays.toString(param.getValue()).replaceAll("\\[|\\]", "").replaceAll(",\\s", ",");
                     paramValues[i]=value;
                 }
             }*/
         }
-        //利用反射机制来调用
+        //利用反射机制来调�?
         try {
-            //第一个参数是method所对应的实例 在ioc容器中
+            //第一个参数是method�?对应的实�? 在ioc容器�?
             //method.invoke(this.controllerMap.get(url), paramValues);
             String obj2 = method.invoke(this.controllerMap.get(url), paramValues).toString();
             System.out.println(obj2);
@@ -256,7 +253,7 @@ public class MyDispatcherServlet extends HttpServlet {
     /**
      * Description:  根据配置文件位置，读取配置文件中的配置信息，将其填充到properties字段
      * Params:
-      * @param location: 配置文件的位置
+      * @param location: 配置文件的位�?
      * return: void
      * Author: CXJ
      * Date: 2018/6/16 19:07
@@ -265,7 +262,7 @@ public class MyDispatcherServlet extends HttpServlet {
         //把web.xml中的contextConfigLocation对应value值的文件加载到流里面
         try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(location);) {
             //用Properties文件加载文件里的内容
-            System.out.println("读取"+location+"里面的文件");
+            System.out.println("读取"+location+"里面的文�?");
             this.properties.load(resourceAsStream);
         } catch (IOException e) {
             e.printStackTrace();
@@ -276,7 +273,7 @@ public class MyDispatcherServlet extends HttpServlet {
     /**
      * Description:  将指定包下扫描得到的类，添加到classNames字段中；
      * Params:
-      * @param packageName: 需要扫描的包名
+      * @param packageName: �?要扫描的包名
      * return: void
      * Author: CXJ
      * Date: 2018/6/16 19:05
@@ -287,7 +284,7 @@ public class MyDispatcherServlet extends HttpServlet {
         File dir = new File(url.getFile());
         for (File file : dir.listFiles()) {
             if(file.isDirectory()){
-                //递归读取包
+                //递归读取�?
                 doScanner(packageName+"."+file.getName());
             }else{
                 String className =packageName +"." +file.getName().replace(".class", "");
@@ -297,21 +294,21 @@ public class MyDispatcherServlet extends HttpServlet {
     }
 
     /**
-     * Description:  将classNames中的类实例化，经key-value：类名（小写）-类对象放入ioc字段中
+     * Description:  将classNames中的类实例化，经key-value：类名（小写�?-类对象放入ioc字段�?
      * Params:
       * @param :
      * return: void
      * Author: CXJ
      * Date: 2018/6/16 19:09
      */
-    private void doInstance() {//需要判断名称是否重复
+    private void doInstance() {//�?要判断名称是否重�?
 
         if (this.classNames.isEmpty()) {
             return;
         }
         for (String className : this.classNames) {
             try {
-                //把类搞出来,反射来实例化(只有加@MyController需要实例化)
+                //把类搞出�?,反射来实例化(只有加@MyController�?要实例化)
                 Class<?> clazz =Class.forName(className);
                 if(clazz.isAnnotationPresent(MyController.class)){
                 	this.ioc.put(toLowerFirstWord(clazz.getSimpleName()),clazz.newInstance());
@@ -366,7 +363,7 @@ public class MyDispatcherServlet extends HttpServlet {
                 }
                 field.setAccessible(true);
                 try {
-                    field.set(entry.getValue(),this.ioc.get(beanName));//列.set(对象，值)
+                    field.set(entry.getValue(),this.ioc.get(beanName));//�?.set(对象，�??)
                 }catch (Exception e){
                     e.printStackTrace();
                     continue;
@@ -406,14 +403,14 @@ public class MyDispatcherServlet extends HttpServlet {
     }
 
     /**
-     * Description:  初始化HandlerMapping(将url和method对应上)
+     * Description:  初始化HandlerMapping(将url和method对应�?)
      * Params:
       * @param :
      * return: void
      * Author: CXJ
      * Date: 2018/6/16 19:12
      */
-    private void initHandlerMapping(){//需要判断路径是否重复
+    private void initHandlerMapping(){//�?要判断路径是否重�?
 
         if(this.ioc.isEmpty()){
             return;
@@ -425,7 +422,7 @@ public class MyDispatcherServlet extends HttpServlet {
                     continue;
                 }
 
-                //拼url时,是controller头的url拼上方法上的url
+                //拼url�?,是controller头的url拼上方法上的url
                 String baseUrl ="";
                 if(clazz.isAnnotationPresent(MyRequestMapping.class)){
                     MyRequestMapping annotation = clazz.getAnnotation(MyRequestMapping.class);
@@ -453,7 +450,7 @@ public class MyDispatcherServlet extends HttpServlet {
     }
 
     /**
-     * Description:  将字符串中的首字母小写
+     * Description:  将字符串中的首字母小�?
      * Params:
       * @param name:
      * return: java.lang.String

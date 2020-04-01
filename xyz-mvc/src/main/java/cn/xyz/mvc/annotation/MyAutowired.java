@@ -1,10 +1,9 @@
-package cn.xyz.mvc;
-
+package cn.xyz.mvc.annotation;
 import java.lang.annotation.*;
 
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface MyService {
+public @interface MyAutowired {
     String value() default "";
 }

@@ -1,4 +1,4 @@
-package cn.xyz.mvc;
+package cn.xyz.mvc.annotation;
 
 import java.lang.annotation.*;
 
