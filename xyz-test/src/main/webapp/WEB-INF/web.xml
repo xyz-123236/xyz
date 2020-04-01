@@ -15,7 +15,7 @@
 	</servlet-mapping>
 	<servlet>
 		<servlet-name>MyMVC</servlet-name>
-		<servlet-class>cn.xyz.mvc.MyDispatcherServlet</servlet-class>
+		<servlet-class>cn.xyz.mvc.servlet.XyzDispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
 			<param-value>myapplication.properties</param-value>

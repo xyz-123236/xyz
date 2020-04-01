@@ -2,9 +2,9 @@ package cn.xyz.mvc.annotation;
 
 import java.lang.annotation.*;
 
-@Target(ElementType.TYPE)
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface MyService {
-    String value() default "";
+public @interface XyzParam {
+    String value();
 }

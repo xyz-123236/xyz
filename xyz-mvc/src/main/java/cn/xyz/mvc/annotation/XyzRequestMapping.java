@@ -2,9 +2,9 @@ package cn.xyz.mvc.annotation;
 
 import java.lang.annotation.*;
 
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE,ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface MyController {
-    String value() default "";
+public @interface XyzRequestMapping {
+    String value();
 }

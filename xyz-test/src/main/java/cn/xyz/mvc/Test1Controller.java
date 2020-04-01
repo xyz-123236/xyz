@@ -8,15 +8,15 @@ import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.mvc.annotation.*;
 
-@MyController()
-@MyRequestMapping("test1")
+@XyzController()
+@XyzRequestMapping("test1")
 public class Test1Controller {
 
-    @MyAutowired
+    @XyzAutowired
     private TestService testService;
 
-    @MyRequestMapping("test")
-    @MyResponseBoby
+    @XyzRequestMapping("test")
+    @XyzResponseBoby
     public String myTest(HttpServletRequest request, HttpServletResponse response,
                       JSONObject obj){
         try {

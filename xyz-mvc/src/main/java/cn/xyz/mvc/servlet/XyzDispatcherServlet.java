@@ -25,7 +25,7 @@ import java.net.URL;
 import java.util.*;
 
 
-public class MyDispatcherServlet extends HttpServlet {
+public class XyzDispatcherServlet extends HttpServlet {
 
 
     /**
@@ -232,7 +232,7 @@ public class MyDispatcherServlet extends HttpServlet {
             //method.invoke(this.controllerMap.get(url), paramValues);
             String obj2 = method.invoke(this.controllerMap.get(url), paramValues).toString();
             System.out.println(obj2);
-            if(method.isAnnotationPresent(MyResponseBoby.class)){
+            if(method.isAnnotationPresent(XyzResponseBoby.class)){
             	response.getWriter().write(obj2);
             }else if(obj2.indexOf("redirect:") >= 0) {
             	//重定向带数据：使用model，再拼接url
@@ -310,10 +310,10 @@ public class MyDispatcherServlet extends HttpServlet {
             try {
                 //把类搞出�?,反射来实例化(只有加@MyController�?要实例化)
                 Class<?> clazz =Class.forName(className);
-                if(clazz.isAnnotationPresent(MyController.class)){
+                if(clazz.isAnnotationPresent(XyzController.class)){
                 	this.ioc.put(toLowerFirstWord(clazz.getSimpleName()),clazz.newInstance());
-                }else if(clazz.isAnnotationPresent(MyService.class)){
-                    MyService myService=clazz.getAnnotation(MyService.class);
+                }else if(clazz.isAnnotationPresent(XyzService.class)){
+                    XyzService myService=clazz.getAnnotation(XyzService.class);
                     String beanName=myService.value();
                     if ("".equals(beanName.trim())){
                         beanName=toLowerFirstWord(clazz.getSimpleName());
@@ -353,10 +353,10 @@ public class MyDispatcherServlet extends HttpServlet {
             //包括私有的方法，在spring中没有隐私，@MyAutowired可以注入public、private字段
             Field[] fields=entry.getValue().getClass().getDeclaredFields();
             for (Field field:fields){
-                if (!field.isAnnotationPresent(MyAutowired.class)){
+                if (!field.isAnnotationPresent(XyzAutowired.class)){
                     continue;
                 }
-                MyAutowired autowired= field.getAnnotation(MyAutowired.class);
+                XyzAutowired autowired= field.getAnnotation(XyzAutowired.class);
                 String beanName=autowired.value().trim();
                 if ("".equals(beanName)){
                     beanName=field.getType().getName();
@@ -382,10 +382,10 @@ public class MyDispatcherServlet extends HttpServlet {
             //包括私有的方法，在spring中没有隐私，@MyAutowired可以注入public、private字段
             Field[] fields=entry.getValue().getClass().getDeclaredFields();
             for (Field field:fields){
-                if (!field.isAnnotationPresent(MyAutowired.class)){
+                if (!field.isAnnotationPresent(XyzAutowired.class)){
                     continue;
                 }
-                MyAutowired autowired= field.getAnnotation(MyAutowired.class);
+                XyzAutowired autowired= field.getAnnotation(XyzAutowired.class);
                 String beanName=autowired.value().trim();
                 if ("".equals(beanName)){
                     beanName=field.getType().getName();
@@ -418,22 +418,22 @@ public class MyDispatcherServlet extends HttpServlet {
         try {
             for (Map.Entry<String, Object> entry: this.ioc.entrySet()) {
                 Class<? extends Object> clazz = entry.getValue().getClass();
-                if(!clazz.isAnnotationPresent(MyController.class)){
+                if(!clazz.isAnnotationPresent(XyzController.class)){
                     continue;
                 }
 
                 //拼url�?,是controller头的url拼上方法上的url
                 String baseUrl ="";
-                if(clazz.isAnnotationPresent(MyRequestMapping.class)){
-                    MyRequestMapping annotation = clazz.getAnnotation(MyRequestMapping.class);
+                if(clazz.isAnnotationPresent(XyzRequestMapping.class)){
+                    XyzRequestMapping annotation = clazz.getAnnotation(XyzRequestMapping.class);
                     baseUrl=annotation.value();
                 }
                 Method[] methods = clazz.getMethods();
                 for (Method method : methods) {
-                    if(!method.isAnnotationPresent(MyRequestMapping.class)){
+                    if(!method.isAnnotationPresent(XyzRequestMapping.class)){
                         continue;
                     }
-                    MyRequestMapping annotation = method.getAnnotation(MyRequestMapping.class);
+                    XyzRequestMapping annotation = method.getAnnotation(XyzRequestMapping.class);
                     String url = annotation.value();
 
                     url =(baseUrl+"/"+url).replaceAll("/+", "/");

@@ -4,6 +4,6 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface MyAutowired {
+public @interface XyzAutowired {
     String value() default "";
 }

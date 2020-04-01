@@ -5,13 +5,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.xyz.mvc.annotation.*;
 
-@MyController
-@MyRequestMapping("test2")
+@XyzController
+@XyzRequestMapping("test2")
 public class Test2Controller {
 
-    @MyRequestMapping("test")
+    @XyzRequestMapping("test")
     public static String myTest(HttpServletRequest request, HttpServletResponse response,
-                      @MyRequestParam("param") String param){
+                      @XyzParam("param") String param){
         try {
         	//https://blog.csdn.net/yiluoak_47/article/details/51012406
             //response.getWriter().write( "Test2Controller:the param you send is :"+param);
