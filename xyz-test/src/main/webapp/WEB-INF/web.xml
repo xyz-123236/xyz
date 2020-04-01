@@ -9,6 +9,10 @@
 		<welcome-file>/WEB-INF/jsp/login.jsp</welcome-file>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+	<servlet-mapping>   
+	    <servlet-name>default</servlet-name>  
+	    <url-pattern>/statics/*</url-pattern>     
+	</servlet-mapping>
 	<servlet>
 		<servlet-name>MyMVC</servlet-name>
 		<servlet-class>cn.xyz.mvc.MyDispatcherServlet</servlet-class>
@@ -20,6 +24,6 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MyMVC</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/</url-pattern><!-- 不能用/*，否则controller无法返回视图（jsp） -->
 	</servlet-mapping>
 </web-app>

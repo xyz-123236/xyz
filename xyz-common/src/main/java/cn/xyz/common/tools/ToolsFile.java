@@ -53,7 +53,7 @@ public class ToolsFile {
         //获取路径名  
         String value = item.getName() ; 
         //截取 上传文件的 字符串名字，加1是 去掉反斜杠，  
-        String old_name = value.substring(value.lastIndexOf("\\") + 1);
+        String old_name = value.substring(value.lastIndexOf(File.separator) + 1);
         String ext = getExt(old_name);
         String new_name = createFileName() + "." + ext;
         
