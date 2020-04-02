@@ -34,7 +34,7 @@ public class DbDruid extends DbBase{
 	}
 	//必须通过此方法创建对象
 	public static DbDruid getInstance() throws Exception {
-		return new DbDruid("mysql");
+		return new DbDruid(DbBase.DEFAULT_DB);
 	}
 	public static DbDruid getInstance(String dbName) throws Exception {
 		return new DbDruid(dbName);

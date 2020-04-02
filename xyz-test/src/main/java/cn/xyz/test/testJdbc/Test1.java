@@ -3,15 +3,16 @@ package cn.xyz.test.testJdbc;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.orm.db.DbBase3;
+import cn.xyz.orm.db.DbBase;
+import cn.xyz.orm.db.DbJdbc;
 import cn.xyz.orm.db.DbTool;
 
 public class Test1 {
 
 	public static void main(String[] args) {
-		DbBase3 db = null;
+		DbBase db = null;
 		try {
-			db = DbBase3.getInstance("mysql");
+			db = DbJdbc.getInstance();
 			System.out.println(db.find("select * from t1"));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
@@ -36,8 +37,6 @@ public class Test1 {
 			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally {
-			db.closeConnection();
 		}
 
 	}

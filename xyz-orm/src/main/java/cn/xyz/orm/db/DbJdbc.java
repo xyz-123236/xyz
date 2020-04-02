@@ -23,7 +23,7 @@ public class DbJdbc extends DbBase{
 	}
 	//必须通过此方法创建对象
 	public static DbJdbc getInstance() throws Exception {
-		return new DbJdbc("mysql");
+		return new DbJdbc(DbBase.DEFAULT_DB);
 	}
 	public static DbJdbc getInstance(String dbName) throws Exception {
 		return new DbJdbc(dbName);

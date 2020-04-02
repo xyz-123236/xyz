@@ -40,6 +40,35 @@ public class DbTool extends Basic{
 	public static DbTool getInstance(JSONObject obj) {
 		return new DbTool(obj);
 	}
+	
+	public JSONArray find() throws Exception {
+		return find(DbBase.getDruid());
+	}
+	public JSONArray find(DbBase db) throws Exception {
+		if(!this.sql.toString().toLowerCase().contains("limit") && this.rows > 0)
+		{
+			this.sql.append(" limit " + this.rows);// rows 页面容量
+			this.sql.append(" offset "+ ((this.page-1)*this.rows));// page 开始页
+		}
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ this.sql.toString().replaceAll(" +"," "));
+		//return Result.successEasyui(db.executeQueryJson(sql), count(db));
+		return db.find(this.sql.toString());
+	}
+	public Integer count() throws Exception {
+		return count(DbBase.getDruid());
+	}
+	public Integer count(DbBase db) throws Exception {
+		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toString().toLowerCase().indexOf(" from "));
+		if(countSql.toLowerCase().contains(" order ")) {
+			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));
+		}else if(countSql.toLowerCase().contains(" limit ")) {
+			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" limit "));
+		}
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +": "+ countSql.replaceAll(" +"," "));
+		return db.find(countSql).getJSONObject(0).getInteger("count");
+	}
+	
+	
 	/**
 	 * 添加时清除一些字段
 	 * @param table
@@ -234,6 +263,10 @@ public class DbTool extends Basic{
 		this.sql.append( " inner join " + table + " on " + on);
 		return this;
 	}
+	public DbTool full(String table, String on) {
+		this.sql.append( " full join " + table + " on " + on);
+		return this;
+	}
 	/**
 	 * 自动添加row中的条件
 	 * @param table 表名
@@ -260,27 +293,22 @@ public class DbTool extends Basic{
 			JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
 			for(String key:obj.keySet()){
 				String value = obj.getString(key);
-				/*if(obj.get(key) instanceof Date) {
-					this.date(key.substring(0, key.indexOf("_from")), row);
-				}*/
 				if(key.indexOf("_date_from") > 0) {
 					this.date(key.substring(0, key.indexOf("_from")), row);
 				}else if(key.indexOf("_from") > 0) {
-					String dateFrom = row.getString(DATE_FROM);
-					if(!Tools.isEmpty(dateFrom)) {
-						String a = "锯锯锯锯锯锯锯锯";
-						String dateTo = row.getString(DATE_TO);
-						if(Tools.isEmpty(dateTo)) {
-							this.sql.append( " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateFrom + " 23:59:59' ");
+					String from = row.getString(DATE_FROM);
+					if(!Tools.isEmpty(from)) {
+						//String a = "锯锯锯锯锯锯锯锯";
+						String to = row.getString(DATE_TO);
+						String filed = key.substring(0, key.indexOf("_from"));
+						if(Tools.isEmpty(to)) {
+							this.sql.append( " AND "+filed+" like '%" + from + "%' ");
 						}else {
-							this.sql.append( " AND "+key+" >= '" + dateFrom + " 00:00:00' and "+key+" <= '" + dateTo + " 23:59:59' ");
+							this.sql.append( " AND "+filed+" >= '" + from + "' and "+filed+" <= '" + to + "' ");
 						}
 					}
-				}
-				if(DATE_FROM.equals(key)) {
-					this.date(dateKey, row);
 				}else {
-					if(!Tools.isEmpty(value) && !DATE_TO.equals(key)) {
+					if(!Tools.isEmpty(value) && key.indexOf("_to") < 0) {
 						this.sql.append( " and "+key+" like '%"+value.trim()+"%' ");
 					}
 				}
@@ -300,7 +328,7 @@ public class DbTool extends Basic{
 		return this;
 	}
 	public DbTool and(String sql) {
-		sql += " and " + sql;
+		this.sql.append( " and " + sql);
 		return this;
 	}
 	public DbTool and(String key, Object obj) throws Exception {

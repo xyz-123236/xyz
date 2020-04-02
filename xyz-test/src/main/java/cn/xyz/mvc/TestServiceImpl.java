@@ -2,9 +2,9 @@ package cn.xyz.mvc;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.mvc.annotation.XyzService;
+import cn.xyz.mvc.annotation.Service;
 
-@XyzService
+@Service
 public class TestServiceImpl implements TestService {
 
     @Override

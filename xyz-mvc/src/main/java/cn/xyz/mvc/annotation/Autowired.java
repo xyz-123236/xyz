@@ -1,10 +1,9 @@
 package cn.xyz.mvc.annotation;
-
 import java.lang.annotation.*;
 
-@Target({ElementType.TYPE,ElementType.METHOD})
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface XyzRequestMapping {
-    String value();
+public @interface Autowired {
+    String value() default "";
 }
