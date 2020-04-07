@@ -101,10 +101,10 @@ public abstract class DbBase {
 		}
 	}
 	//close是否关闭,params返回的序号
-		public CallableStatement call(String sql,boolean close,Integer... params) {
+		public CallableStatement call(String sql,boolean close,Integer... params) throws Exception {
 			CallableStatement cstm = null;
 			try {
-				cstm = this.conn.prepareCall(sql);
+				cstm = this.getConnection().prepareCall(sql);
 				cstm.execute();
 				JSONObject obj = new JSONObject();
 				for (int i = 0; i < params.length; i++) {
@@ -227,7 +227,7 @@ public abstract class DbBase {
 		ResultSet rs = null;
 		try {
 			sql = formatSql(sql, new JSONObject());
-			this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			this.pstm = this.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			for (int i = 0; i < params.length; i++) {
                 this.fillPstm(this.pstm, params[i]);
                 this.pstm.addBatch();
@@ -247,8 +247,8 @@ public abstract class DbBase {
 	}*/
 	
 	//填补？
-	public PreparedStatement fillPstm(String sql, Object[] params) throws SQLException {
-		this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+	public PreparedStatement fillPstm(String sql, Object[] params) throws Exception {
+		this.pstm = this.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		if(params != null) {
 			for(int i = 0; i < params.length; i++){
 				this.pstm.setObject(i+1, params[i]);
@@ -258,8 +258,8 @@ public abstract class DbBase {
 		return this.pstm;
 	}
 	//this.pstm.addBatch(sql)支持添加不同的SQL语句，所以，可以不用先拼接插入或修改的key集合
-	public PreparedStatement fillPstm(String sql, JSONArray params) throws SQLException {
-		this.pstm = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+	public PreparedStatement fillPstm(String sql, JSONArray params) throws Exception {
+		this.pstm = this.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		this.pstm.clearBatch();
 		for (int i = 0; i < params.size(); i++) {
             this.fillPstm(sql, params.getJSONObject(i));
