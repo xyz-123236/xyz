@@ -2,6 +2,7 @@
 java配置连接池
 excel解析增加参数list<String> fields,把每行转换成JSONObject，方便后面取数据（用数组或JSONArray后面处理数据会出现中间（excel）插入数据，处理数据的index都要往后移）
 清除key，添加修改/创建放在service做（继承一个servicebasce或公共类）
+插入修改通过数据库表的字段来操作，就不用删除key了
 
 find返回jsonobject,包括count和data
 把conn放在外面，用于service控制事务

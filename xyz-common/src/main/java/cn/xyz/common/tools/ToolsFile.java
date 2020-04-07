@@ -176,10 +176,11 @@ public class ToolsFile {
 	 * @return 目录删除成功返回true，否则返回false
 	 */
 	public static boolean deleteDirectory(String dir) {
+		String _dir = "";
 		// 如果dir不以文件分隔符结尾，自动添加文件分隔符
 		if (!dir.endsWith(File.separator))
-			dir = dir + File.separator;
-		File dirFile = new File(dir);
+			_dir = dir + File.separator;
+		File dirFile = new File(_dir);
 		// 如果dir对应的文件不存在，或者不是一个目录，则退出
 		if ((!dirFile.exists()) || (!dirFile.isDirectory())) {
 			return false;
