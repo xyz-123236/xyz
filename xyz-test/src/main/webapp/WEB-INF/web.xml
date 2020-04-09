@@ -26,4 +26,9 @@
 		<servlet-name>mvc</servlet-name>
 		<url-pattern>/</url-pattern><!-- 不能用/*，否则controller无法返回视图（jsp） -->
 	</servlet-mapping>
+	<servlet>
+        <servlet-name>testServlet2</servlet-name>
+        <servlet-class>cn.xyz.test.TestServlet2</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 </web-app>
