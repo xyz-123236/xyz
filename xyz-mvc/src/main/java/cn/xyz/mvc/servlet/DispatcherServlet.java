@@ -157,8 +157,20 @@ public class DispatcherServlet extends HttpServlet {
                     	}
                     } else {  //对传入的�? �?单的字符串进行处�? ，比如说二进制的 图片，电影这�? 
                     	//System.out.println(item.getSize());
-                    	if(item != null && item.getSize() > 0)
-                    	obj.put(name, ToolsFile.upload(item, path, url2, response));
+                    	if(item != null && item.getSize() > 0) {
+                    		if(obj.containsKey(name)) {
+                        		if(obj.get(name).getClass().isArray()) {
+                        			obj.getJSONArray(name).add(ToolsFile.upload(item, path, url2, response));
+                        		}else {
+                        			JSONArray arr = new JSONArray();
+                        			arr.add(obj.get(name));
+                        			arr.add(ToolsFile.upload(item, path, url2, response));
+                        			obj.put(name, arr);
+                        		}
+                        	}else {
+                        		obj.put(name, ToolsFile.upload(item, path, url2, response));
+                        	}
+                    	}
                     }  
                 }
             }

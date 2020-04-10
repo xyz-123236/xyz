@@ -338,7 +338,35 @@ public abstract class DbBase {
 			this.closeConnection();
 		}
 	}
-
+	public JSONArray getCatalogs() throws Exception{
+		ResultSet rs = null;
+		try {
+			// 获取数据库的元数据
+			DatabaseMetaData db = this.getConnection().getMetaData();
+			// 从元数据中获取到所有的表名
+			rs = db.getCatalogs();
+			return rsToJson(rs);
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			this.close(rs);
+		}
+	}
+	public JSONArray getSchemas() throws Exception{
+		ResultSet rs = null;
+		try {
+			// 获取数据库的元数据
+			DatabaseMetaData db = this.getConnection().getMetaData();
+			// 从元数据中获取到所有的表名
+			rs = db.getSchemas(null, null);
+			return rsToJson(rs);
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			this.close(rs);
+		}
+	}
+	
 	/**
 	 * 获取数据库下的所有表名
 	 * @param catalog 表目录（可能为空）conn.getCatalog()
@@ -348,13 +376,13 @@ public abstract class DbBase {
 	 * @return
 	 * @throws Exception
 	 */
-	public JSONArray getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types) throws Exception {
+	public JSONArray getTables(String catalog, String databaseName, String tableName, String[] types) throws Exception {
 		ResultSet rs = null;
 		try {
 			// 获取数据库的元数据
 			DatabaseMetaData db = this.getConnection().getMetaData();
 			// 从元数据中获取到所有的表名
-			rs = db.getTables(catalog, schemaPattern, tableNamePattern, types);
+			rs = db.getTables(catalog, databaseName, tableName, types);
 			return rsToJson(rs);
 		} catch (SQLException e) {
 			throw e;
@@ -379,11 +407,14 @@ public abstract class DbBase {
 		}
 	}
 
-	public JSONArray getTableFiled(String tableName) throws Exception {
+	public JSONArray getTableFiled(String databaseName, String tableName) throws Exception {
 		ResultSet rs = null;
 		try{
-			PreparedStatement pStemt = this.getConnection().prepareStatement(SQL + tableName);
-			rs = pStemt.executeQuery("show full columns from " + tableName);
+			//PreparedStatement pStemt = this.getConnection().prepareStatement(SQL + tableName);
+			//rs = pStemt.executeQuery("show full columns from " + tableName);
+		
+			DatabaseMetaData rsmd = this.getConnection().getMetaData();
+			rs =rsmd.getColumns(null, databaseName, tableName, null);
 			return rsToJson(rs);
 		} catch (SQLException e) {
 			throw e;
@@ -391,4 +422,47 @@ public abstract class DbBase {
 			close(rs);
 		}
 	}
+	public JSONArray getPrimaryKey(String tableName) throws Exception {
+		return getPrimaryKey(this.getConnection().getCatalog(),tableName);
+	}
+	public JSONArray getPrimaryKey(String databaseName, String tableName) throws Exception {
+        ResultSet rs = null;
+        try{
+            DatabaseMetaData dbmd = this.getConnection().getMetaData();
+            rs = dbmd.getPrimaryKeys(null, databaseName, tableName);
+            return rsToJson(rs);
+        }catch (SQLException e){
+        	throw e;
+        }finally{
+        	close(rs);
+        }
+    }
+	public void getDataBaseInfo() throws Exception {
+        ResultSet rs = null;
+        try{
+            DatabaseMetaData dbmd = this.getConnection().getMetaData();
+ 
+            System.out.println("数据库已知的用户: "+ dbmd.getUserName());//IT_JIPC
+            System.out.println("数据库的系统函数的逗号分隔列表: "+ dbmd.getSystemFunctions());//DATABASE,IFNULL,USER
+            System.out.println("数据库的时间和日期函数的逗号分隔列表: "+ dbmd.getTimeDateFunctions());
+            System.out.println("数据库的字符串函数的逗号分隔列表: "+ dbmd.getStringFunctions());
+            System.out.println("数据库供应商用于 'schema' 的首选术语: "+ dbmd.getSchemaTerm());//SCHEMA
+            System.out.println("数据库URL: " + dbmd.getURL());//jdbc:sap://10.122.2.101:30515
+            System.out.println("是否允许只读:" + dbmd.isReadOnly());//false
+            System.out.println("数据库的产品名称:" + dbmd.getDatabaseProductName());//HDB
+            System.out.println("数据库的版本:" + dbmd.getDatabaseProductVersion());//1.00.122.22.1543461992
+            System.out.println("驱动程序的名称:" + dbmd.getDriverName());
+            System.out.println("驱动程序的版本:" + dbmd.getDriverVersion());
+ 
+            System.out.println("数据库中使用的表类型");
+            rs = dbmd.getTableTypes();
+            while (rs.next()) {
+                System.out.println(rs.getString("TABLE_TYPE"));
+            }
+        }catch (Exception e){
+        	throw e;
+        } finally{
+        	close(rs);
+        }
+    }
 }

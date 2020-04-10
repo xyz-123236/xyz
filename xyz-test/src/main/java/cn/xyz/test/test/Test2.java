@@ -3,8 +3,6 @@ package cn.xyz.test.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.alibaba.fastjson.JSONObject;
 
 public class Test2 {
