@@ -80,6 +80,9 @@ public class Test2 {
 					主键：primary key
 					
 					自增：auto_increment
+					
+					multiQueriesEnabled为true，则jdbc支持执行的一条语句中包含多条由分号分割的语句。
+					rewriteBatchedStatements=true才是jdbc实现批量操作的关键。
 			*/
 			db.execute("unlock tables;");
 			System.out.println("结束");

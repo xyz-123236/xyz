@@ -29,6 +29,8 @@ where条件and改为query对象：使用setString（key，value），setint(),se
 key，code，name，value，isupdate(是否可以修改值，全局字段不能修改（create_by）,限制文件大小可以修改（file_size）)
 用搜索做（可以同时搜file 和 size），或者输入用逗号隔开，数据库模糊查询同时有多个的记录，redis缓存用程序同时匹配
 
+key，name,需求页面,是否导出excel
+
 设置一个可以添加表格表头，数据库栏位，可以解决一些要同时取改jsp-table，db-table，excel-table
 	表栏位：id, pid, code(字段名-英文), name(显示名-中文), type(数据类型,字符/数字), width(宽度) , sort(排序)  //同excel设置
 	
@@ -43,6 +45,7 @@ key，code，name，value，isupdate(是否可以修改值，全局字段不能�
 重要：数据唯一性（多窗口同时操作，无法查到其他事务里没提交的重复数据）：数据库加唯一锁，或添加时用《表锁：锁住表》，其他
 
 数据字典的key不能重复，方便导出excel时可以通过key（列名）找到显示名，（页面最好不再做格式化，应由后台做好格式化，这样excel取到的数据就是格式化后的数据）
+
 
 总的规则，不要在程序里使用字符串
 

@@ -1,4 +1,4 @@
-package cn.xyz.orm.db;
+package cn.xyz.orm.old;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -185,19 +185,19 @@ public abstract class DbBase {
 	 * @return 返回主键id
 	 * @throws Exception
 	 */
-	public Integer insert(String sql, Object... params) throws Exception{
+	public JSONArray insert(String sql, Object... params) throws Exception{
 		ResultSet rs = null;
 		try {
 			this.fillPstm(sql, params).executeUpdate();
 			rs = this.pstm.getGeneratedKeys();
-			Integer id = null;
+			/*Integer id = null;
 			if (rs.next()) {  
 				id = rs.getInt(1);  
-		    } else {
+		    }  else {
 		        throw new Exception("返回主键失败"); 
 		    }
-			return id;
-			//return rsToJson(rs);
+			return id;*/
+			return rsToJson(rs);
 		} catch (Exception e) {
 			throw e;
 		}finally {
@@ -216,30 +216,6 @@ public abstract class DbBase {
 				}
 			}
 			return true;
-		} catch (Exception e) {
-			throw e;
-		}finally {
-			closeResource(rs);
-		}
-	}
-	public boolean insertBatch(String[] sqls) throws Exception{
-		ResultSet rs = null;
-		try {
-			if(sqls != null) {
-				this.pstm = this.getConnection().prepareStatement(sqls[0], Statement.RETURN_GENERATED_KEYS);
-				for (int i = 0; i < sqls.length; i++) {
-					this.pstm.addBatch(sqls[i]);
-				}
-				printSql();
-				int[] result = this.pstm.executeBatch();
-				for (int i = 0; i < result.length; i++) {
-					if(result[i] != 1) {
-						return false;
-					}
-				}
-				return true;
-			}
-			return false;
 		} catch (Exception e) {
 			throw e;
 		}finally {
@@ -286,15 +262,14 @@ public abstract class DbBase {
 		this.pstm = this.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		this.pstm.clearBatch();
 		for (int i = 0; i < params.size(); i++) {
-            this.fillPstm2(sql, params.getJSONObject(i));
+            this.fillPstm(sql, params.getJSONObject(i));
             this.pstm.addBatch(sql);
         }
 		//printSql();
 		return this.pstm;
 	}
 	//用json填补？
-	public PreparedStatement fillPstm2(String sql, JSONObject params) throws Exception {
-		this.pstm = this.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+	public PreparedStatement fillPstm(String sql, JSONObject params) throws SQLException {
 		if(params != null) {
 			//字段数组
 			String[] arr = sql.substring(sql.indexOf("(") + 1, sql.indexOf(")")).split(",");
@@ -303,10 +278,7 @@ public abstract class DbBase {
 			int jump = 0;
 			for(int i = 0; i < arr.length; i++){
 				if(!"?".equals(arr2[i].trim())) jump++;
-				System.out.println(params.getString(arr[i+jump].trim()));
-				if(i+jump < arr.length) {
-					this.pstm.setObject(i+1, params.getString(arr[i+jump].trim()));
-				} 
+				if(i+jump < arr.length) this.pstm.setObject(i+1, params.getString(arr[i+jump].trim()));
 			}
 		}
 		printSql();

@@ -1,4 +1,4 @@
-package cn.xyz.orm.db;
+package cn.xyz.orm.old;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +58,7 @@ public class DbTools extends Basic {
 		}
 		String string = ",VARCHAR,CHAR,";
 		String number = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";
-		String date = ",DATE,DATETIME,TIME,TIMESTAMP,";
+		//String date = ",DATE,DATETIME,TIME,TIMESTAMP,";
 		if(!Tools.isEmpty(row)) {
 			String key = "";
 			String value = "";
