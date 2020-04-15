@@ -51,12 +51,37 @@ public class DbTool extends Basic {
 	public static DbTool getInstance(JSONObject obj) {
 		return new DbTool(obj);
 	}
-	public int insert(String table, JSONObject row, String create_by) throws Exception{
+	public JSONArray insert(String table, JSONObject row, String create_by) throws Exception{
 		return insert(DbBase.getDruid(), table, row, create_by);
 	}
-	public int insert(DbBase db, String table, JSONObject row, String create_by) throws Exception{
+	public JSONArray insert(DbBase db, String table, JSONObject row, String create_by) throws Exception{
 		String sql = createInsertSql(db, table, row, create_by);
 		return db.insert(sql);
+	}
+	/**
+	 * excel应限制上传格式：第一行中文名，第二行英文名
+	 * @param db
+	 * @param table
+	 * @param rows
+	 * @param create_by
+	 * @param remove
+	 * @param keys
+	 * @throws Exception
+	 */
+	public boolean insertBatch(DbBase db, String table,JSONArray rows, String create_by) throws Exception {
+		int n = (int)Math.ceil((double)(rows.size())/128);
+		for (int i = 0; i < n; i++) {
+			int begin=i*128;
+			int end=((i+1)*128) > rows.size() ? rows.size() : (i+1)*128 ;
+			String sqls[] = new String[end - begin + 1];
+			for (int j = begin; j < end; j++) {
+				sqls[j] = createInsertSql(db, table, rows.getJSONObject(j), create_by);
+			}
+			if(!db.insertBatch(sqls)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	public String createInsertSql(DbBase db, String table, JSONObject row, String create_by) throws Exception{
 		this.sql = new StringBuffer("");
@@ -69,7 +94,7 @@ public class DbTool extends Basic {
 				row.put("create_by", create_by);
 				row.put("create_date", ToolsDate.getLongString());
 			}
-			for(String key: obj.keySet()){
+			for(String key: row.keySet()){
 				fileds += key + ",";
 				Object v = row.get(key);
 				String type = obj.getString(key);
@@ -129,29 +154,7 @@ public class DbTool extends Basic {
 		}
 		return this.sql.toString();
 	}
-	/**
-	 * excel应限制上传格式：第一行中文名，第二行英文名
-	 * @param db
-	 * @param table
-	 * @param rows
-	 * @param create_by
-	 * @param remove
-	 * @param keys
-	 * @throws Exception
-	 */
-	public void insertBatch(DbBase db, String table,JSONArray rows, String create_by) throws Exception {
-		int n = (int)Math.ceil((double)(rows.size())/128);
-		for (int i = 0; i < n; i++) {
-			int begin=i*128;
-			int end=((i+1)*128) > rows.size() ? rows.size() : (i+1)*128 ;
-			String sqls[] = new String[end - begin + 1];
-			for (int j = begin; j < end; j++) {
-				sqls[j] = createInsertSql(db, table, rows.getJSONObject(j), create_by);
-				System.out.println(sqls[j]);
-			}
-			db.insertBatch(sqls);
-		}
-	}
+	
 	
 	
 	/**
@@ -314,6 +317,76 @@ public class DbTool extends Basic {
 		}
 		return this;
 	}
+	
+	public JSONArray count(DbBase db) throws Exception {//hana不支持对order进行count，mysql支持
+		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toString().toLowerCase().indexOf(" from "));
+		if(countSql.toLowerCase().contains(" order ")) {
+			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));
+		}else if(countSql.toLowerCase().contains(" limit ")) {
+			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" limit "));
+		}
+		return db.find(countSql);
+	}
+	public JSONArray sum(DbBase db, String projection, boolean deleteLimit) throws Exception {
+		String _sql = sql.toString();
+		int beginIndex = _sql.toLowerCase().indexOf(" from ");
+		int endIndex1 = _sql.toLowerCase().indexOf(" order ") > 1 ? _sql.toLowerCase().indexOf(" order ") : sql.length();
+		int endIndex2 = _sql.toLowerCase().indexOf(" limit ") > 1 ? _sql.toLowerCase().indexOf(" limit ") : sql.length();
+		if(deleteLimit) {
+			return db.find("select " + projection +_sql.substring(beginIndex, endIndex1 < endIndex2 ? endIndex1 : endIndex2));
+		}else {
+			return db.find("select " + projection +_sql.substring(beginIndex));
+		}
+	}
+	
+	public JSONArray sortData(JSONArray data) throws Exception {
+		if(!Tools.isEmpty(data)) {
+			/*if("asc".equals(this.order)) {
+				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)));
+			}else if("desc".equals(this.order)){
+				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)).reversed());
+			}*/
+			JSONArray sortData = new JSONArray();
+	        List<JSONObject> list = new ArrayList<JSONObject>();
+	        for (int i = 0; i < data.size(); i++) {
+	        	list.add(data.getJSONObject(i));
+	        }
+	        Collections.sort(list, (JSONObject a, JSONObject b)-> {
+                String valA = a.getString(this.sort) == null? "" :a.getString(this.sort);
+                String valB = b.getString(this.sort) == null? "" :b.getString(this.sort);
+                //是升序还是降序
+                if("asc".equals(this.order)) {
+                	return valA.compareTo(valB);
+                }else if("desc".equals(this.order)){
+                    return valB.compareTo(valA);
+                }else {
+                	return 0;
+                }
+	        });
+	        for (int i = 0; i < list.size(); i++) {
+	        	sortData.add(list.get(i));
+	        }
+	        return sortData;
+		}
+		return data;
+	}
+	public JSONArray limitData(JSONArray data) throws Exception {
+		if(!Tools.isEmpty(data)){
+			int begin = (this.page-1)*this.rows;
+			int end = (begin+this.rows) > data.size()?data.size():(begin+this.rows);
+			JSONArray t = new JSONArray();
+			for (int i = begin; i < end; i++) {
+				t.add(data.getJSONObject(i));
+			}
+			return t;
+			//return JSON.parseArray(JSON.toJSONString(data.subList(begin, end)));
+		}
+		return data;
+	}
+	
+	
+	
+	
 	public String getKey(String key) {
 		String[] arr = key.trim().split("\\.");
 		return arr.length == 1? key: arr[1];
@@ -332,7 +405,8 @@ public class DbTool extends Basic {
         }
 	}
 	public String getSql() {
-		return sql.toString();
+		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ this.sql.toString().replaceAll("\t", " ").replaceAll(" +"," "));
+		return this.sql.toString();
 	}
 	public DbTool setSql(String sql) {
 		this.sql = new StringBuffer(sql);

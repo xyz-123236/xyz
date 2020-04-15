@@ -13,7 +13,7 @@ public class Test1 {
 		DbBase db = null;
 		try {
 			db = DbBase.getJdbc();
-			System.out.println(db.find("select * from t1"));
+			//System.out.println(db.find("select * from t1"));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
 			//System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
@@ -21,11 +21,14 @@ public class Test1 {
 			JSONObject a = new JSONObject();
 			a.put("code", "62");
 			a.put("name", "xx");
+			a.put("id", 2);
 			data.add(a);
 			JSONObject b = new JSONObject();
 			b.put("code", "63");
 			b.put("name", "yy");
 			data.add(b);
+			System.out.println(db.getPrimaryKey("t4"));
+			//System.out.println(DbTool.getInstance().insert("t4", a, null));
 			//String str = "insert into sn_detail (batch_id,sn_detail) values";
 			//System.out.println(str.replaceAll("values", ""));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (24,?)",a));

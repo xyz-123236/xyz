@@ -68,61 +68,7 @@ public class DbTool extends Basic{
 	}
 	
 	
-	/**
-	 * 添加时清除一些字段
-	 * @param table
-	 * @param row
-	 * @param entby
-	 * @param removeKey
-	 * @return
-	 * @throws Exception
-	 */
-	public DbTool insert(String table, JSONObject row, String entby, String...removeKey) throws Exception{
-		return insert(table, row, entby, true, removeKey);
-	}
-	/**
-	 * 添加时可以选择删除一些字段，还是只添加一些字段
-	 * @param table
-	 * @param row
-	 * @param entby
-	 * @param remove true表示移除keys，false只添加keys
-	 * @param keys
-	 * @return
-	 * @throws Exception
-	 */
-	public DbTool insert(String table, JSONObject row, String entby, boolean remove, String...keys) throws Exception{
-		this.sql = new StringBuffer();
-		if(!Tools.isEmpty(row)) {
-			String key = "";
-			String value = "";
-			if(remove) {
-				if(!Tools.isEmpty(CREATE_BY)) {
-					row.put(CREATE_BY, entby);
-					row.put(CREATE_DATE, ToolsDate.getLongString());
-				}
-				ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, keys);
-				for(String str: row.keySet()){
-					key += str + ",";
-					value += "'"+row.get(key) + "',";
-				}
-			}else {
-				for (int i = 0; i < keys.length; i++) {
-					key += keys[i] + ",";
-					value += row.get(keys[i]) + ",";
-				}
-				if(!Tools.isEmpty(CREATE_BY)) {
-					key += CREATE_BY + ",";
-					value += "'"+entby + "',";
-					key += CREATE_DATE + ",";
-					value += "'"+ToolsDate.getLongString() + "',";
-				}
-			}
-			this.sql.append( "insert into "+table+" ("+key.substring(0,key.lastIndexOf(","))+ ") values ("+value.substring(0,value.lastIndexOf(","))+ ")");
-		}else {
-			throw new Exception("没有要插入的数据");
-		}
-		return this;
-	}
+	
 	public DbTool insertBatch(String table, JSONArray row, String entby, String...removeKey) throws Exception{
 		return insertBatch(table, row, entby, true, removeKey);
 	}
@@ -165,41 +111,8 @@ public class DbTool extends Basic{
 		}
 		return this;
 	}
-	public DbTool insert(String table, JSONArray rows, String usercode){
-		this.sql = new StringBuffer();
-		return this;
-	}
-	public DbTool update(String table, JSONObject row, String usercode, Object...removeKey) throws Exception{
-		return update(table, row, usercode, true, removeKey);
-	}
-	public DbTool update(String table, JSONObject row, String usercode, boolean remove, Object...keys) throws Exception{
-		this.sql = new StringBuffer();
-		if(!Tools.isEmpty(row)) {
-			String set = "";
-			if(remove) {
-				if(!Tools.isEmpty(UPDATE_BY)) {
-					row.put(UPDATE_BY, usercode);
-					row.put(UPDATE_DATE, ToolsDate.getLongString());
-				}
-				JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, keys);
-				for(String str: obj.keySet()){
-					set += str + "='"+obj.get(str)+"',";
-				}
-			}else {
-				for (int i = 0; i < keys.length; i++) {
-					set += keys[i] + "='"+row.get(keys[i])+"',";
-				}
-				if(!Tools.isEmpty(UPDATE_BY)) {
-					set += UPDATE_BY + "='"+usercode+"',";
-					set += UPDATE_DATE + "='"+ToolsDate.getLongString()+"',";
-				}
-			}
-			this.sql.append( "update "+table+" set "+set.substring(0,set.lastIndexOf(",")));
-		}else {
-			throw new Exception("没有要插入的数据");
-		}
-		return this;
-	}
+	
+	
 
 	
 	
@@ -361,114 +274,6 @@ public class DbTool extends Basic{
 		return asSql;
 	}
 
-	public String countSql() throws Exception {//hana不支持对order进行count，mysql支持
-		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toString().toLowerCase().indexOf(" from "));
-		if(countSql.toLowerCase().contains(" order ")) {
-			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" order "));
-		}else if(countSql.toLowerCase().contains(" limit ")) {
-			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" limit "));
-		}
-		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ countSql.replaceAll(" +"," "));
-		return countSql;
-	}
 	
-
-	public static String replaceProjection(String sql, String projection) {
-		return replaceProjection(sql, projection, true);
-	}
-	public static String replaceProjection(String sql, String projection, boolean deleteLimit) {
-		int beginIndex = sql.toLowerCase().indexOf(" from ");
-		int endIndex1 = sql.toLowerCase().indexOf(" order ") > 1 ? sql.toLowerCase().indexOf(" order ") : sql.length();
-		int endIndex2 = sql.toLowerCase().indexOf(" limit ") > 1 ? sql.toLowerCase().indexOf(" limit ") : sql.length();
-		if(deleteLimit) {
-			return "select " + projection +sql.substring(beginIndex, endIndex1 < endIndex2 ? endIndex1 : endIndex2);
-		}else {
-			return "select " + projection +sql.substring(beginIndex);
-		}
-	}
-	public JSONArray sortData(JSONArray data) throws Exception {
-		if(!Tools.isEmpty(data)) {
-			/*if("asc".equals(this.order)) {
-				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)));
-			}else if("desc".equals(this.order)){
-				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)).reversed());
-			}*/
-			JSONArray sortData = new JSONArray();
-	        List<JSONObject> list = new ArrayList<JSONObject>();
-	        for (int i = 0; i < data.size(); i++) {
-	        	list.add(data.getJSONObject(i));
-	        }
-	        Collections.sort(list, (JSONObject a, JSONObject b)-> {
-                String valA = a.getString(this.sort) == null? "" :a.getString(this.sort);
-                String valB = b.getString(this.sort) == null? "" :b.getString(this.sort);
-                //是升序还是降序
-                if("asc".equals(this.order)) {
-                	return valA.compareTo(valB);
-                }else if("desc".equals(this.order)){
-                    return valB.compareTo(valA);
-                }else {
-                	return 0;
-                }
-	        });
-	        for (int i = 0; i < list.size(); i++) {
-	        	sortData.add(list.get(i));
-	        }
-	        return sortData;
-		}
-		return data;
-	}
-	public JSONArray limitData(JSONArray data) throws Exception {
-		if(!Tools.isEmpty(data)){
-			int begin = (this.page-1)*this.rows;
-			int end = (begin+this.rows) > data.size()?data.size():(begin+this.rows);
-			JSONArray t = new JSONArray();
-			for (int i = begin; i < end; i++) {
-				t.add(data.getJSONObject(i));
-			}
-			return t;
-			//return JSON.parseArray(JSON.toJSONString(data.subList(begin, end)));
-		}
-		return data;
-	}
-	/**
-	 * 分割数组，分批插入
-	 * @param table
-	 * @param data
-	 * @return
-	 */
-	public String[] getBatchSql(String table, JSONArray data, String username) throws Exception {
-		int n = (int)Math.ceil((double)(data.size())/128);
-		String[] s = new String[n];
-		for (int i = 0; i < n; i++) {
-			int begin=i*128;
-			int end=((i+1)*128) > data.size() ? data.size() : (i+1)*128 ;
-			//s[i] = ToolsSql.getInstance().insertBatch(table, JSON.parseArray(JSON.toJSONString(data.subList(begin, end))), username).getSql();
-		}
-		return s;
-	}
-	public static boolean addBatch(String table, JSONArray data) {
-		int x = (int)Math.ceil((double)(data.size())/128);
-		for (int j = 0; j < x; j++) {
-			int a=j*128;
-			int b=((j+1)*128) > data.size() ? data.size() : (j+1)*128 ;
-			//db.addBatch(table, data.subList(a, b));
-		}
-		/*for (int i = 1; i <= data.size(); i++) {
-			if((i & 127) == 0 || i == data.size()) {
-				
-			}
-		}*/
-		return false;
-	}
-	
-	public String getSql() {
-		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ this.sql.toString().replaceAll("\t", " ").replaceAll(" +"," "));
-		return this.sql.toString();
-	}
-	public DbTool setSql(String sql) {
-		this.sql = new StringBuffer(sql);
-		return this;
-	}
-
 
 }

@@ -185,19 +185,19 @@ public abstract class DbBase {
 	 * @return 返回主键id
 	 * @throws Exception
 	 */
-	public Integer insert(String sql, Object... params) throws Exception{
+	public JSONArray insert(String sql, Object... params) throws Exception{
 		ResultSet rs = null;
 		try {
 			this.fillPstm(sql, params).executeUpdate();
 			rs = this.pstm.getGeneratedKeys();
-			Integer id = null;
+			/*Integer id = null;
 			if (rs.next()) {  
 				id = rs.getInt(1);  
 		    } else {
 		        throw new Exception("返回主键失败"); 
 		    }
-			return id;
-			//return rsToJson(rs);
+			return id;*/
+			return rsToJson(rs);
 		} catch (Exception e) {
 			throw e;
 		}finally {
@@ -230,7 +230,6 @@ public abstract class DbBase {
 				for (int i = 0; i < sqls.length; i++) {
 					this.pstm.addBatch(sqls[i]);
 				}
-				printSql();
 				int[] result = this.pstm.executeBatch();
 				for (int i = 0; i < result.length; i++) {
 					if(result[i] != 1) {
