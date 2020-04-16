@@ -1,0 +1,2 @@
+insert:
+	insert(DbBase db, String table, JSONObject row, String create_by)
