@@ -20,27 +20,7 @@ import cn.xyz.common.tools.ToolsJson;
 public class DbTool extends Basic{
 	private StringBuffer sql;
 	
-	//存入数据字典，加载时放入Application或Redis缓存
-	public static String[] DEFAULT_REMOVE_KEYS = {"page","rows","sort","order","jsp_name"};
-	public static String CREATE_BY = "create_by";
-	public static String CREATE_DATE = "create_date";
-	public static String UPDATE_BY = "update_by";
-	public static String UPDATE_DATE = "update_date";
-	public static String DATE_FROM = "date_from";
-	public static String DATE_TO = "date_to";
-	
-	public DbTool(JSONObject obj) {
-		if(obj != null) {
-			this.rows = obj.getInteger("rows");
-			this.page = obj.getInteger("page");
-			this.sort = obj.getString("sort");
-			this.order = obj.getString("order");
-		}
-	}
-	public static DbTool getInstance(JSONObject obj) {
-		return new DbTool(obj);
-	}
-	
+
 	public JSONArray find() throws Exception {
 		return find(DbBase.getDruid());
 	}
@@ -69,61 +49,11 @@ public class DbTool extends Basic{
 	
 	
 	
-	public DbTool insertBatch(String table, JSONArray row, String entby, String...removeKey) throws Exception{
-		return insertBatch(table, row, entby, true, removeKey);
-	}
-	//处理sql
-	public DbTool insertBatch(String table,JSONArray params, String entby, boolean remove, String...keys) throws Exception {
-		this.sql = new StringBuffer();
-		if(!Tools.isEmpty(params)) {
-			Set<String> key_set = new HashSet<>();
-			if(remove) {
-				for (int i = 0; i < params.size(); i++) {
-					JSONObject obj = params.getJSONObject(i);
-					if(!Tools.isEmpty(CREATE_BY)) {
-						obj.put(CREATE_BY, entby);
-						obj.put(CREATE_DATE, ToolsDate.getLongString());
-					}
-					ToolsJson.removeKey(obj, DEFAULT_REMOVE_KEYS, keys);
-					for(String key: obj.keySet()){
-						key_set.add(key);
-					}
-				}
-			}else {
-				for (int j = 0; j < keys.length; j++) {
-					key_set.add(keys[j]);
-				}
-				if(!Tools.isEmpty(CREATE_BY)) {
-					key_set.add(CREATE_BY);
-					key_set.add(CREATE_DATE);
-				}
-			}
-			
-			if(!Tools.isEmpty(key_set)) {
-				String feilds = "";
-				String values = "";
-				for (String key : key_set) {
-					feilds += key + ",";
-					values += "?" + ",";
-				}
-				this.sql.append("insert into "+table+" ("+feilds.substring(0,feilds.lastIndexOf(","))+ ") values ("+values.substring(0,values.lastIndexOf(","))+ ")");
-			}
-		}
-		return this;
-	}
-	
 	
 
 	
 	
-	public DbTool delete(String table, JSONObject row) {
-		this.sql = new StringBuffer();
-		return this;
-	}
-	public DbTool deleteLogic(String table, JSONObject row, String usercode) {
-		this.sql = new StringBuffer();
-		return this;
-	}
+	
 	/*public ToolsSql insert(String table) {
 		sql = "";
 		sql += "insert into " + table;
@@ -190,8 +120,7 @@ public class DbTool extends Basic{
 	public DbTool in(String field, String str) {
 		return in(field, str.split(","));
 	}
-	public DbTool in(String field, String... str)
-	{
+	public DbTool in(String field, String... str){
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < str.length; i++) { 
 			if(i != 0){

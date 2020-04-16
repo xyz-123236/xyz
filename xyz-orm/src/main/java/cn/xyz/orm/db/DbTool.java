@@ -51,12 +51,9 @@ public class DbTool extends Basic {
 	public static DbTool getInstance(JSONObject obj) {
 		return new DbTool(obj);
 	}
-	public JSONArray insert(String table, JSONObject row, String create_by) throws Exception{
-		return insert(DbBase.getDruid(), table, row, create_by);
-	}
+	
 	public JSONArray insert(DbBase db, String table, JSONObject row, String create_by) throws Exception{
-		String sql = createInsertSql(db, table, row, create_by);
-		return db.insert(sql);
+		return db.insert(createInsertSql(db, table, row, create_by));
 	}
 	/**
 	 * excel应限制上传格式：第一行中文名，第二行英文名
@@ -94,11 +91,12 @@ public class DbTool extends Basic {
 				row.put("create_by", create_by);
 				row.put("create_date", ToolsDate.getLongString());
 			}
+			String primary_name = getPrimaryName(db, table);
 			for(String key: row.keySet()){
 				fileds += key + ",";
 				Object v = row.get(key);
 				String type = obj.getString(key);
-				if(!Tools.isEmpty(v) && !Tools.isEmpty(type)) {
+				if(!Tools.isEmpty(v) && !Tools.isEmpty(type) && !key.equals(primary_name)) {
 					if(number.indexOf(","+type+",") >= 0) {
 						values += " "+v+",";
 					}else {
@@ -112,21 +110,31 @@ public class DbTool extends Basic {
 		}
 		return this.sql.toString();
 	}
-	public DbTool update(String table, JSONObject row, String create_by) throws Exception{
-		return update(DbBase.getDruid(), table, row, create_by);
+	public String getPrimaryName(DbBase db, String table) throws Exception {
+		JSONArray pk = db.getPrimaryKey(table);
+		if(!Tools.isEmpty(pk) && pk.size() == 1) {
+			return pk.getJSONObject(0).getString("COLUMN_NAME");
+		}
+		return "";
 	}
-	public DbTool update(DbBase db, String table, JSONObject row, String create_by) throws Exception{
-		createUpdateSql(db, table, row, create_by);
+	
+	public DbTool update(DbBase db, String table, JSONObject row, String update_by) throws Exception{
+		createUpdateSql(db, table, row, update_by);
 		return this;
 	}
+	
+	public boolean updateById(DbBase db, String table, JSONObject row, String update_by) throws Exception{
+		createUpdateSql(db, table, row, update_by);
+		this.where().andPrimaryId(db, table, row);
+		if(db.executeUpdate(getSql()) > 0) {
+			return true;
+		}
+		return false;
+	}
+	
 	public String createUpdateSql(DbBase db, String table, JSONObject row, String update_by) throws Exception{
 		this.sql = new StringBuffer("");
 		JSONObject obj = db.getFiledType(table);
-		JSONArray pk = db.getPrimaryKey(table);
-		String id_name = "";
-		if(!Tools.isEmpty(pk)) {
-			id_name = pk.getJSONObject(0).getString("COLUMN_NAME");
-		}
 		String number = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";
 		String string = ",VARCHAR,CHAR,";
 		//String date = ",DATE,DATETIME,TIME,TIMESTAMP,";
@@ -136,12 +144,14 @@ public class DbTool extends Basic {
 				row.put("update_by", update_by);
 				row.put("update_date", ToolsDate.getLongString());
 			}
+			String primary_name = getPrimaryName(db, table);
 			for(String key: row.keySet()){
 				Object value = row.get(key);
-				if(!Tools.isEmpty(obj.getString(key)) && !key.equals(id_name)) {
-					if(string.indexOf(","+obj.getString(key)+",") >= 0) {
+				String type = obj.getString(key);
+				if(!Tools.isEmpty(type) && !key.equals(primary_name)) {
+					if(string.indexOf(","+type+",") >= 0) {
 						set += key + "='"+(Tools.isEmpty(value)?"":value)+"',";
-					}else if(number.indexOf(","+obj.getString(key)+",") >= 0) {
+					}else if(number.indexOf(","+type+",") >= 0) {
 						set += key + " = "+(Tools.isEmpty(value)?"0":value)+",";
 					}else{
 						set += key + "="+(Tools.isEmpty(value)?null:"'"+value+"'")+",";
@@ -155,11 +165,68 @@ public class DbTool extends Basic {
 		return this.sql.toString();
 	}
 	
+	public DbTool update(String table) {
+		this.sql.append("update ").append(table).append(" set ");
+		return this;
+	}
+	public DbTool setString(String field, Object obj) throws Exception {
+		return setObject(field, obj, false);
+	}
+	public DbTool setNumber(String field, Object obj) throws Exception {
+		return setObject(field, obj, true);
+	}
+	public DbTool setObject(String field, Object obj, boolean isNumber) throws Exception {
+		String value = getValue(field, obj);
+		if(!Tools.isEmpty(this.sql.substring(this.sql.toString().indexOf(" set ")+5))) {
+			this.sql.append(",");
+		}
+		if(!Tools.isEmpty(value)) {
+			if(isNumber) {
+				this.sql.append( " and "+field+" = "+value+" ");
+			}else {
+				this.sql.append( " and "+field+" = '"+value+"' ");
+			}
+			
+		}
+		return this;
+	}
+	public DbTool delete(String table) throws Exception {
+		this.sql = new StringBuffer();
+		this.sql.append("delete from ").append(table);
+		return this;
+	}
 	
+	public boolean deleteById(DbBase db, String table, JSONObject row) throws Exception {
+		this.sql = new StringBuffer();
+		String primary_name = getPrimaryName(db, table);
+		this.sql.append("delete from ").append(table).append(" where ").append(primary_name).append(" = ").append(row.getInteger(primary_name));
+		if(db.executeUpdate(this.sql.toString()) > 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean deleteById(DbBase db, String table, JSONArray rows) throws Exception {
+		this.sql = new StringBuffer();
+		this.delete(table).where().andPrimaryId(db, table, rows);
+		if(db.executeUpdate(this.sql.toString()) > 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean deleteByIdLogic(DbBase db, String table, JSONObject row, String update_by) throws Exception {
+		this.sql = new StringBuffer();
+		this.update(table).setString("version", "D").where().andPrimaryId(db, table, row);
+		if(db.executeUpdate(getSql()) > 0) {
+			return true;
+		}
+		return false;
+	}
 	
 	/**
-	 * select("test") === select * from test
-	 * select("test", "code,name,pwd") === select code,name,pwd from test
+	 * select("test") <=> select * from test
+	 * select("test", "code,name,pwd") <=> select code,name,pwd from test
 	 * @param table 表名 ("test"),("test t")
 	 * @param fields 返回字段名  ("code,name,pwd"),("code","name","pwd"),("code","name,pwd")
 	 * @return
@@ -226,7 +293,7 @@ public class DbTool extends Basic {
 			for(String key:obj.keySet()){
 				String value = obj.getString(key);
 				if(key.indexOf("_date_from") > 0) {
-					this.setDate(key.substring(0, key.indexOf("_from")), row);
+					this.andDate(key.substring(0, key.indexOf("_from")), row);
 				}else if(key.indexOf("_from") > 0) {
 					String from = row.getString(key);
 					if(!Tools.isEmpty(from)) {
@@ -248,20 +315,30 @@ public class DbTool extends Basic {
 		}
 		return this;
 	}
-	
-	public DbTool setString(String field, Object obj, String... judge) throws Exception {
-		return setObject(field, obj, judge == null ? DEFAULT_JUDGE : judge[0], false);
+	public DbTool andPrimaryId(DbBase db, String table, JSONObject row) throws Exception {
+		return this.andNumber(getPrimaryName(db, table), row);
 	}
-	public DbTool setNumber(String field, Object obj, String... judge) throws Exception {
-		return setObject(field, obj, judge == null ? DEFAULT_JUDGE : judge[0], true);
+	public DbTool andPrimaryId(DbBase db, String table, JSONArray rows) throws Exception {
+		return this.in(getPrimaryName(db, table), rows);
 	}
-	public DbTool setObject(String field, Object obj) throws Exception {
-		return setObject(field, obj, DEFAULT_JUDGE, false);
+	public DbTool in(String field, JSONArray rows){
+		this.sql.append(" and ").append(field).append(" in (");
+		for (int i = 0; i < rows.size(); i++) {
+			if(i > 0) {
+				this.sql.append(",");
+			}
+			this.sql.append(rows.getJSONObject(i).getInteger(field));
+		}
+		this.sql.append(")");
+		return this;
 	}
-	public DbTool setObject(String field, Object obj, String judge) throws Exception {
-		return setObject(field, obj, judge, false);
+	public DbTool andString(String field, Object obj, String... judge) throws Exception {
+		return this.andObject(field, obj, judge == null ? DEFAULT_JUDGE : judge[0], false);
 	}
-	public DbTool setObject(String field, Object obj, String judge, boolean isNumber) throws Exception {
+	public DbTool andNumber(String field, Object obj, String... judge) throws Exception {
+		return this.andObject(field, obj, judge == null ? DEFAULT_JUDGE : judge[0], true);
+	}
+	public DbTool andObject(String field, Object obj, String judge, boolean isNumber) throws Exception {
 		String[] arr = field.trim().split("\\.");
 		String key = arr.length == 1? field: arr[1];
 		String column = arr.length == 1? getTableKey(key): field;
@@ -281,13 +358,13 @@ public class DbTool extends Basic {
 		return this;
 	}
 	/**
-	 * D用于时间范围（from、to）查找，单个时间查询用setString
+	 * setDate用于时间范围（from、to）查找，单个时间查询用setString
 	 * @param key
 	 * @param row
 	 * @return
 	 * @throws Exception
 	 */
-	public DbTool setDate(String field, JSONObject row) throws Exception {
+	public DbTool andDate(String field, JSONObject row) throws Exception {
 		String[] arr = field.trim().split("\\.");
 		String key = arr.length == 1? field: arr[1];
 		String column = arr.length == 1? getTableKey(key): field;
@@ -302,7 +379,7 @@ public class DbTool extends Basic {
 		}
 		return this;
 	}
-	public DbTool setSn(String field, JSONObject row) throws Exception {
+	public DbTool andSn(String field, JSONObject row) throws Exception {
 		String[] arr = field.trim().split("\\.");
 		String key = arr.length == 1? field: arr[1];
 		String column = arr.length == 1? getTableKey(key): field;
@@ -404,6 +481,10 @@ public class DbTool extends Basic {
         	return obj.toString().trim();
         }
 	}
+	
+	/*private DbBase getDefaultDb() throws Exception {
+		return DbBase.getDruid();
+	}*/
 	public String getSql() {
 		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ this.sql.toString().replaceAll("\t", " ").replaceAll(" +"," "));
 		return this.sql.toString();
