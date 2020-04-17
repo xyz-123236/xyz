@@ -493,7 +493,19 @@ public class DbTool extends Basic {
 		this.sql = new StringBuffer(sql);
 		return this;
 	}
-
+	public JSONObject clearNull(JSONObject row) throws Exception {
+		Set<String> set = new HashSet<>();
+		for(String key: row.keySet()){
+			String value = row.getString(key);
+			if(Tools.isEmpty(value)) {
+				set.add(key);
+			}
+		}
+		for(String key: set){
+			row.remove(key);
+		}
+		return row;
+	}
 	public static void main(String[] args) {
 		try {
 			/*String a = " name as  n ";

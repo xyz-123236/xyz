@@ -1,25 +1,27 @@
-package cn.xyz.orm.db;
+package cn.xyz.test.testdb;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
+import cn.xyz.orm.db.DbTool;
 
 public class Test {
 
 	public static void main(String[] args) {
 		DbBase db = null;
 		try {
-			//System.out.println("159");
+			//System.out.println("123");
 			db = DbBase.getJdbc("mysql");
 			DbTool dt = DbTool.getInstance();
 			
 			JSONArray rows = new JSONArray();
 			JSONObject row = new JSONObject();
-			row.put("code", "2113");
+			row.put("code", "62");
 			row.put("name", "xx");
 			row.put("id", 2);
 			rows.add(row);
 			JSONObject b = new JSONObject();
-			b.put("code", "8375");
+			b.put("code", "63");
 			b.put("name", "yy");
 			rows.add(b);
 			
@@ -44,16 +46,16 @@ public class Test {
 	}
 	public static void delete(DbBase db, DbTool dt, JSONArray rows, JSONObject row, JSONObject form) throws Exception {
 		
-		
+		//System.out.println(dt.createInsertSql(db, "t3", row, null));
 		
 	}
 	public static void update(DbBase db, DbTool dt, JSONArray rows, JSONObject row, JSONObject form) throws Exception {
 		
-		
+		//System.out.println(dt.createInsertSql(db, "t3", row, null));
 		
 	}
 	public static void select(DbBase db, DbTool dt, JSONArray rows, JSONObject row, JSONObject form) throws Exception {
 		
-		
+		//System.out.println(dt.createInsertSql(db, "t3", row, null));
 	}
 }
