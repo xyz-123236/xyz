@@ -6,10 +6,10 @@ import javax.servlet.http.HttpServletResponse;
 import cn.xyz.mvc.annotation.*;
 
 @Controller
-@RequestMapping("test2")
+@RequestMapping("t2")
 public class Test2Controller {
 
-    @RequestMapping("test")
+    @RequestMapping("t2")
     public static String myTest(HttpServletRequest request, HttpServletResponse response,
                       @RequestParam("param") String param){
         try {
