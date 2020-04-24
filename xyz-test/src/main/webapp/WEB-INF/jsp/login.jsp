@@ -34,6 +34,7 @@
 		.done(function(){ alert("test1");dtd.resolve(true)})
 		.fail(function(){ dtd.reject(false); })
 		;
+		//def.promise();
 		//alert("test");
 	}
 	/* function test(){
