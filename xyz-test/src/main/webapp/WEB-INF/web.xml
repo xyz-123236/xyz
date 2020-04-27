@@ -9,6 +9,9 @@
 		<welcome-file>/WEB-INF/jsp/login.jsp</welcome-file>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+	<session-config>
+		<session-timeout>1</session-timeout>
+	</session-config>
 	<servlet-mapping>
 		<servlet-name>default</servlet-name>
 		<url-pattern>/statics/*</url-pattern>
@@ -27,8 +30,11 @@
 		<url-pattern>/</url-pattern><!-- 不能用/*，否则controller无法返回视图（jsp） -->
 	</servlet-mapping>
 	<servlet>
-        <servlet-name>testServlet2</servlet-name>
-        <servlet-class>cn.xyz.test.TestServlet2</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
+		<servlet-name>testServlet2</servlet-name>
+		<servlet-class>cn.xyz.test.TestServlet2</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<listener>
+		<listener-class>cn.xyz.test.listener.SessionListener</listener-class>
+	</listener>
 </web-app>

@@ -80,6 +80,15 @@ public class DbTool extends Basic {
 		}
 		return true;
 	}
+	/**
+	 * 插入和修改可以是null，不用赋初值，但类型还是需要（sybase不支持数字类型插入字符串）
+	 * @param db
+	 * @param table
+	 * @param row
+	 * @param create_by
+	 * @return
+	 * @throws Exception
+	 */
 	public String createInsertSql(DbBase db, String table, JSONObject row, String create_by) throws Exception{
 		this.sql = new StringBuffer("");
 		JSONObject obj = db.getFiledType(table);
