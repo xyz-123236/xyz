@@ -13,28 +13,30 @@
 	<input type="submit">
 </form>
 <input type="button" onclick="test()" value="test">
-<script type="text/javascript" src="${pageContext.request.contextPath}/statics/js/common/jquery.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/statics/js/common/jquery.min-1.11.3.js"></script>
 <script type="text/javascript">
 	$(function(){
 		
 	})
 	function test(){
-		var dtd = $.Deferred();
-		test2(dtd);
+		var dfd = $.Deferred();
+		test2(dfd);
 		
-		dtd.done(function(val){ alert(val);})
+		dfd.done(function(val){ alert(val);})
 		.fail(function(val){ alert(val);});
 		alert("test");
 	}
-	function test2(dtd){
-		$.ajax({
-			url:"/test/t1/t1",
-			data:{aa:'123',bb:'234'}
-		})
-		.done(function(){ alert("test1");dtd.resolve(true)})
-		.fail(function(){ dtd.reject(false); })
-		;
-		//def.promise();
+	function test2(dfd){
+		for (var i = 0; i < 3; i++) {
+			$.ajax({
+				url:"/test/t1/t1",
+				data:{aa:'123',bb:'234'}
+			})
+			.done(function(){ alert(i); dfd.resolve(true);})
+			.fail(function(){ dfd.reject(false); })
+			;
+		}
+		//dfd.promise();
 		//alert("test");
 	}
 	/* function test(){
