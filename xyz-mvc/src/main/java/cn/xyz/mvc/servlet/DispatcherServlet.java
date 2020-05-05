@@ -198,7 +198,7 @@ public class DispatcherServlet extends HttpServlet {
         
         
         
-        
+        //要做/*,/**的匹配
         if(!this.handlerMapping.containsKey(url)){//�?要处�?/*,view/{url}(@PathVariable)
         	//System.out.println(url);
         	//response.getWriter().write("404 NOT FOUND!");
@@ -350,11 +350,6 @@ public class DispatcherServlet extends HttpServlet {
 
     /**
      * Description:自动化的依赖注入
-     * Params:
-      * @param :
-     * return: void
-     * Author: CXJ
-     * Date: 2018/6/16 20:40
      */
     private void doAutowired(){
 
@@ -375,7 +370,7 @@ public class DispatcherServlet extends HttpServlet {
                 }
                 field.setAccessible(true);
                 try {
-                    field.set(entry.getValue(),this.ioc.get(beanName));//�?.set(对象，�??)
+                    field.set(entry.getValue(),this.ioc.get(beanName));//字段.set(对象，�??)
                 }catch (Exception e){
                     e.printStackTrace();
                     continue;
@@ -415,15 +410,10 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     /**
-     * Description:  初始化HandlerMapping(将url和method对应�?)
-     * Params:
-      * @param :
-     * return: void
-     * Author: CXJ
-     * Date: 2018/6/16 19:12
+     * Description:  初始化HandlerMapping(将url和method对应?)
      */
-    private void initHandlerMapping(){//�?要判断路径是否重�?
-
+    private void initHandlerMapping(){//?要判断路径是否重复?
+    	//要处理/*,/**的匹配
         if(this.ioc.isEmpty()){
             return;
         }
@@ -434,7 +424,7 @@ public class DispatcherServlet extends HttpServlet {
                     continue;
                 }
 
-                //拼url�?,是controller头的url拼上方法上的url
+                //拼url,是controller头的url拼上方法上的url
                 String baseUrl ="";
                 if(clazz.isAnnotationPresent(RequestMapping.class)){
                     RequestMapping annotation = clazz.getAnnotation(RequestMapping.class);
@@ -462,12 +452,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     /**
-     * Description:  将字符串中的首字母小�?
-     * Params:
-      * @param name:
-     * return: java.lang.String
-     * Author: CXJ
-     * Date: 2018/6/16 19:13
+     * Description:  将字符串中的首字母小写?
      */
     private static String toLowerFirstWord(String name){
 

@@ -53,3 +53,10 @@ sys_user     	id: su_id
 sys_uxxxx_a   	id: sua_id加个_a防止id重复
 
 建表不允许为null，有为空的情况应该给默认值，减少空查询引起索引失效，or用union代替
+
+
+可以搜索可以修改的key-value，如果是（系统默认时间规则，语言环境）之类的，key应该连接有data数据，修改时在data里选择
+
+
+
+
