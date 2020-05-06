@@ -16,7 +16,7 @@ public class Test2Controller {
         	//https://blog.csdn.net/yiluoak_47/article/details/51012406
             //response.getWriter().write( "Test2Controller:the param you send is :"+param);
         	//response.sendRedirect("login.jsp");
-        	
+        	request.setAttribute("name", "tang.wu");
         	//request.getRequestDispatcher("login.jsp").forward(request,response);
         } catch (Exception e) {
             e.printStackTrace();

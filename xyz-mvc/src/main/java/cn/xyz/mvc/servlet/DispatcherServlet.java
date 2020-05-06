@@ -252,7 +252,7 @@ public class DispatcherServlet extends HttpServlet {
             }else {
             	if(request.getHeader("x-requested-with") == null) {
                 	//response.getWriter().write(obj2.toString());
-                	request.getRequestDispatcher(obj2).forward(request,response); 
+                	request.getRequestDispatcher("/WEB-INF/jsp/"+obj2).forward(request,response); 
                 }else {
                 	response.getWriter().write(obj2);
                 }

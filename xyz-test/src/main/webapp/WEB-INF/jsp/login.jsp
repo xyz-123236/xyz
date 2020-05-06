@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%-- <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%> --%>
+<%@ taglib uri="http://cn.xyz/xyz" prefix="xyz" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,6 +11,12 @@
 <body>
 <form action="/t1/t1" method="post" enctype="multipart/form-data">
 	<input type="file" name="file" value="">
+	<xyz:if role="admin" permission="${name}">
+		<input type="text" name="name" value="${name}">
+	</xyz:if>
+	<xyz:if2 role="${name}" permission="update">
+		<input type="text" name="name" value="${name}">
+	</xyz:if2>
 	<input type="submit">
 </form>
 <input type="button" onclick="test()" value="test">
