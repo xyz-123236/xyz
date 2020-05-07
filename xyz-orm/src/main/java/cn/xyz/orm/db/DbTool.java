@@ -2,14 +2,11 @@ package cn.xyz.orm.db;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -248,17 +245,47 @@ public class DbTool extends Basic {
 		}else {
 			this.sql.append( "select "+ ToolsString.join(fields)+" from "+ table);
 			for (int i = 0; i < fields.length; i++) {
-				String[] fs = fields[i].split(",");
-				for (int j = 0; j < fs.length; j++) {
-					String key = fs[j].trim().split(" ")[0];
-					String[] arr = key.split("\\.");
-					if(arr.length == 2) {
-						this.columns.put(arr[1], key);
+				int begin = 0;
+				Stack<Integer> stack =new Stack<>();
+				boolean flag = false;
+				for (int j = 0; j < fields[i].length(); j++) {
+					if(fields[i].charAt(j)=='('){
+						flag = true;
+						stack.push(j+1);
+		        	}
+					if(fields[i].charAt(j)==')'){
+						String str = fields[i].substring(stack.pop(), j);
+						if(str.indexOf("(") < 0) {
+							addColumns(str.split(",")[0]);
+						}
+					}
+					if(fields[i].charAt(j)==',' || j == fields[i].length()-1){
+						if(flag) {
+							if(Tools.isEmpty(stack)) {
+								flag = false;
+							}
+						}else {
+							addColumns(fields[i].substring(begin, (j == fields[i].length()-1)?j+1:j));
+						}
+						begin = j + 1;
 					}
 				}
 			}
 		}
 		return this;
+	}
+	public void addColumns(String value) {
+		String key = value.trim().split(" ")[0];
+		String[] arr = key.split("\\.");
+		if(arr.length == 2) {
+			if("*".equals(arr[1])) {
+				this.columns.put(arr[1], arr[0]+".");
+			}else {
+				this.columns.put(arr[1], key);
+			}
+		}else {
+			this.columns.put(key, key);
+		}
 	}
 	public DbTool left(String table, String on) {
 		this.sql.append( " left join " + table + " on " + on);
@@ -477,9 +504,19 @@ public class DbTool extends Basic {
 		String[] arr = key.trim().split("\\.");
 		return arr.length == 1? key: arr[1];
 	}
-	public String getTableKey(String key) {
-		String column = this.columns.getString(key);
-		return column == null? key: column;
+	public String getTableKey(String key) throws Exception {
+		if(!Tools.isEmpty(this.columns)) {
+			String column = this.columns.getString(key);
+			if(Tools.isEmpty(column)) {
+				String _column = this.columns.getString("*");
+				if(!Tools.isEmpty(_column)) {
+					return _column + key;
+				}
+			}else {
+				return column;
+			}
+		}
+		return key;
 	}
 	public String getValue(String key, Object obj) throws Exception {
 		if(Tools.isEmpty(obj)) {
@@ -522,11 +559,17 @@ public class DbTool extends Basic {
 			for (int i = 0; i < arr.length; i++) {
 				System.out.println(arr[i]);
 			}*/
-			System.out.println(DbTool.getInstance().select("test").getSql());
+			/*System.out.println(DbTool.getInstance().select("test").getSql());
 			System.out.println(DbTool.getInstance().select("test", "code,name,pwd").getSql());
 			System.out.println(DbTool.getInstance().select("test", "code","name","pwd").getSql());
-			System.out.println(DbTool.getInstance().select("test", "code","name,pwd").getSql());
+			System.out.println(DbTool.getInstance().select("test", "code","name,pwd").getSql());*/
 			//System.out.println(this.filds);
+			DbTool dt = DbTool.getInstance().select("test t","t.*,a.str1 as cc,c.str1 as dd,a.str2,b.num1,b.num2,sum(CAST(c.ENTBY AS INTEGER)),ifnull(d.NUM5, 0)+ifnull(d.NUM6, 0)");
+			System.out.println(dt.columns);
+			System.out.println(dt.getSql());
+			/*Stack<Integer> stack =new Stack<>();
+			System.out.println(stack);
+			System.out.println(Tools.isEmpty(stack));*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
