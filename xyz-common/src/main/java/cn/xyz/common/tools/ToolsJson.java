@@ -54,6 +54,26 @@ public class ToolsJson {
 		}
 		return row;
 	}
+	//清空某些不用显示的值，如0，N
+	public static JSONObject clearDefaultValue(JSONObject row, String v, String... keys) throws Exception {
+		for(String key: row.keySet()){
+			String value = row.getString(key);
+			if(Tools.isEmpty(keys)) {
+				if(v.equals(value)) {
+					row.put(key, null);
+				}
+			}else {
+				String _keys = ","+ToolsString.join(keys,",")+",";
+				if(_keys.indexOf(","+key+",")>=0) {
+					if(v.equals(value)) {
+						row.put(key, null);
+					}
+				}
+			}
+			
+		}
+		return row;
+	}
 	public static void main(String[] args) {
 		JSONObject row = new JSONObject();
 		row.put("a","111");

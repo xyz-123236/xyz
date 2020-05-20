@@ -284,7 +284,9 @@ public class DbTool extends Basic {
 				this.columns.put(arr[1], key);
 			}
 		}else {
-			this.columns.put(key, key);
+			if(!"*".equals(value)) {
+				this.columns.put(key, key);
+			}
 		}
 	}
 	public DbTool left(String table, String on) {

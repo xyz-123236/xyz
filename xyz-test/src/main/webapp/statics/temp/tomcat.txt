@@ -1,0 +1,6 @@
+linux下实时查看tomcat运行日志
+1、先切换到你的tomcat下的logs：cd usr/local/tomcat/logs
+2、控制台执行 tail -f catalina.out
+3、这样运行时就可以实时查看运行日志了
+Ctrl+c 是退出tail命令。
+alt+E+R重置。
