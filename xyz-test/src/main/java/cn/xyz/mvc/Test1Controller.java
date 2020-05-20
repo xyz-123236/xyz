@@ -20,6 +20,8 @@ public class Test1Controller {
     public String myTest(HttpServletRequest request, HttpServletResponse response,
                       JSONObject obj){
         try {
+        	
+        	
         	Thread.sleep(3000);
         	System.out.println(obj);
             this.testService.printParam(obj);
