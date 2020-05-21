@@ -35,8 +35,45 @@ public class ToolsString {
         }
 		return sb.toString();
 	}
+	
+	/**
+	 * 字符串去除前后空格　解决 String tirm()方法　对全角空格无效的问题
+	 * 
+	 * @param orin  需要进行处理的字符串
+	 * @return String 处理完成的结果字符串
+	 */
+	public static String trim(String str) {
+		if (str != null) {
+			str = str.trim();// 去除前后半角空格
+			// 去除前后全角半角空格
+			while (str.startsWith("　")) {// 循环
+				str = str.substring(1, str.length()).trim();        //每截取一次全角空格，都trim清除一次半角空格，保证清除内部的半角
+			}
+			while (str.endsWith("　")) {// 循环
+				str = str.substring(0, str.length() - 1).trim();
+			}
+			/*while (str.startsWith("　") || str.endsWith("　")) {// 循环
+				str = str.replaceAll("　", "").trim();        //不能用，会清除中间的空格
+			}*/
+		}
+		return str;
+	}
+	
+	public static int length(String str) {
+		if (str == null)
+			return 0;
+		try {
+			return new String(str.getBytes("GBK"), "8859_1").length();
+		} catch (Exception e) {
+			return -1;
+		}
+	}
 	public static void main(String[] args) {
-		String a = "123";
-		System.out.println(Double.valueOf(a));
+		String b = "123";
+		System.out.println(Double.valueOf(b));
+		String a=" 　　　   afdsasdf      　　　　";
+		System.out.println(trim(a));
+		String[] c = {"","B","c"};
+		System.out.println(String.join(",", c));
 	}
 }

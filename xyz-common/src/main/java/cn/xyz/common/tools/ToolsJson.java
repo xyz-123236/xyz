@@ -29,7 +29,7 @@ public class ToolsJson {
 		for(String key:row.keySet()){
 			String value = row.getString(key);
 			if(value != null) {
-				row.put(key, value.trim());
+				row.put(key, ToolsString.trim(value));
 			}
 		}
 		return row;
@@ -63,7 +63,7 @@ public class ToolsJson {
 					row.put(key, null);
 				}
 			}else {
-				String _keys = ","+ToolsString.join(keys,",")+",";
+				String _keys = ","+String.join(",",keys)+",";
 				if(_keys.indexOf(","+key+",")>=0) {
 					if(v.equals(value)) {
 						row.put(key, null);

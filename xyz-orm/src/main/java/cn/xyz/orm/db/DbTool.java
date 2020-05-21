@@ -243,7 +243,7 @@ public class DbTool extends Basic {
 		if(Tools.isEmpty(fields)) {
 			this.sql.append( "select * from "+ table);
 		}else {
-			this.sql.append( "select "+ ToolsString.join(fields)+" from "+ table);
+			this.sql.append( "select "+ String.join(",", fields)+" from "+ table);
 			for (int i = 0; i < fields.length; i++) {
 				int begin = 0;
 				Stack<Integer> stack =new Stack<>();
