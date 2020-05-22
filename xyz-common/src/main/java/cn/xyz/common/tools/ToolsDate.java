@@ -201,14 +201,50 @@ public class ToolsDate {
 		}
 		return sdf.format(new Date()) + split + (new Random().nextInt(900) + 100);
 	}
-	
+	//前后相差几月
+	public static int diffMonth(String from, String to) throws Exception {
+		Calendar datefrom = Calendar.getInstance();
+		Calendar dateto = Calendar.getInstance();
+		datefrom.setTime(getDate(from));
+		dateto.setTime(getDate(to));
+		int y = dateto.get(Calendar.YEAR) - datefrom.get(Calendar.YEAR);
+		return dateto.get(Calendar.MONTH) - datefrom.get(Calendar.MONTH) + y * 12;	
+	}
+	public static int diffDay(String from, String to) throws Exception {
+		return (int) ((getDate(from).getTime() - getDate(to).getTime()) / (1000*3600*24));
+	}
+	public static String firstDay() {
+		Calendar c = Calendar.getInstance();    
+        c.set(Calendar.DAY_OF_MONTH,1);//设置为1号,当前日期既为本月第一天 
+        return getString(c.getTime());
+	}
+	public static String lastDay() {
+		Calendar c = Calendar.getInstance();    
+        c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return getString(c.getTime());
+	}
+	public static String preFirstDay() {
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MONTH, -1);
+        c.set(Calendar.DAY_OF_MONTH,1);//设置为1号,当前日期既为本月第一天 
+        return getString(c.getTime());
+	}
+	public static String preLastDay() {
+		Calendar c = Calendar.getInstance();    
+		c.set(Calendar.DAY_OF_MONTH,0);//设置为0,为上月最后一天 
+        return getString(c.getTime());
+	}
 	public static void main(String[] args) {
 		try {
+			System.out.println(firstDay());
+			System.out.println(lastDay());
+			System.out.println(preFirstDay());
+			System.out.println(preLastDay());
 			/*for (int i = 0; i < 17; i++) {
 				System.out.println(getDatePart(i, new Date()));
 			}*/
-			System.out.println(getLongString(getDate("2020/Nov/16")));
-			System.out.println(new Date(1541088000000l));
+			//System.out.println(getLongString(getDate("2020/Nov/16")));
+			//System.out.println(new Date(1541088000000l));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", new Date(1541088000000l)));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", addDays(new Date(),4)));
 			//System.out.println(getString("yyyy-MM-dd HH:mm:ss.SSS", add("M",-3, getDate("2019-05-31"))));

@@ -455,48 +455,10 @@ public class DbTool extends Basic {
 	}
 	
 	public JSONArray sortData(JSONArray data) throws Exception {
-		if(!Tools.isEmpty(data)) {
-			/*if("asc".equals(this.order)) {
-				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)));
-			}else if("desc".equals(this.order)){
-				data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(this.sort)).reversed());
-			}*/
-			JSONArray sortData = new JSONArray();
-	        List<JSONObject> list = new ArrayList<JSONObject>();
-	        for (int i = 0; i < data.size(); i++) {
-	        	list.add(data.getJSONObject(i));
-	        }
-	        Collections.sort(list, (JSONObject a, JSONObject b)-> {
-                String valA = a.getString(this.sort) == null? "" :a.getString(this.sort);
-                String valB = b.getString(this.sort) == null? "" :b.getString(this.sort);
-                //是升序还是降序
-                if("asc".equals(this.order)) {
-                	return valA.compareTo(valB);
-                }else if("desc".equals(this.order)){
-                    return valB.compareTo(valA);
-                }else {
-                	return 0;
-                }
-	        });
-	        for (int i = 0; i < list.size(); i++) {
-	        	sortData.add(list.get(i));
-	        }
-	        return sortData;
-		}
-		return data;
+		return Tools.sort(data,this.sort,this.order);
 	}
 	public JSONArray limitData(JSONArray data) throws Exception {
-		if(!Tools.isEmpty(data)){
-			int begin = (this.page-1)*this.rows;
-			int end = (begin+this.rows) > data.size()?data.size():(begin+this.rows);
-			JSONArray t = new JSONArray();
-			for (int i = begin; i < end; i++) {
-				t.add(data.getJSONObject(i));
-			}
-			return t;
-			//return JSON.parseArray(JSON.toJSONString(data.subList(begin, end)));
-		}
-		return data;
+		return Tools.limit(data,this.page,this.rows);
 	}
 	
 	

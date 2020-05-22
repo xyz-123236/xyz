@@ -16,17 +16,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 public class Test7 {
-	/*public static void main(String[] args) {
-		JSONObject obj = new JSONObject();
-		obj.put("userno", "123");
-		try {
-			DBTool.getInstance("test2").set(obj).insert();
-			System.out.println("完成");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	*/
+
 	@BeforeEach
 	static void beforeEach() {
 		System.out.println("BeforeAll");

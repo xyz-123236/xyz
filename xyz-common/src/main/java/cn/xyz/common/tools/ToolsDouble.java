@@ -123,8 +123,7 @@ public class ToolsDouble {
 	 */
 	public static double round(double v, int scale) {
 		if (scale < 0) {
-			throw new IllegalArgumentException(
-					"The scale must be a positive integer or zero");
+			throw new IllegalArgumentException("The scale must be a positive integer or zero");
 		}
 		BigDecimal b = new BigDecimal(Double.toString(v));
 		BigDecimal one = new BigDecimal("1");
@@ -144,7 +143,15 @@ public class ToolsDouble {
 		return new BigDecimal(d);
 	}
 	public static void main(String[] args) {
-		double a = 301353.5;
+		Double a = 38.45666666666666;
+		System.out.println(round(a, 2));
+		int b = 5;
+		try {
+			System.out.println(Tools.isEmpty(b));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		/*double a = 301353.5;
 		System.out.println(Math.round(a));
 		 System.out.println(doubleToBigDecimal(301353.05));
 		 System.out.println(doubleToBigDecimal(-301353.05));
@@ -159,7 +166,7 @@ public class ToolsDouble {
 		System.out.println(new BigDecimal(new Double(d).toString()));
 		System.out.println(new BigDecimal(d));
 
-		System.out.println(new BigDecimal(String.valueOf(d)).toPlainString());
+		System.out.println(new BigDecimal(String.valueOf(d)).toPlainString());*/
 	}
 
 }

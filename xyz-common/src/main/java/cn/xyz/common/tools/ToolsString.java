@@ -1,5 +1,7 @@
 package cn.xyz.common.tools;
 
+import java.io.UnsupportedEncodingException;
+
 import com.alibaba.fastjson.JSONObject;
 
 public class ToolsString {
@@ -19,7 +21,7 @@ public class ToolsString {
 		return filed.toLowerCase().trim();
 	}
 	
-	public static String format(Object obj) {
+	public static String toString(Object obj) {
 		return (obj == null) ? "" : obj.toString();
 	}
 	public static String join(Object[] array, String... regex) throws Exception {
@@ -68,12 +70,23 @@ public class ToolsString {
 			return -1;
 		}
 	}
+	public static String big5ToChinese(String s) throws UnsupportedEncodingException {
+		return new String(toString(s).getBytes("big5"), "gb2312");//不能用utf-8
+	}
+	public static String ChineseTobig5(String s) throws UnsupportedEncodingException {
+	    return new String(toString(s).getBytes("gb2312"), "big5");
+	}
 	public static void main(String[] args) {
-		String b = "123";
-		System.out.println(Double.valueOf(b));
-		String a=" 　　　   afdsasdf      　　　　";
-		System.out.println(trim(a));
-		String[] c = {"","B","c"};
-		System.out.println(String.join(",", c));
+		try {
+			String b = "123";
+			System.out.println(Double.valueOf(b));
+			String a=" 　　　   afdsasdf      　　　　";
+			System.out.println(trim(a));
+			String[] c = {"","B","c"};
+			System.out.println(String.join(",", c));
+			System.out.println(big5ToChinese(ChineseTobig5("好好学习")));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
