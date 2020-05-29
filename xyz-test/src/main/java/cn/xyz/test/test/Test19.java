@@ -19,7 +19,7 @@ public class Test19 {
 		           out.writeUTF("Hello");
 		       }
 			DbBase db = DbBase.getJdbc(DbBase.SYBASE);
-			JSONArray data = db.find(" EXEC mes_abse_sum3 '2020', 3, '2020/03/27', '2020/03/27', '0133363', '0133363', '', 'ZZZZZZZZ', '', 'ZZZZZZZZ'");
+			JSONArray data = db.find(" EXEC mes_abse_sum3 '2020', 3, '2020/05/20', '2020/05/20', '0108427', '0108427', '', 'ZZZZZZZZ', '', 'ZZZZZZZZ'");
 			System.out.println(data.size()+":"+data);
 		} catch (Exception e) {
 			e.printStackTrace();

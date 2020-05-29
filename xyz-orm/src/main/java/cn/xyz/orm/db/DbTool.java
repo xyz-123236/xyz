@@ -491,7 +491,11 @@ public class DbTool extends Basic {
         	return obj.toString().trim();
         }
 	}
-	
+	public String escape(String str) {
+		return str.replaceAll("\"", "&quot;").replaceAll("'", "&apos;").replaceAll("&", "&amp;")
+				.replaceAll("\n", "<br>")
+				.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll(" ", "&nbsp;");
+	}
 	/*private DbBase getDefaultDb() throws Exception {
 		return DbBase.getDruid();
 	}*/
