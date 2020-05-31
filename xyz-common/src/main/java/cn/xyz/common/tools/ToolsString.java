@@ -45,20 +45,21 @@ public class ToolsString {
 	 * @return String 处理完成的结果字符串
 	 */
 	public static String trim(String str) {
+		String s = "";
 		if (str != null) {
-			str = str.trim();// 去除前后半角空格
+			s = str.trim();// 去除前后半角空格
 			// 去除前后全角半角空格
-			while (str.startsWith("　")) {// 循环
-				str = str.substring(1, str.length()).trim();        //每截取一次全角空格，都trim清除一次半角空格，保证清除内部的半角
+			while (s.startsWith("　")) {// 循环
+				s = s.substring(1, s.length()).trim();        //每截取一次全角空格，都trim清除一次半角空格，保证清除内部的半角
 			}
-			while (str.endsWith("　")) {// 循环
-				str = str.substring(0, str.length() - 1).trim();
+			while (s.endsWith("　")) {// 循环
+				s = s.substring(0, s.length() - 1).trim();
 			}
 			/*while (str.startsWith("　") || str.endsWith("　")) {// 循环
 				str = str.replaceAll("　", "").trim();        //不能用，会清除中间的空格
 			}*/
 		}
-		return str;
+		return s;
 	}
 	
 	public static int length(String str) {
