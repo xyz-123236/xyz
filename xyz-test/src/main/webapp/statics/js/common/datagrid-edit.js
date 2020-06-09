@@ -47,7 +47,7 @@ function EditDg(index){		//element:table的id
 			var dfd = $.Deferred();
 			if (_this.editIndex == undefined){
 				dfd.resolve(true);
-				return;
+				return dfd.promise();
 			}
 			if ($(_params.element[_this.index]).datagrid('validateRow', _this.editIndex)){
 				$(_params.element[_this.index]).datagrid('acceptChanges');
@@ -56,6 +56,7 @@ function EditDg(index){		//element:table的id
 				if(_this.checkData(row)){
 					$(_params.element[_this.index]).datagrid('endEdit', _this.editIndex);
 					if(!row){
+						_this.editIndex = undefined;
 						dfd.resolve(true);
 					}else if(row.newRow){
 						delete row.newRow;
@@ -77,6 +78,7 @@ function EditDg(index){		//element:table的id
 							}
 						}
 						if(!status){
+							_this.editIndex = undefined;
 							dfd.resolve(true);
 						}
 					}
@@ -116,7 +118,7 @@ function EditDg(index){		//element:table的id
 			}
 			return dfd.promise();
 		};
-		EditDg.prototype.add = function(row){//新增   row:{index: '', init:{}, parent:[]}
+		EditDg.prototype.add = function(row){//新增   row:{index: '', init:{}, parent: []}
 			var _this = this;
 			_this.checkSave().done(function(val){ 
 				if(val){
@@ -124,7 +126,21 @@ function EditDg(index){		//element:table的id
 					var index = row ? row.index : undefined;
 					obj = _this.addBefore(obj,'add')
 					if(_this.index > 0 && _params.relate){//relate默认是关联模块
-						_this.task(_this, function(this2){//明细添加时需要主模块生成主键
+						_row = $(_params.element[_this.index - 1]).datagrid('getSelected');
+						if(_row){
+							obj[_params.id[_this.index - 1]] = _row[_params.id[_this.index - 1]];
+							if(row.parent){
+								for (var i = 0; i < row.parent.length; i++) {
+									obj[row.parent[i]] = _row[row.parent[i]];
+								}
+							}
+							_this._add(index, obj);
+							return true;
+						}else{
+							$.messager.alert('信息','主模块没有选择记录!','info');
+							return true;
+						}
+						/*_this.task(_this, function(this2){//明细添加时需要主模块生成主键
 							_row = $(_params.element[this2.index - 1]).datagrid('getSelected');
 							if(_row){
 								if(!isEmpty(_row[_params.id[this2.index - 1]])){
@@ -138,7 +154,7 @@ function EditDg(index){		//element:table的id
 								$.messager.alert('信息','主模块没有选择记录!','info');
 								return true;
 							}
-						});
+						});*/
 					}else{
 						_this._add(index, obj);
 					}
@@ -287,6 +303,8 @@ function EditDg(index){		//element:table的id
 					}
 				}
 				_this.editAfter();
+				_this.editIndex = undefined;		//编辑的行号
+				_this.originalRow = undefined;	//原行数据
 				dfd.resolve(true);
 			}, function(data){
 				if(_this.editIndex != index && _this.editIndex != undefined){
@@ -417,10 +435,14 @@ function EditDg(index){		//element:table的id
 					}
 				}
 			}
-			var para = gridParamData(_params.type, _params.find[_this.index], row);
-			GridData(_params.element[_this.index], para);
-			_this.editIndex = undefined;		//编辑的行号
-			_this.originalRow = undefined;	//原行数据
+			MaskUtil.mask();
+			setTimeout(function(){
+				var para = gridParamData(_params.type, _params.find[_this.index], row);
+				GridData(_params.element[_this.index], para);
+				_this.editIndex = undefined;		//编辑的行号
+				_this.originalRow = undefined;	//原行数据
+				MaskUtil.unmask();
+			},100);
 		};
 		EditDg.prototype.download = function(){//下载         如果只用明细模块导出，需要修改参数getFormData
 			var _this = this;

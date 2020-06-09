@@ -38,7 +38,11 @@ function checkFileType(fileName, type){
 
 //返回2位小数/.xx
 function formatNumberPrecision(value){
-	if(!isEmpty(value)) return parseFloat(value).toFixed(2);
+	if(!isEmpty(value)){
+		return parseFloat(value).toFixed(2);
+	}else{
+		return '0.00';
+	}
 }
 //返回年月/yyyy-MM
 function formatDateYM(value){
@@ -180,7 +184,7 @@ function stylerBackgroundByDate(index, row){
 		}
 	}
 }
-
+//日期控件只显示年月
 var date_ym_options = {
 	onShowPanel: function () {//显示日趋选择对象后再触发弹出月份层的事件，初始化时没有生成月份层
 		var _this = this;
@@ -211,6 +215,111 @@ var date_ym_options = {
         return d.getFullYear() + '-' +a;
     }	
 }
+
+//清除表单数据
+function clearForm(elements){
+	elements.forEach(function (element) {
+		$("#"+element).textbox('setValue','');
+	});
+}
+
+$.extend($.fn.validatebox.defaults.rules, {//options:{validType: 'workcenterNo',}
+	workcenterNo: {  
+		validator: function (value) {  
+			return /^12[A-Z]([0-9]{2}|[0-9]{4})$/.test(value);  
+		},  
+		message: '工作中心只能是5位或7位'  
+	},
+	workcenterNoSeven: {  
+		validator: function (value) {  
+			return /^12[A-Z][0-9]{4}$/.test(value);  
+		},  
+		message: '工作中心只能是7位'  
+	},
+	workorderNo: {  
+		validator: function (value) {  
+			return /^[0-9]{10}$/.test(value);  
+		},  
+		message: '工单为10位数字'  
+	},
+	userno: {  
+		validator: function (value) {  
+			return /^[0-9]{7}$/.test(value);  
+		},  
+		message: '工号为7位数字'  
+	},
+	minute: {  
+		validator: function (value) {  
+			return value >= 0 && value <= 60;  
+		},  
+		message: '只能是0到60'  
+	},
+});
+$(function(){
+	var $workcenterNo = $('#workcenterNo');
+	if($workcenterNo.length > 0){
+		$workcenterNo.textbox('textbox').keyup(function(){
+		    $(this).val( $(this).val().toUpperCase().trim());
+		});
+	}
+});
+(function($) {
+	$.fn.getFormData = function() {
+		var obj = {};
+		$('input', this).each(function() {
+			if(this.type=="checkbox")
+			{
+				obj[this.name] = this.checked?"Y":"N";
+			}
+			else
+			{
+				obj[this.name] = $(this).val();
+			}
+		});
+		delete obj[""];
+		return obj;
+	}
+	$.fn.disable = function () {
+		$(this).find(".easyui-textbox,.easyui-combobox,.easyui-numberbox").textbox("disable");
+		$(this).find(".easyui-switchbutton").switchbutton("disable");
+		//$(this).find(".easyui-checkbox").checkbox("disable");
+	};
+	$.fn.readonly = function () {
+		$(this).find(".easyui-textbox,.easyui-combobox,.easyui-numberbox").textbox("readonly");
+		$(this).find(".easyui-switchbutton").switchbutton("readonly");
+		$(this).find(".easyui-checkbox").checkbox("readonly");
+	};
+})(jQuery);
+
+var MaskUtil = (function() {
+	var $mask,
+		$maskMsg;
+	var maskText = '<div id="pageloading" ' +
+		'	style="position:absolute; top:50%; left:50%; margin:-120px 0px 0px -120px; text-align:center;  border:2px solid #8DB2E3; width:200px; height:40px;  font-size:14px;padding:10px; font-weight:bold; background:#fff; color:#15428B;z-index:9999;">' +
+		'	<img src="/mes/images/loading.gif" align="absmiddle" /> 正在处理中,请稍候... ' +
+		' </div>'
+
+	function init() {
+		if (!$mask) {
+			$mask = $(maskText).appendTo("body");
+		}
+
+		var scrollTop = $(document.body).scrollTop();
+
+	}
+
+	return {
+		mask : function(msg) {
+			init();
+			$mask.show();
+		},
+		unmask : function() {
+			$mask.hide();
+		}
+	}
+
+}());
+
 function sleep(time){
 	var start = new Date().getTime();
 	while (true) {
