@@ -23,20 +23,11 @@ import javax.mail.internet.MimeMultipart;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sun.mail.util.MailSSLSocketFactory;
 
 import cn.xyz.common.tools.Tools;
 
 public class ToolsEmail {
-	/*public static String protocol="smtp";
-	public static String host="webmail.fujikon.com";
-	//mail.smtp.host=192.168.50.110;
-	public static String port="465";
-	public static String fc="javax.net.ssl.SSLSocketFactory";
-	public static String auth="true";
-	public static String ssl="true";
-	public static String email="noreply@fujikon.com";
-	public static String password="Fic2020@";
-	public static String starttls="false";*/
 	public static Properties properties = null;
     static {
 	    try(InputStreamReader isr = new InputStreamReader(ToolsEmail.class.getClassLoader().getResourceAsStream("resource/email.properties"),"utf-8");) {
@@ -59,7 +50,7 @@ public class ToolsEmail {
         // 根据邮件配置创建会话，注意session别导错包
         Session sion = Session.getDefaultInstance(props);
         //QQ邮箱需要下面这段代码，163邮箱不需要
-		/*MailSSLSocketFactory sf = new MailSSLSocketFactory();
+        /*MailSSLSocketFactory sf = new MailSSLSocketFactory();
 		sf.setTrustAllHosts(true);
 		properties.put("mail.smtp.ssl.enable", "true");
 		properties.put("mail.smtp.ssl.socketFactory", sf);*/
@@ -79,13 +70,12 @@ public class ToolsEmail {
         InternetAddress fromAddress = new InternetAddress(properties.getProperty("email"), properties.getProperty("username"), "utf-8");
         // 设置发送邮件方
         msg.setFrom(fromAddress);
-        InternetAddress receiveAddress = new InternetAddress(
-                "tang.wu@fujikon.com", "tang.wu", "utf-8");
+        InternetAddress receiveAddress = new InternetAddress(obj.getString("email"), obj.getString("username"), "utf-8");
         // 设置邮件接收方
         msg.setRecipient(RecipientType.TO, receiveAddress);
         // 设置邮件标题
         
-        msg.setSubject("test主题", "utf-8");
+        msg.setSubject(obj.getString("subject"), "utf-8");
         //msg.setText("test内容");
         // 创建消息部分
         BodyPart messageBodyPart = new MimeBodyPart();
@@ -95,16 +85,16 @@ public class ToolsEmail {
         }else {
             messageBodyPart.setText(obj.getString("content"));
         }
-     // 创建多重消息
+        // 创建多重消息
         Multipart multipart = new MimeMultipart();
         // 设置文本消息部分
         multipart.addBodyPart(messageBodyPart);
         // 附件部分
-        if (!Tools.isEmpty(obj.getString("filename"))){
+        if (!Tools.isEmpty(obj.getString("file_url"))){
             BodyPart messageAttachmentPart = new MimeBodyPart();
-            DataSource source = new FileDataSource(obj.getString("filename"));
+            DataSource source = new FileDataSource(obj.getString("file_url"));
             messageAttachmentPart.setDataHandler(new DataHandler(source));
-            messageAttachmentPart.setFileName(obj.getString("filename"));
+            messageAttachmentPart.setFileName(obj.getString("file_name"));
             multipart.addBodyPart(messageAttachmentPart);
         }
         msg.setContent(multipart);
@@ -120,52 +110,10 @@ public class ToolsEmail {
         //连接，并发送邮件
         transport.sendMessage(msg, msg.getAllRecipients());
         transport.close();
-
     }
 
-	public static void main(String[] args) {
-		try {
-			String head[] = {"账号","密码"};
-			JSONArray employees = new JSONArray();
-			JSONObject employee = new JSONObject();
-			employee.put("name", "小明");
-			employee.put("pwd", "123");
-			employees.add(employee);
-			JSONObject employee2 = new JSONObject();
-			employee2.put("name", "小张");
-			employee2.put("pwd", "456");
-			employees.add(employee2);
-			JSONObject employee3 = new JSONObject();
-			employee3.put("name", "小李");
-			employee3.put("pwd", "789");
-			employees.add(employee3);
-			StringBuilder tableStart = setTableStart(head,"账号密码");
-			for (int i=0;i<employees.size();i++){
-				String tr = "<tr class=\"odd\">";
-				if (i%2==1){
-					tr = "<tr class=\"even\">";
-				}
-				tableStart.append("     "+tr+"    ");
-				tableStart.append("         <td>"+employees.getJSONObject(i).getString("name")+"</td>  ");
-				tableStart.append("         <td>"+employees.getJSONObject(i).getString("pwd")+"</td>  ");
-				tableStart.append("       </tr>  ");
-			}
-			StringBuilder table = setTableEnd(tableStart);
-
-			JSONObject obj = new JSONObject();
-			obj.put("email", "tang.wu@fujikon.com");
-			obj.put("username", "tang.wu");
-			obj.put("subject", "test主题");
-			obj.put("content", table);
-			obj.put("filename", "E:\\file\\temp\\test.txt");
-			obj.put("ishtml", true);
-			SendEmail(obj);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-	public static StringBuilder setTableStart(String head[],String title){
+	
+	public static StringBuilder createTable(String head[],JSONArray data, String title){
 		 
         StringBuilder table=new StringBuilder();
         table.append("    <html>");
@@ -182,9 +130,9 @@ public class ToolsEmail {
         table.append("    table tr.odd{background-color:#cef;}");
         table.append("    table tr.even{background-color:#ffc;}");
         table.append("    table tr td { color: #47433F;border-top: 1px solid #FFF;}");
-        
         table.append("     </style>");
         table.append("    ");
+        
         table.append("     <body>");
         table.append("<h2>"+title+"<h2/>");
         table.append("    <table style=\"width:500px; border-spacing:0;\">  ");
@@ -193,12 +141,54 @@ public class ToolsEmail {
             table.append("          <th>"+head[i]+"</th>  ");
         }
         table.append("       </tr>  ");
-        return table;
-    }
-    public static StringBuilder setTableEnd(StringBuilder table) {
+        for (int i=0;i<data.size();i++){
+			String tr = "<tr class=\"odd\">";
+			if (i%2==1){
+				tr = "<tr class=\"even\">";
+			}
+			table.append("     "+tr+"    ");
+			table.append("         <td>"+data.getJSONObject(i).getString("name")+"</td>  ");
+			table.append("         <td>"+data.getJSONObject(i).getString("pwd")+"</td>  ");
+			table.append("       </tr>  ");
+		}
         table.append("    </table> ");
         table.append("     </body>");
+        
         table.append("    </html>");
         return table;
     }
+
+    public static void main(String[] args) {
+		try {
+			String head[] = {"账号","密码"};
+			JSONArray employees = new JSONArray();
+			JSONObject employee = new JSONObject();
+			employee.put("name", "小明");
+			employee.put("pwd", "123");
+			employees.add(employee);
+			JSONObject employee2 = new JSONObject();
+			employee2.put("name", "小张");
+			employee2.put("pwd", "456");
+			employees.add(employee2);
+			JSONObject employee3 = new JSONObject();
+			employee3.put("name", "小李");
+			employee3.put("pwd", "789");
+			employees.add(employee3);
+			
+			StringBuilder table = createTable(head,employees,"账号密码");
+			
+			JSONObject obj = new JSONObject();
+			obj.put("email", "tang.wu@fujikon.com");
+			obj.put("username", "tang.wu");
+			obj.put("subject", "test主题");
+			obj.put("content", table);
+			obj.put("file_url", "E:\\file\\temp\\test.txt");
+			obj.put("file_name", "test.txt");
+			obj.put("ishtml", true);
+			SendEmail(obj);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 }

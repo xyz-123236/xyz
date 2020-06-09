@@ -211,3 +211,24 @@ var date_ym_options = {
         return d.getFullYear() + '-' +a;
     }	
 }
+function sleep(time){
+	var start = new Date().getTime();
+	while (true) {
+	    if (new Date().getTime() - start > time) {
+	        break;
+	    }
+	}
+}
+
+/*function fn(time){
+    return new Promise((resolve, reject)=>{
+        setTimeout(()=>{
+            resolve(true);
+        },time);
+    });
+}
+
+async function sleep(time){
+	await fn(time);
+	console.log("睡眠"+time+"毫秒");
+}*/

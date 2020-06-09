@@ -1,0 +1,18 @@
+log4j.rootLogger=debug,console,file//输出最低级别debug（ERROR>WARN>INFO>DEBUG）,输出地方console，输出地方file
+#CONSOLE
+log4j.appender.console=org.apache.log4j.ConsoleAppender//控制台输出
+log4j.appender.console.Threshold=debug//输出最低级别，默认debug
+log4j.appender.console.ImmediateFlush=true//表示所有消息都会被立即输出，默认true
+log4j.appender.console.Target=System.out//输出方式，默认System.out
+log4j.appender.console.layout=org.apache.log4j.PatternLayout//指定布局模式
+log4j.appender.console.layout.ConversionPattern=[%p] %d %c.%M(%L) - %m%n//输出格式
+#FILE
+log4j.appender.file=org.apache.log4j.DailyRollingFileAppender//每(天)产生一个日志文件
+log4j.appender.file.Threshold=error//输出最低级别，默认debug
+log4j.appender.file.ImmediateFlush=true//表示所有消息都会被立即输出，默认true
+log4j.appender.file.Append=true//是否追加（覆盖）到文件中，默认true
+#如果有多个项目，error.log可以命名为：项目名-error.log，不同的项目输出到不同的文件
+log4j.appender.file.File=${catalina.base}/logs/error.log//文件路径
+log4j.appender.file.DatePattern=yyyy-MM//按月：间隔产生文件的规则
+log4j.appender.file.layout=org.apache.log4j.PatternLayout//指定布局模式
+log4j.appender.file.layout.ConversionPattern=[%p] %d{yyyy-MM-dd HH:mm:ss,SSS} %c.%M(%L) - %m%n//输出格式

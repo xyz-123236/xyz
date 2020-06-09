@@ -24,6 +24,20 @@ document.querySelector('#greenid').focus();
 //document.querySelector('.icon-cool').scrollIntoView();
 //原理：利用tabindex和focus，因为focus只能聚焦在input，button，a之类可聚焦的标签上，所以要给div加上tabindex使其可以被focus。
 //注意：如果元素已经被focus了那么再次focus不会触发滚动条滚动至此元素，记得在再次触发滚动到此focus元素之前先blur即可（demo是两个元素来回focus所以不存在这个问题）。
+/* function 摇色子(){
+    return new Promise((resolve, reject)=>{
+        let sino = parseInt(Math.random() * 6 +1)
+        setTimeout(()=>{
+            resolve(sino)
+        },3000)
+    })
+}
+async function test(){
+    let n =await 摇色子()
+    console.log(n)
+}
+test(); */
+
 </script>
 </body>
 

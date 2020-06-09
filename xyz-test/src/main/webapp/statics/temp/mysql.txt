@@ -24,3 +24,10 @@ utf8_general_cs 也是区分大小写的
 utf8_general_ci 校对速度快，但准确度稍差。（ci大小写不敏感）  ----常用
 utf8_unicode_ci 准确度高，但校对速度稍慢。
 	如果你的应用有德语、法语或者俄语，请一定使用utf8_unicode_ci。一般用utf8_general_ci就够了，到现在也没发现问题。。。
+	
+动态转置
+SET @temp1=''; 
+SELECT @temp1:=CONCAT(@temp1,'max(IF(k=\'',`k`,'\'',',v,0)) AS ',`k`,',') FROM (SELECT DISTINCT `k` FROM sys_static) A;
+SET @temp2=CONCAT('SELECT ',LEFT(@temp1,LENGTH(@temp1)-1),' FROM sys_static GROUP BY id');
+PREPARE temp6 FROM @temp2;
+EXECUTE temp6;
