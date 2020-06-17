@@ -1,5 +1,8 @@
 package cn.xyz.common.tools;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.alibaba.fastjson.JSONObject;
 
 public class ToolsJson {
@@ -34,13 +37,18 @@ public class ToolsJson {
 		}
 		return row;
 	}
+
 	//清除空key
 	public static JSONObject clearNull(JSONObject row) throws Exception {
-		for(String key:row.keySet()){
+		Set<String> set = new HashSet<>();
+		for(String key: row.keySet()){
 			String value = row.getString(key);
 			if(Tools.isEmpty(value)) {
-				row.remove(key);
+				set.add(key);
 			}
+		}
+		for(String key: set){
+			row.remove(key);
 		}
 		return row;
 	}

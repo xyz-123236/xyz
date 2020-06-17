@@ -86,10 +86,11 @@ public abstract class DbBase {
 	}
 
 	// 原生查询
-	/*
-	 * private ResultSet executeQuery(String sql, Object... params) throws
-	 * Exception{ return this.fillPstm(sql, params).executeQuery(); }
-	 */
+	
+	public ResultSet executeQuery(String sql, Object... params) throws Exception{ 
+		return this.fillPstm(sql, params).executeQuery(); 
+	}
+	 
 	// 原生修改
 	public Integer executeUpdate(String sql, Object... params) throws Exception {
 		try {
@@ -137,7 +138,18 @@ public abstract class DbBase {
 	public JSONArray find(String sql, Object... params) throws Exception {
 		ResultSet rs = null;
 		try {
-			rs = this.fillPstm(sql, params).executeQuery();
+			rs = this.executeQuery(sql, params);
+			return rsToArray(rs);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			this.close(rs);
+		}
+	}
+	public JSONObject get(String sql, Object... params) throws Exception {
+		ResultSet rs = null;
+		try {
+			rs = this.executeQuery(sql, params);
 			return rsToJson(rs);
 		} catch (Exception e) {
 			throw e;
@@ -145,27 +157,7 @@ public abstract class DbBase {
 			this.close(rs);
 		}
 	}
-	public static JSONArray rsToJson(ResultSet rs) throws SQLException {
-		JSONArray data = new JSONArray();
-		while (rs.next()) {
-			JSONObject obj = new JSONObject();
-			ResultSetMetaData md = rs.getMetaData();// 获取键名
-			int columnCount = md.getColumnCount();// 获取行的数量
-			for (int i = 1; i <= columnCount; i++) {
-				obj.put(md.getColumnLabel(i), rs.getObject(i));// 别名
-				// obj.put(md.getColumnName(i), rs.getObject(i));//数据库原字段名
-			}
-			data.add(obj);
-		}
-		return data;
-	}
-	public JSONObject get(String sql, Object... params) throws Exception {
-		JSONArray data = find(sql, params);
-		if (data != null && !data.isEmpty()) {
-			return data.getJSONObject(0);
-		}
-		return null;
-	}
+	
 
 	public Integer count(String sql, Object... params) throws Exception {
 		JSONObject data = get(sql, params);
@@ -197,7 +189,7 @@ public abstract class DbBase {
 		        throw new Exception("返回主键失败"); 
 		    }
 			return id;*/
-			return rsToJson(rs);
+			return rsToArray(rs);
 		} catch (Exception e) {
 			throw e;
 		}finally {
@@ -372,7 +364,7 @@ public abstract class DbBase {
 			DatabaseMetaData db = this.getConnection().getMetaData();
 			// 从元数据中获取到所有的表名
 			rs = db.getCatalogs();
-			return rsToJson(rs);
+			return rsToArray(rs);
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -386,7 +378,7 @@ public abstract class DbBase {
 			DatabaseMetaData db = this.getConnection().getMetaData();
 			// 从元数据中获取到所有的表名
 			rs = db.getSchemas(null, null);
-			return rsToJson(rs);
+			return rsToArray(rs);
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -410,7 +402,7 @@ public abstract class DbBase {
 			DatabaseMetaData db = this.getConnection().getMetaData();
 			// 从元数据中获取到所有的表名
 			rs = db.getTables(catalog, databaseName, tableName, types);
-			return rsToJson(rs);
+			return rsToArray(rs);
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -442,7 +434,7 @@ public abstract class DbBase {
 		
 			DatabaseMetaData rsmd = this.getConnection().getMetaData();
 			rs =rsmd.getColumns(null, databaseName, tableName, null);
-			return rsToJson(rs);
+			return rsToArray(rs);
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -457,7 +449,7 @@ public abstract class DbBase {
         try{
             DatabaseMetaData dbmd = this.getConnection().getMetaData();
             rs = dbmd.getPrimaryKeys(null, databaseName, tableName);
-            return rsToJson(rs);
+            return rsToArray(rs);
         }catch (SQLException e){
         	throw e;
         }finally{
@@ -492,4 +484,24 @@ public abstract class DbBase {
         	close(rs);
         }
     }
+	
+	
+	
+	private static JSONArray rsToArray(ResultSet rs) throws SQLException {
+		JSONArray data = new JSONArray();
+		while (rs.next()) {
+			data.add(rsToJson(rs));
+		}
+		return data;
+	}
+	private static JSONObject rsToJson(ResultSet rs) throws SQLException {
+		JSONObject obj = new JSONObject();
+		ResultSetMetaData md = rs.getMetaData();// 获取键名
+		int columnCount = md.getColumnCount();// 获取行的数量
+		for (int i = 1; i <= columnCount; i++) {
+			obj.put(md.getColumnLabel(i), rs.getObject(i));// 别名
+			// obj.put(md.getColumnName(i), rs.getObject(i));//数据库原字段名
+		}
+		return obj;
+	}
 }

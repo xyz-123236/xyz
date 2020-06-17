@@ -317,7 +317,7 @@ public class DbTool extends Basic {
 		return this;
 	}
 	/**
-	 * :字段名不能以_from,_to结尾，用于范围查询
+	 * :字段名不能以_from,_to结尾，用于范围查询(如果字段是数组，要用in)
 	 * @param row 
 	 * @param removeKey
 	 * @return

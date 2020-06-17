@@ -30,7 +30,7 @@ public class Test3Controller {
     private TestService testService;
 
     @RequestMapping("t3")
-    public String myTest(HttpServletRequest request, HttpServletResponse response, JSONObject obj){
+    public String myTest(JSONObject obj){
     	ClientResourceLocator resourceLocator = new ClientResourceLocator("crowd.properties");
 		ClientPropertiesImpl clientProperties = ClientPropertiesImpl.newInstanceFromResourceLocator(resourceLocator);
 		RestCrowdClientFactory crowdClientFactory = new RestCrowdClientFactory();
