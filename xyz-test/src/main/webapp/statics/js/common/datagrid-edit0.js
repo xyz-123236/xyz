@@ -411,8 +411,6 @@ function EditDg(index){		//element:table的id
 		
 		EditDg.prototype.reload = function(){//刷新数据
 			var _this = this;
-			var ops = $(_params.element[_this.index]).datagrid('options');
-			ops.pageNumber = 1;
 			var row = undefined;
 			if(_this.index > 0 && _params.relate){
 				_row = $(_params.element[_this.index - 1]).datagrid('getSelected');

@@ -69,3 +69,23 @@ sys_uxxxx_a   	id: sua_id加个_a防止id重复
 权限验证的必要：权限加于菜单，但是可以通过用户登录，使用直接请求接口，则可以跳过菜单权限
 
 写一个可以重新加载配置文件的方法，把所有配置信息放在一个config.java里
+
+查询SQL拼接时要做后面的字段覆盖前面的相同字段（防止有的数据库取前面字段（mysql），有的数据库取后面的字段（hana））
+
+
+
+
+
+
+
+
+
+
+
+
+
+流程activate
+权限shiro，spring Security
+文档swagger
+
+python

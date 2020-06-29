@@ -31,3 +31,8 @@ SELECT @temp1:=CONCAT(@temp1,'max(IF(k=\'',`k`,'\'',',v,0)) AS ',`k`,',') FROM (
 SET @temp2=CONCAT('SELECT ',LEFT(@temp1,LENGTH(@temp1)-1),' FROM sys_static GROUP BY id');
 PREPARE temp6 FROM @temp2;
 EXECUTE temp6;
+
+查询sql执行情况
+EXPLAIN SELECT * FROM bill_det
+重置自增id
+ALTER TABLE `test` AUTO_INCREMENT=100001;
