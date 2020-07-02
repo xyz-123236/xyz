@@ -35,7 +35,7 @@ public class ToolsExcel {
 	// 默认字体
 	private static String excelfont = "微软雅黑";
 	
-	
+	//需要增加导出小数格式化的位数
 	/**
 	 * export：导出excel
 	 * @param obj
@@ -44,6 +44,7 @@ public class ToolsExcel {
 				sheet_name：表名
 				title：标题
 				prohibits：禁用列（前后需紧跟逗号","）
+				
 	 * @param formats
 				第一行：表头（中文）
 				第二行：字段名（英文）
