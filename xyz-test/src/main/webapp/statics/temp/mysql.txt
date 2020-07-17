@@ -36,3 +36,6 @@ EXECUTE temp6;
 EXPLAIN SELECT * FROM bill_det
 重置自增id
 ALTER TABLE `test` AUTO_INCREMENT=100001;
+
+转义_,下划线是占位符，匹配下划线时需要转义
+select lastname from employees wher lastname like '%A\_B%' escape '\'

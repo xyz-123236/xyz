@@ -1,0 +1,13 @@
+插件：
+	$.fn.extend({xx:function(){}})	对实例
+	$.extend({xx:function(){}})		对jquery本身
+合并：
+	$.extend(false/true/{},obj1,obj2);	//false/true指深度合并，默认false，可选
+	
+call(this,x,y,z)	逗号传参数
+apply(this,[x,y,z])	数组传参数
+bing(this,x,y,z)()	返回函数，后面带个括号
+
+Array.slice(begin,end) 从begin到end返回数组
+Array.splice(位置，数量，替换)	数组删除
+	
