@@ -1,35 +1,69 @@
 package cn.xyz.common.tools;
 
+import org.apache.log4j.Logger;
+
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 public class Result {
-	
-	public static String success(Object rows){
-		return result(rows, null, 0, null, null);
+	private static Logger logger = Logger.getLogger(Result.class.getName());
+
+	public static String success(String msg){
+		return result(200, msg, null, null);
 	}
-	public static String error(String message){
-		return result(null, null, 1, null, message);
+	public static String success(Object data){
+		return result(200, null, data, null);
 	}
-	public static String errorEasyui() {
-		return result(new JSONArray(), 0, 1, null, "没有找到记录");
+	public static String success(String msg, Object data){
+		return result(200, msg, data, null);
 	}
-	public static String successEasyui(Object rows, Integer total) {
-		return result(rows, total, 0, null, null);
+	public static String success(Object data, Integer total){
+		return result(200, null, data, total);
 	}
-	public static String successKindEditor(String url){
-		return result(null, null, 0, url, null);
+	public static String success(String msg, Object data, Integer total){
+		return result(200, msg, data, total);
 	}
-	public static String errorKindEditor(String message){
-		return result(null, null, 1, null, message);
+	public static String error(String msg){
+		return result(500, msg, null, null);
 	}
-	public static String result(Object rows, Integer total, Integer error, String url, String message) {
+	public static String error(Exception e) {
+		logger.error("程序异常", e);
+		return error("程序异常");
+	}
+	public static String error(Exception e, String msg) {
+		logger.error("程序异常", e);
+		return error(msg);
+	}
+	public static String easyuiNull() {
+		return result(200, null, new JSONArray(), 0);
+	}
+	//combobox使用url请求时需要的数据
+	public static String toJson(Object data) throws Exception {
+		return JSON.toJSONString(data);
+	}
+	public static String result(Integer status, String msg, Object data, Integer total) {
 		JSONObject obj = new JSONObject();
-		obj.put("rows", rows);//记录：easyui需要
-		obj.put("total", total);//总记录数：easyui需要
-		obj.put("error", error);//状态码：KindEditor需要       0成功，1失败
-		obj.put("url", url);//url:KindEditor需要
-		obj.put("message", message);//消息：KindEditor需要
+		obj.put("status", status);
+		obj.put("msg", msg);
+		obj.put("rows", data);
+		obj.put("total", total);
 		return obj.toJSONString();
 	}
+	
+	//KindEditor返回码
+	public static String successKE(String url){
+		JSONObject obj = new JSONObject();
+		obj.put("error", 0);
+		obj.put("url", url);
+		return obj.toJSONString();
+	}
+	public static String errorKE(String message){
+		JSONObject obj = new JSONObject();
+		obj.put("error", 1);
+		obj.put("message", message);
+		return obj.toJSONString();
+	}
+	
+	
 }

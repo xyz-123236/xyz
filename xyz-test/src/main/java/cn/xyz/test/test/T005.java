@@ -3,6 +3,7 @@ package cn.xyz.test.test;
 import java.util.Comparator;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 public class T005 {
 
@@ -29,8 +30,11 @@ public class T005 {
 		String sn = "0186FK-0160571GK";
 		for (int i = 0; i < 100; i++) {
 			JSONArray item1 = new JSONArray();
-			sn = Sn.createSn(sn, "0123456789", 1, 13, 7);
-			item1.add(sn);
+			JSONObject obj = Sn.createSn(sn, "0123456789", 1, 13, 7);
+			if(!obj.getBooleanValue("status")) {
+				return null;
+			}
+			item1.add(obj.getString("data"));
 			item1.add("0186");
 			System.out.println(item1);
 			data.add(item1);
