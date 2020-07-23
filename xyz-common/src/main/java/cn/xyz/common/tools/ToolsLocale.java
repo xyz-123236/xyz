@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class LocaleDev {
+public class ToolsLocale {
 	public static void main(String[] args) {
 		ResourceBundle resourceBundle = ResourceBundle.getBundle("i18n/i18n", new Locale("en", "US"));
 		// 打印从资源文件获取的值

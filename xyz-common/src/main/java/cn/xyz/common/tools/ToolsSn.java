@@ -1,27 +1,27 @@
-package cn.xyz.test.test;
+package cn.xyz.common.tools;
 
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.common.tools.Result;
+import cn.xyz.common.pojo.Result;
+import cn.xyz.common.pojo.Xyz;
 import cn.xyz.common.tools.Tools;
-import cn.xyz.common.tools.Xyz;
 
-public class Sn {
+public class ToolsSn {
 	public static String RANGE_DEFAULT = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	public static Integer JUMP_DEFAULT = 1;
 	public static Integer LIMIT_DEFAULT = 50000;
 
 	public static JSONObject createSn(String sn, Integer radix, Integer number) throws Exception {
-		return createSn(sn, Sn.RANGE_DEFAULT.substring(0, radix), number);
+		return createSn(sn, ToolsSn.RANGE_DEFAULT.substring(0, radix), number);
 	}
 	public static JSONObject createSn(String sn, Integer radix, Integer number, String position) throws Exception {
-		return createSn(sn, Sn.RANGE_DEFAULT.substring(0, radix), number, position);
+		return createSn(sn, ToolsSn.RANGE_DEFAULT.substring(0, radix), number, position);
 	}
 	public static JSONObject createSn(String sn, Integer radix, Integer number, Integer beginIndex, Integer endIndex) throws Exception {
-		return createSn(sn, Sn.RANGE_DEFAULT.substring(0, radix), number, beginIndex, endIndex);
+		return createSn(sn, ToolsSn.RANGE_DEFAULT.substring(0, radix), number, beginIndex, endIndex);
 	}
 	public static JSONObject createSn(String sn, String range, Integer number) throws Exception {
 		return createSn(sn, range, number, null);
@@ -45,7 +45,7 @@ public class Sn {
 	 */
 	public static JSONObject createSn(String sn, String range, Integer number, Integer beginIndex, Integer endIndex) throws Exception {
 		if(Tools.isEmpty(sn)) return Xyz.error("编号不能为空");
-		if(Tools.isEmpty(range)) range = Sn.RANGE_DEFAULT;
+		if(Tools.isEmpty(range)) range = ToolsSn.RANGE_DEFAULT;
 		if(number == null) number = JUMP_DEFAULT;
 		if(number == 0) return Xyz.success(sn);
 		if(endIndex == null) endIndex = sn.length()-1;
@@ -86,10 +86,10 @@ public class Sn {
 		return createSnList(row.getString("snFrom"), row.getString("snTo"), row.getInteger("number"), row.getString("range"), row.getString("position"), row.getInteger("jump"), row.getInteger("limit"), row.getString("field"));
 	}
 	public static JSONObject createSnList(String snFrom, String snTo, Integer number, Integer radix, String position, Integer jump, Integer limit,String field) throws NumberFormatException, Exception {
-		return createSnList(snFrom, snTo, number, Sn.RANGE_DEFAULT.substring(0, radix), position, jump, limit, field);
+		return createSnList(snFrom, snTo, number, ToolsSn.RANGE_DEFAULT.substring(0, radix), position, jump, limit, field);
 	}
 	public static JSONObject createSnList(String snFrom, String snTo, Integer number, Integer radix, Integer beginIndex, Integer endIndex, Integer jump, Integer limit,String field) throws NumberFormatException, Exception {
-		return createSnList(snFrom, snTo, number, Sn.RANGE_DEFAULT.substring(0, radix), beginIndex, endIndex, jump, limit, field);
+		return createSnList(snFrom, snTo, number, ToolsSn.RANGE_DEFAULT.substring(0, radix), beginIndex, endIndex, jump, limit, field);
 	}
 	public static JSONObject createSnList(String snFrom, String snTo, Integer number, String range, String position, Integer jump, Integer limit,String field) throws NumberFormatException, Exception {
 		JSONObject obj = position(snFrom, position);
@@ -129,8 +129,8 @@ public class Sn {
 		}else {
 			return Xyz.error("数量和结束编号不能都为空");
 		}
-		if(limit == null) limit = Sn.LIMIT_DEFAULT;
-		if(Tools.isEmpty(range)) range = Sn.RANGE_DEFAULT;
+		if(limit == null) limit = ToolsSn.LIMIT_DEFAULT;
+		if(Tools.isEmpty(range)) range = ToolsSn.RANGE_DEFAULT;
 		if(number > limit) return Xyz.error("创建数量不能大于"+limit);
 		
 		JSONArray rows = new JSONArray();

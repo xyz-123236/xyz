@@ -1,4 +1,4 @@
-package cn.xyz.common.tools;
+package cn.xyz.common.pojo;
 
 import org.apache.log4j.Logger;
 

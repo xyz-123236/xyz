@@ -1,5 +1,7 @@
 正则表达式:
-判断某值是否满足正则表达式：Pattern.matches(regex, value)
+判断某值是否满足正则表达式：
+	Pattern.matches(regex, value): Pattern.matches("^[1-9]\\d*$", "a270009998")
+	string.matches(regex): "a270009998".matches("^[1-9]\\d*$")
 匹配正则表达式的内容：
 	Pattern p = Pattern.compile("\\(.*?\\)");
 	Matcher m = p.matcher(value);

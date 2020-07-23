@@ -1,25 +1,19 @@
-package cn.xyz.test.test;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+package cn.xyz.test.testTool;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.tools.ToolsExcel;
 import cn.xyz.orm.db.DbBase;
-import cn.xyz.orm.db.DbJdbc;
-import cn.xyz.test.pojo.Config;
 
-public class Test1 {
-
+public class testExcel {
 	public static void main(String[] args) {
 		try {
 			DbBase db = DbBase.getJdbc();
 			JSONArray data = db.find("select * from sn_detail");
 			
 			JSONObject obj = new JSONObject();
-			obj.put("data", data);
+			//obj.put("data", data);
 			obj.put("file_name", "test1");
 			obj.put("sheet_name", "sheet1");
 			obj.put("title", "title");
@@ -32,20 +26,8 @@ public class Test1 {
 			};
 			
 			ToolsExcel.export(obj, cells, formats);
-			
-			
-			System.out.println("aaa");
-			System.out.println(Config.SPACE+"aaa");
-			LocalDateTime a = LocalDateTime.now();
-			System.out.println(a);
-			DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-			LocalDateTime b = LocalDateTime.parse("2018-05-26 23:05:32");
-			System.out.println(f.format(a));
-			System.out.println(f.format(b));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
 }

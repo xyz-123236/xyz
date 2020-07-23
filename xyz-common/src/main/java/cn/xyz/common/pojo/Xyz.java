@@ -1,4 +1,4 @@
-package cn.xyz.common.tools;
+package cn.xyz.common.pojo;
 
 import com.alibaba.fastjson.JSONObject;
 

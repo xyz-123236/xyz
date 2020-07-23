@@ -5,6 +5,8 @@ import java.util.Comparator;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.tools.ToolsSn;
+
 public class T005 {
 
 	public static void main(String[] args) {
@@ -30,7 +32,7 @@ public class T005 {
 		String sn = "0186FK-0160571GK";
 		for (int i = 0; i < 100; i++) {
 			JSONArray item1 = new JSONArray();
-			JSONObject obj = Sn.createSn(sn, "0123456789", 1, 13, 7);
+			JSONObject obj = ToolsSn.createSn(sn, "0123456789", 1, 13, 7);
 			if(!obj.getBooleanValue("status")) {
 				return null;
 			}

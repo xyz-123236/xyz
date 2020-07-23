@@ -1,4 +1,4 @@
-package cn.xyz.test.test;
+package cn.xyz.test.testJdbc;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
@@ -13,11 +13,7 @@ public class Test19 {
 
 	public static void main(String[] args) {
 		try {
-			//System.out.println(Math.log(1024) / Math.log(2));
-			try (DataOutputStream out = new DataOutputStream(new FileOutputStream("data"))) {
-		           out.writeInt(666);
-		           out.writeUTF("Hello");
-		       }
+			
 			DbBase db = DbBase.getJdbc(DbBase.SYBASE);
 			JSONArray data = db.find(" EXEC mes_abse_sum3 '2020', 3, '2020/05/20', '2020/05/20', '0108427', '0108427', '', 'ZZZZZZZZ', '', 'ZZZZZZZZ'");
 			System.out.println(data.size()+":"+data);
