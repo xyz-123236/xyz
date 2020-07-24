@@ -5,12 +5,10 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.common.pojo.Result;
-import cn.xyz.common.pojo.Xyz;
 import cn.xyz.common.tools.Tools;
 
 public class ToolsSn {
-	public static String RANGE_DEFAULT = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	public static String RANGE_DEFAULT = "0123456789ABCDEFGHIJKLMNOPQRSTUVWTools";
 	public static Integer JUMP_DEFAULT = 1;
 	public static Integer LIMIT_DEFAULT = 50000;
 
@@ -44,17 +42,17 @@ public class ToolsSn {
 	 * @throws Exception 
 	 */
 	public static JSONObject createSn(String sn, String range, Integer number, Integer beginIndex, Integer endIndex) throws Exception {
-		if(Tools.isEmpty(sn)) return Xyz.error("编号不能为空");
+		if(Tools.isEmpty(sn)) return Tools.error("编号不能为空");
 		if(Tools.isEmpty(range)) range = ToolsSn.RANGE_DEFAULT;
 		if(number == null) number = JUMP_DEFAULT;
-		if(number == 0) return Xyz.success(sn);
+		if(number == 0) return Tools.success(sn);
 		if(endIndex == null) endIndex = sn.length()-1;
 		if(beginIndex == null) beginIndex = 0;
-		if(beginIndex >= sn.length() || beginIndex < 0) return Xyz.error("开始位置超出范围");
-		if(endIndex >= sn.length() || endIndex < 0) return Xyz.error("结束位置超出范围");
-		if(beginIndex > endIndex) return Xyz.error("开始位置不能大于结束位置");
+		if(beginIndex >= sn.length() || beginIndex < 0) return Tools.error("开始位置超出范围");
+		if(endIndex >= sn.length() || endIndex < 0) return Tools.error("结束位置超出范围");
+		if(beginIndex > endIndex) return Tools.error("开始位置不能大于结束位置");
 		String regex = "["+range+"]{"+(endIndex-beginIndex+1)+"}";
-		if(!Pattern.matches(regex, sn.substring(beginIndex, endIndex+1))) return Xyz.error("编号流水号不合法");
+		if(!Pattern.matches(regex, sn.substring(beginIndex, endIndex+1))) return Tools.error("编号流水号不合法");
 		//if(!sn.substring(beginIndex, endIndex+1).matches("["+range+"]{"+(endIndex-beginIndex+1)+"}")) return null;
 		Integer radix = range.length();
 		int carry = 0;//进位
@@ -66,7 +64,7 @@ public class ToolsSn {
 			carry = 0;
 			if(((range.indexOf(ch) + jump) < 0 || (range.indexOf(ch) + jump) >= radix)) {
 				if(i == beginIndex){
-					return Xyz.error("生成的编号超出了最大范围");
+					return Tools.error("生成的编号超出了最大范围");
 				}
 				if(jump > 0) {
 					carry = 1;
@@ -76,10 +74,10 @@ public class ToolsSn {
 			}
 			number = number / radix;
 			if(number == 0 && carry == 0) {
-				return Xyz.success(sn);
+				return Tools.success(sn);
 			}
 		}
-		return Xyz.success(sn);
+		return Tools.success(sn);
 	}
 	
 	public static JSONObject createSnList(JSONObject row) throws NumberFormatException, Exception {
@@ -115,23 +113,23 @@ public class ToolsSn {
 	 * @throws Exception
 	 */
 	public static JSONObject createSnList(String snFrom, String snTo, Integer number, String range, Integer beginIndex, Integer endIndex, Integer jump, Integer limit,String field) throws NumberFormatException, Exception {
-		if(Tools.isEmpty(snFrom)) return Xyz.error("开始编号不能为空");
+		if(Tools.isEmpty(snFrom)) return Tools.error("开始编号不能为空");
 		if(number == null) number = JUMP_DEFAULT;
-		if(!snFrom.substring(beginIndex, endIndex+1).matches("["+range+"]{"+(endIndex-beginIndex+1)+"}")) return Xyz.error("开始编号流水号不合法");
+		if(!snFrom.substring(beginIndex, endIndex+1).matches("["+range+"]{"+(endIndex-beginIndex+1)+"}")) return Tools.error("开始编号流水号不合法");
 		if(!Tools.isEmpty(number)) {
 			//
 		}else if(!Tools.isEmpty(snTo)){
-			if(!snTo.substring(beginIndex, endIndex+1).matches("["+range+"]{"+(endIndex-beginIndex+1)+"}")) return Xyz.error("结束编号流水号不合法");
-			if(snFrom.compareTo(snTo) > 0) return Xyz.error("开始编号不能大于结束编号");
+			if(!snTo.substring(beginIndex, endIndex+1).matches("["+range+"]{"+(endIndex-beginIndex+1)+"}")) return Tools.error("结束编号流水号不合法");
+			if(snFrom.compareTo(snTo) > 0) return Tools.error("开始编号不能大于结束编号");
 			if(!snFrom.substring(0, beginIndex).equals(snTo.substring(0, beginIndex)) 
-					|| !snFrom.substring(endIndex+1, snFrom.length()).equals(snTo.substring(endIndex+1, snFrom.length()))) return Xyz.error("开始编号和结束编号的非流水号位置不相同");
+					|| !snFrom.substring(endIndex+1, snFrom.length()).equals(snTo.substring(endIndex+1, snFrom.length()))) return Tools.error("开始编号和结束编号的非流水号位置不相同");
 			number = diffSn(snFrom, snTo, range, beginIndex, endIndex)/jump;
 		}else {
-			return Xyz.error("数量和结束编号不能都为空");
+			return Tools.error("数量和结束编号不能都为空");
 		}
 		if(limit == null) limit = ToolsSn.LIMIT_DEFAULT;
 		if(Tools.isEmpty(range)) range = ToolsSn.RANGE_DEFAULT;
-		if(number > limit) return Xyz.error("创建数量不能大于"+limit);
+		if(number > limit) return Tools.error("创建数量不能大于"+limit);
 		
 		JSONArray rows = new JSONArray();
 		if(Tools.isEmpty(field)) {
@@ -156,7 +154,7 @@ public class ToolsSn {
 				rows.add(item);
 			}
 		}
-		return Xyz.success(rows);
+		return Tools.success(rows);
 	}
 	
 	public static Integer diffSn(String snFrom, String snTo, String range, Integer beginIndex, Integer endIndex) throws Exception {
@@ -175,7 +173,7 @@ public class ToolsSn {
 		return numTo-numFrom+1;
 	}
 	public static JSONObject position(String sn, String position) throws Exception {
-		if(Tools.isEmpty(sn)) return Xyz.error("编号不能为空");
+		if(Tools.isEmpty(sn)) return Tools.error("编号不能为空");
 		JSONObject obj = new JSONObject();
 		if(!Tools.isEmpty(position)) {
 			String[] positions = position.split("-");
@@ -186,13 +184,13 @@ public class ToolsSn {
 				obj.put("endIndex", sn.length()-1);
 				obj.put("beginIndex", sn.length() - Integer.parseInt(positions[0]));
 			}else {
-				return Xyz.error("流水号位置不合法");
+				return Tools.error("流水号位置不合法");
 			}
 		}else {
 			obj.put("beginIndex", 0);
 			obj.put("endIndex", sn.length()-1);
 		}
-		return Xyz.success(obj);
+		return Tools.success(obj);
 	}
 	public static void main(String[] args) {
 		try {

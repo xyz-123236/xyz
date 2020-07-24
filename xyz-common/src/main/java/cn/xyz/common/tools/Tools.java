@@ -185,6 +185,19 @@ public class Tools {
 		}
 		return data;
 	}
+	public static JSONObject error(String msg) {
+		JSONObject obj = new JSONObject();
+		obj.put("status", false);
+		obj.put("msg", msg);
+		return obj;
+	}
+	public static JSONObject success(Object data) {
+		JSONObject obj = new JSONObject();
+		obj.put("status", true);
+		obj.put("data", data);
+		return obj;
+	}
+	
 	public static void main(String[] args) {
 		Object array[][] = new Object[][] {     
             { 12, 55, 68, 32, 9, 12, 545 },     

@@ -10,44 +10,38 @@ public class Result {
 	private static Logger logger = Logger.getLogger(Result.class.getName());
 
 	public static String success(String msg){
-		return result(200, msg, null, null);
-	}
-	public static String success(Object data){
-		return result(200, null, data, null);
+		return success(msg, null);
 	}
 	public static String success(String msg, Object data){
-		return result(200, msg, data, null);
-	}
-	public static String success(Object data, Integer total){
-		return result(200, null, data, total);
+		return success(msg, data, null);
 	}
 	public static String success(String msg, Object data, Integer total){
-		return result(200, msg, data, total);
+		return result(msg, data, total, true, 200);
 	}
 	public static String error(String msg){
-		return result(500, msg, null, null);
+		return result(msg, null, null, false, 500);
 	}
 	public static String error(Exception e) {
-		logger.error("程序异常", e);
-		return error("程序异常");
+		return error(e, "程序异常");
 	}
 	public static String error(Exception e, String msg) {
 		logger.error("程序异常", e);
 		return error(msg);
 	}
 	public static String easyuiNull() {
-		return result(200, null, new JSONArray(), 0);
+		return result(null, new JSONArray(), 0, true, 200);
 	}
 	//combobox使用url请求时需要的数据
 	public static String toJson(Object data) throws Exception {
 		return JSON.toJSONString(data);
 	}
-	public static String result(Integer status, String msg, Object data, Integer total) {
+	public static String result(String msg, Object data, Integer total, boolean status, Integer code) {
 		JSONObject obj = new JSONObject();
 		obj.put("status", status);
 		obj.put("msg", msg);
 		obj.put("rows", data);
 		obj.put("total", total);
+		obj.put("code", code);
 		return obj.toJSONString();
 	}
 	
