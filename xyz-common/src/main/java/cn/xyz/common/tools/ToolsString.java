@@ -79,6 +79,11 @@ public class ToolsString {
 	public static String ChineseTobig5(String s) throws UnsupportedEncodingException {
 	    return new String(toString(s).getBytes("gb2312"), "big5");
 	}
+	public static String toLowerFirstWord(String name){
+        char[] charArray = name.toCharArray();
+        charArray[0] += 32;
+        return String.valueOf(charArray);
+    }
 	public static void main(String[] args) {
 		try {
 			String b = "123";

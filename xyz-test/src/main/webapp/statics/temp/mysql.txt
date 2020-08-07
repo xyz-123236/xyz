@@ -78,3 +78,4 @@ $$
 delimiter ; 
 调用：select * from dept where find_in_set(id,get_parent_list('1010'))
 
+

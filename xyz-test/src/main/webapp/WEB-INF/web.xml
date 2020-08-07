@@ -21,7 +21,7 @@
 		<servlet-class>cn.xyz.mvc.servlet.DispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>myapplication.properties</param-value>
+			<param-value>xyz.properties</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>

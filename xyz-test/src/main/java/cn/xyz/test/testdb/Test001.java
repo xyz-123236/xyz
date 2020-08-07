@@ -2,6 +2,7 @@ package cn.xyz.test.testdb;
 
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.pojo.Config;
 import cn.xyz.orm.db.DbBase;
 import cn.xyz.orm.db.DbTool;
 
@@ -20,7 +21,8 @@ public class Test001 {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		Config.config = new JSONObject();
+		
 	}
 
 }

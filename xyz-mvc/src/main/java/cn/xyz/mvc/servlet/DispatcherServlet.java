@@ -18,7 +18,6 @@ import cn.xyz.mvc.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -27,42 +26,32 @@ import java.util.*;
 
 public class DispatcherServlet extends HttpServlet {
 
-
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private Properties properties = new Properties();
-
     private List<String> classNames = new ArrayList<>();
-
     private Map<String, Object> ioc = new HashMap<>();
-//handlerMapping的类型可以自定义为Handler
+    //handlerMapping的类型可以自定义为Handler
     private Map<String, Method> handlerMapping = new  HashMap<>();
-
     private Map<String, Object> controllerMap  =new HashMap<>();
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init();
-        System.out.println("初始化MyDispatcherServlet");
-        //1.加载配置文件，填充properties字段�?
-        doLoadConfig(config.getInitParameter("contextConfigLocation"));
-
-        //2.根据properties，初始化�?有相关联的类,扫描用户设定的包下面�?有的�?
-        doScanner(this.properties.getProperty("scanPackage"));
-
-        //3.拿到扫描到的�?,通过反射机制,实例�?,并且放到ioc容器�?(k-v  beanName-bean) beanName默认是首字母小写
-        doInstance();
-
-        // 4.自动化注入依�?
-        doAutowired();
-
-        //5.初始化HandlerMapping(将url和method对应�?)
-        initHandlerMapping();
-
-        doAutowired2();
+        try {
+			properties = ToolsProperties.load(config.getInitParameter("contextConfigLocation"));
+			//2.根据properties，初始化所有相关联的类,扫描用户设定的包下面所有的类
+	        doScanner(this.properties.getProperty("scanPackage"));
+	        //3.拿到扫描到的类,通过反射机制,实例类,并且放到ioc容器中(k-v  beanName-bean) beanName默认是首字母小写
+	        doInstance();
+	        // 4.自动化注入依入?
+	        doAutowired();
+	        //5.初始化HandlerMapping(将url和method对应)
+	        initHandlerMapping();
+	        doAutowired2();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     @Override
@@ -115,7 +104,7 @@ public class DispatcherServlet extends HttpServlet {
             //获得磁盘文件条目工厂  
             DiskFileItemFactory factory = new DiskFileItemFactory();  
             //获取文件�?要上传到的路�?  
-            String path2 = request.getSession().getServletContext().getRealPath(File.separator)+"upload"+File.separator+ToolsDate.getString("yyyyMMdd")+File.separator;  
+            //String path2 = request.getSession().getServletContext().getRealPath(File.separator)+"upload"+File.separator+ToolsDate.getString("yyyyMMdd")+File.separator;  
             //System.out.println(path2);
             String path = "E:"+File.separator+"file"+File.separator+"upload"+File.separator+ToolsDate.getString("yyyyMMdd") + File.separator; 
             String url2 = "/file/upload/"+ToolsDate.getString() + "/";
@@ -184,7 +173,8 @@ public class DispatcherServlet extends HttpServlet {
 	        	System.out.println(paraName+": "+request.getParameter(paraName));  
         	}*/
         	
-        	Map<String, String[]> parameterMap = request.getParameterMap();
+        	@SuppressWarnings("unchecked")
+			Map<String, String[]> parameterMap = request.getParameterMap();
         	//System.out.println(parameterMap.entrySet());
         	for (Map.Entry<String, String[]> param : parameterMap.entrySet()) {
                 String value =Arrays.toString(param.getValue()).replaceAll("\\[|\\]", "").replaceAll(",\\s", ",");
@@ -210,7 +200,7 @@ public class DispatcherServlet extends HttpServlet {
         Class<?>[] parameterTypes = method.getParameterTypes();
 
         //获取请求的参�?
-        Map<String, String[]> parameterMap = request.getParameterMap();
+        //Map<String, String[]> parameterMap = request.getParameterMap();
         //保存参数�?
         Object [] paramValues= new Object[parameterTypes.length];
         //方法的参数列�?
@@ -262,41 +252,17 @@ public class DispatcherServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Description:  根据配置文件位置，读取配置文件中的配置信息，将其填充到properties字段
-     * Params:
-      * @param location: 配置文件的位�?
-     * return: void
-     * Author: CXJ
-     * Date: 2018/6/16 19:07
-     */
-    private void  doLoadConfig(String location){
-        //把web.xml中的contextConfigLocation对应value值的文件加载到流里面
-        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(location);) {
-            //用Properties文件加载文件里的内容
-            System.out.println("读取"+location+"里面的文�?");
-            this.properties.load(resourceAsStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     /**
-     * Description:  将指定包下扫描得到的类，添加到classNames字段中；
-     * Params:
-      * @param packageName: �?要扫描的包名
-     * return: void
-     * Author: CXJ
-     * Date: 2018/6/16 19:05
+     * Des: 将指定包下扫描得到的类，添加到classNames字段中；
+     * @param packageName 要扫描的包名
      */
     private void doScanner(String packageName) {
-
         URL url  =this.getClass().getClassLoader().getResource(packageName.replaceAll("\\.", "/"));
         File dir = new File(url.getFile());
         for (File file : dir.listFiles()) {
             if(file.isDirectory()){
-                //递归读取�?
+                //递归读取
                 doScanner(packageName+"."+file.getName());
             }else{
                 String className =packageName +"." +file.getName().replace(".class", "");
@@ -306,34 +272,28 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     /**
-     * Description:  将classNames中的类实例化，经key-value：类名（小写�?-类对象放入ioc字段�?
-     * Params:
-      * @param :
-     * return: void
-     * Author: CXJ
-     * Date: 2018/6/16 19:09
+     * Description:  将classNames中的类实例化，经key-value：类名（小写-类对象放入ioc字段
      */
-    private void doInstance() {//�?要判断名称是否重�?
-
+    private void doInstance() {//要判断名称是否重复
         if (this.classNames.isEmpty()) {
             return;
         }
         for (String className : this.classNames) {
             try {
-                //把类搞出�?,反射来实例化(只有加@MyController�?要实例化)
+                //根据注解实例化类
                 Class<?> clazz =Class.forName(className);
                 if(clazz.isAnnotationPresent(Controller.class)){
-                	this.ioc.put(toLowerFirstWord(clazz.getSimpleName()),clazz.newInstance());
+                	this.ioc.put(ToolsString.toLowerFirstWord(clazz.getSimpleName()),clazz.newInstance());
                 }else if(clazz.isAnnotationPresent(Service.class)){
                     Service myService=clazz.getAnnotation(Service.class);
                     String beanName=myService.value();
                     if ("".equals(beanName.trim())){
-                        beanName=toLowerFirstWord(clazz.getSimpleName());
+                        beanName=ToolsString.toLowerFirstWord(clazz.getSimpleName());
                     }
 
                     Object instance= clazz.newInstance();
                     this.ioc.put(beanName,instance);
-                    Class[] interfaces=clazz.getInterfaces();
+                    Class<?>[] interfaces=clazz.getInterfaces();
                     for (Class<?> i:interfaces){
                     	this.ioc.put(i.getName(),instance);
                     }
@@ -370,7 +330,7 @@ public class DispatcherServlet extends HttpServlet {
                 }
                 field.setAccessible(true);
                 try {
-                    field.set(entry.getValue(),this.ioc.get(beanName));//字段.set(对象，�??)
+                    field.set(entry.getValue(),this.ioc.get(beanName));//字段.set(对象，实例)
                 }catch (Exception e){
                     e.printStackTrace();
                     continue;
@@ -449,16 +409,6 @@ public class DispatcherServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-    }
-
-    /**
-     * Description:  将字符串中的首字母小写?
-     */
-    private static String toLowerFirstWord(String name){
-
-        char[] charArray = name.toCharArray();
-        charArray[0] += 32;
-        return String.valueOf(charArray);
     }
 
 }

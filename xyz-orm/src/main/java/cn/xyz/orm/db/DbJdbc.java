@@ -6,17 +6,24 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
+import cn.xyz.common.tools.ToolsProperties;
+
 public class DbJdbc extends DbBase{
 	private static Properties properties = null;
 	private static final String DB_FILE_NAME = "db.properties";
 	//加载配置文件
 	static {
-	    try(InputStream is = DbJdbc.class.getClassLoader().getResourceAsStream(DB_FILE_NAME)) {
+		try {
+			properties = ToolsProperties.load(DB_FILE_NAME);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	    /*try(InputStream is = DbJdbc.class.getClassLoader().getResourceAsStream(DB_FILE_NAME)) {
 	    	properties = new Properties();
 			properties.load(is);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	private DbJdbc(String db_name) {
 		this.db_name = db_name;

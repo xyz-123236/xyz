@@ -3,7 +3,7 @@ package cn.xyz.common.pojo;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-public interface Config {
+public class Config {
 	public static final String MYSQL = "mysql";
 	public static final String SPACE = " ";
 	public static final String LOGIN_USER = "login_user";
@@ -11,6 +11,7 @@ public interface Config {
 	public static JSONObject config = new JSONObject();
 	public static final String DATE_PATTERN = "date_pattern";
 	public static Integer getInt(String key) throws Exception {
+		
 		return config.getInteger(key);
 	}
 	public static Double getDouble(String key) throws Exception {
