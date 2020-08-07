@@ -1,9 +1,11 @@
 package cn.xyz.common.tools;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,20 +22,131 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
 
 public class ToolsExcel {
 	// excel默认宽度；
 	public static final int WIDTH = 256 * 14;
 	// 默认字体
 	private static String excelfont = "微软雅黑";
+	
+	/**
+	 * 先下载模板，再上传，下载模板里应有字段序号
+     * @param file 文件
+     * @param fileName 文件名
+     * @return 3级JSONArray[表][行][列]
+     * @throws Exception 
+     */
+	public static JSONArray readExcel(File file, String fileName) throws Exception {
+    	
+    	FileInputStream fis = new FileInputStream(file);
+    	String ext = fileName.substring(fileName.lastIndexOf(".")+1);
+    	Workbook wb = null;
+        if ("xls".equals(ext)) {
+        	wb = new HSSFWorkbook(new POIFSFileSystem(fis));
+        } else if ("xlsx".equals(ext)) {
+        	wb = new XSSFWorkbook(fis);
+        } else {
+        	fis.close();
+        	return null;
+        }
+        Cell cell = null;
+        JSONArray data = new JSONArray();
+		for (int i = 0; i < wb.getNumberOfSheets(); i++) {//多表
+			Sheet st = wb.getSheetAt(i);
+			Row rowHead = st.getRow(0);
+			Row rowCode = st.getRow(1);
+			if (rowHead == null || rowCode == null) {
+				continue;
+			}
+			JSONArray sheet = new JSONArray();
+			boolean hasRow = false;
+			boolean hasSheet = false;
+			int cellNum = rowHead.getLastCellNum();
+			int rowNum = st.getLastRowNum();
+			for (int j = 2; j <= rowNum; j++) {//行
+				Row row = st.getRow(j);
+				if (row == null) {
+					continue;
+				}
+				JSONArray values = new JSONArray();
+				//Arrays.fill(values, "");//填充数组Arrays.fill(arrayname ,starting index ,ending index ,value)
+				for (int k = 0; k <= cellNum; k++) {//列
+					String value = "";
+					cell = row.getCell(k);
+					if (cell != null) {
+						switch (cell.getCellTypeEnum()) {
+				            case NUMERIC://分为纯数字和日期型数字
+				            	if (DateUtil.isCellDateFormatted(cell)) { // date类型
+				            		value = ToolsDate.getString(DateUtil.getJavaDate(cell.getNumericCellValue()),"yyyy-MM-dd HH:mm:ss");  
+				                } else { // 纯数字   
+				                    value = new BigDecimal(String.valueOf(cell.getNumericCellValue())).toPlainString();
+				                    //value = new DecimalFormat("0").format(cell.getNumericCellValue());//0：没有补0，#：没有为空
+				                }
+				            	hasRow = true;
+				                break;
+				            case STRING://字符
+				            	value = cell.getStringCellValue();
+				            	hasRow = true;
+				                break;
+				            case FORMULA://公式
+								//value = cell.getCellFormula();// 导入时为公式
+				            	try {
+				            		value = String.valueOf(cell.getNumericCellValue());
+				            	} catch (Exception e) {
+				            		value = String.valueOf(cell.getStringCellValue());
+				            	}
+				            	hasRow = true;
+								break;
+				            case BLANK: //空值
+				            	value = "";
+				                break;
+				            case BOOLEAN://boolean
+				            	value = cell.getBooleanCellValue() == true ? "Y" : "N";
+				            	hasRow = true;
+				                break;
+				            case ERROR://故障
+				            	value = "";
+				                break;
+				            default:
+				            	value = "";
+				            	break;
+				        }
+						values.add(value.trim());
+					}else {
+						values.add("");
+					}
+				}
+				if (hasRow) {
+					sheet.add(values);
+					hasSheet = true;
+					hasRow = false;
+				}
+			}
+			if (hasSheet) {
+				data.add(sheet);
+				hasSheet = false;
+			}
+		}
+		wb.close();
+		fis.close();
+		return data;
+    }
 	
 	//需要增加导出小数格式化的位数
 	/**

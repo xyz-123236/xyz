@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import com.alibaba.druid.sql.visitor.functions.Insert;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -117,6 +118,13 @@ public class DbTool extends Basic {
 		return this.sql.toString();
 	}
 	public String getPrimaryName(DbBase db, String table) throws Exception {
+		/*JSONArray pk = db.getPrimaryKey(table);
+		if(Tools.isEmpty(pk)) return null;
+		String[] pks = new String[pk.size()];
+		for (int i = 0; i < pk.size(); i++) {
+			pks[i] = pk.getJSONObject(0).getString("COLUMN_NAME");
+		}
+		return pks;*/
 		JSONArray pk = db.getPrimaryKey(table);
 		if(!Tools.isEmpty(pk) && pk.size() == 1) {
 			return pk.getJSONObject(0).getString("COLUMN_NAME");
@@ -520,6 +528,24 @@ public class DbTool extends Basic {
 		}
 		return row;
 	}
+	public JSONArray find() throws Exception {
+		return find(DbBase.DEFAULT_DB);
+	}
+	public JSONArray find(String db_name) throws Exception {
+		return find(DbBase.getDruid(db_name));
+	}
+	public JSONArray find(DbBase db) throws Exception {
+		return db.find(this.getSql());
+	}
+	public JSONObject get() throws Exception {
+		return get(DbBase.DEFAULT_DB);
+	}
+	public JSONObject get(String db_name) throws Exception {
+		return get(DbBase.getDruid(db_name));
+	}
+	public JSONObject get(DbBase db) throws Exception {
+		return db.get(this.getSql());
+	}
 	public static void main(String[] args) {
 		try {
 			/*String a = " name as  n ";
@@ -532,9 +558,22 @@ public class DbTool extends Basic {
 			System.out.println(DbTool.getInstance().select("test", "code","name","pwd").getSql());
 			System.out.println(DbTool.getInstance().select("test", "code","name,pwd").getSql());*/
 			//System.out.println(this.filds);
-			DbTool dt = DbTool.getInstance().select("test t","t.*,a.str1 as cc,c.str1 as dd,a.str2,b.num1,b.num2,sum(CAST(c.ENTBY AS INTEGER)),ifnull(d.NUM5, 0)+ifnull(d.NUM6, 0)");
+			/*DbTool dt = DbTool.getInstance().select("test t","t.*,a.str1 as cc,c.str1 as dd,a.str2,b.num1,b.num2,sum(CAST(c.ENTBY AS INTEGER)),ifnull(d.NUM5, 0)+ifnull(d.NUM6, 0)");
 			System.out.println(dt.columns);
-			System.out.println(dt.getSql());
+			System.out.println(dt.getSql());*/
+			JSONObject row = new JSONObject();
+			row.put("dat", "9h");
+			row.put("num", "9");
+			row.put("ok", "99");
+			row.put("ng", "999");
+			row.put("pid", "9");
+			DbTool d = DbTool.getInstance();
+			try {
+				System.out.println(d.insert(DbBase.getJdbc(DbBase.DEFAULT_DB), "test3", row, null));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println(d.getSql());
 			/*Stack<Integer> stack =new Stack<>();
 			System.out.println(stack);
 			System.out.println(Tools.isEmpty(stack));*/

@@ -456,6 +456,18 @@ public abstract class DbBase {
         	close(rs);
         }
     }
+	public JSONArray getUnique(String tableName) throws Exception {
+		DatabaseMetaData dbmd = this.getConnection().getMetaData();
+		ResultSet rs = dbmd.getIndexInfo(null, null, tableName, false, false);
+		JSONArray data = new JSONArray();
+        while (rs.next()) {
+            //NON_UNIQUE:false,唯一
+            if (!rs.getBoolean("NON_UNIQUE")) {
+            	data.add(rsToJson(rs));
+            }
+        }
+        return data;
+	}
 	public void getDataBaseInfo() throws Exception {
         ResultSet rs = null;
         try{

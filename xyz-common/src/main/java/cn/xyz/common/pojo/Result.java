@@ -28,12 +28,8 @@ public class Result {
 		logger.error("程序异常", e);
 		return error(msg);
 	}
-	public static String easyuiNull() {
+	public static String result() {
 		return result(null, new JSONArray(), 0, true, 200);
-	}
-	//combobox使用url请求时需要的数据
-	public static String toJson(Object data) throws Exception {
-		return JSON.toJSONString(data);
 	}
 	public static String result(String msg, Object data, Integer total, boolean status, Integer code) {
 		JSONObject obj = new JSONObject();
@@ -43,6 +39,11 @@ public class Result {
 		obj.put("total", total);
 		obj.put("code", code);
 		return obj.toJSONString();
+	}
+	
+	//combobox使用url请求时需要的数据
+	public static String data(Object data) throws Exception {
+		return JSON.toJSONString(data);
 	}
 	
 	//KindEditor返回码
