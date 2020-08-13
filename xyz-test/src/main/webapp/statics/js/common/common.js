@@ -37,12 +37,10 @@ function checkFileType(fileName, type){
 }
 
 //返回2位小数/.xx
-function formatNumberPrecision(value){
-	if(!isEmpty(value)){
-		return parseFloat(value).toFixed(2);
-	}else{
-		return '0.00';
-	}
+function formatNumber(value, scale){
+	if(isEmpty(value)) value = 0;
+	if(isEmpty(scale)) scale = 2;
+	return parseFloat(value).toFixed(scale);
 }
 //返回年月/yyyy-MM
 function formatDateYM(value){
