@@ -234,12 +234,30 @@ public class ToolsDate {
 		c.set(Calendar.DAY_OF_MONTH,0);//设置为0,为上月最后一天 
         return getString(c.getTime());
 	}
+	//比较大小
+	public static boolean compare(Date date1, Date date2) {
+		
+		return false;
+	}
+	//返回大的时间
+	public static Date max(String date1, String date2) throws Exception {
+		return max(getDate(date1),getDate(date2));
+	}
+	public static Date max(Date date1, Date date2) throws Exception {
+		if(Tools.isEmpty(date1)) return date2;
+		if(Tools.isEmpty(date2)) return date1;
+		if(date1.before(date2)) {
+			return date2;
+		}
+		return date1;
+	}
 	public static void main(String[] args) {
 		try {
-			System.out.println(firstDay());
-			System.out.println(lastDay());
-			System.out.println(preFirstDay());
-			System.out.println(preLastDay());
+		
+//			System.out.println(firstDay());
+//			System.out.println(lastDay());
+//			System.out.println(preFirstDay());
+//			System.out.println(preLastDay());
 			/*for (int i = 0; i < 17; i++) {
 				System.out.println(getDatePart(i, new Date()));
 			}*/

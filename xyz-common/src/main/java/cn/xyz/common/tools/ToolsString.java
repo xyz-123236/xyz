@@ -82,6 +82,15 @@ public class ToolsString {
         charArray[0] += 32;
         return String.valueOf(charArray);
     }
+	public static boolean same(String str1, String str2) throws Exception {
+		if(Tools.isEmpty(str1) && Tools.isEmpty(str2)) return true;
+		if(Tools.isEmpty(str1)) return false;
+		if(Tools.isEmpty(str2)) return false;
+		if(str1.equals(str2)) {
+			return true;
+		}
+		return false;
+	}
 	public static void main(String[] args) {
 		try {
 			String b = "123";
