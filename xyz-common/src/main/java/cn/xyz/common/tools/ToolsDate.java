@@ -45,6 +45,16 @@ public class ToolsDate {
 		DateFormat format = new SimpleDateFormat(pattern, Locale.ENGLISH);
 		return format.parse(date);
 	}
+	public static long getLong() {
+		return getLong(new Date());
+	}
+	public static long getLong(String date) throws Exception {
+		return getLong(getDate(date));
+	}
+	public static long getLong(Date date) {
+		if (date == null) return 0l;
+		return date.getTime();
+	}
 	public static String getString() {
 		return getString(new Date(), DEFAULT_DATE_PATTERN);
 	}
