@@ -16,6 +16,8 @@ public class T007 {
 		System.out.println(2);
 		System.out.println(obj.getDate("aa"));
 		System.out.println(3);
+		System.out.println(obj.getInteger("aa"));
+		System.out.println(obj.getIntValue("aa"));
 		Date d = new Date();
 		System.out.println(d.getTime());
 		System.out.println(ToolsDate.getString("yyyyMMddHHmmssSSS"));

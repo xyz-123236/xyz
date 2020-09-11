@@ -2,6 +2,12 @@ package cn.xyz.common.tools;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -261,9 +267,76 @@ public class ToolsDate {
 		}
 		return date1;
 	}
+	
+	public static String getString(LocalDate ld) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN);
+		return ld.format(formatter);
+	}
+	public static String getString(LocalDateTime ldt) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_PATTERN);
+		return ldt.format(formatter);
+	}
+	
+	public static LocalDate getLocalDate(long timestamp) {
+		Instant instant = Instant.ofEpochMilli(timestamp);
+		ZoneId zone = ZoneId.systemDefault();
+		return LocalDateTime.ofInstant(instant, zone).toLocalDate();
+	}
+	public static LocalDate getLocalDate(Date date) {
+        Instant instant = date.toInstant();
+        ZoneId zoneId = ZoneId.systemDefault();
+        LocalDate localDate = instant.atZone(zoneId).toLocalDate();
+        return localDate;
+    }
+	public static LocalDate getLocalDate(String time, String format) {
+		DateTimeFormatter df = DateTimeFormatter.ofPattern(format);
+		return LocalDate.parse(time, df);
+	}
+	
+	public static LocalDateTime getLocalDateTime(long timestamp) {
+		Instant instant = Instant.ofEpochMilli(timestamp);
+		ZoneId zone = ZoneId.systemDefault();
+		return LocalDateTime.ofInstant(instant, zone);
+	}
+	public static LocalDateTime getLocalDateTime(Date date) {
+        Instant instant = date.toInstant();
+        ZoneId zoneId = ZoneId.systemDefault();
+        LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
+        return localDateTime;
+    }
+	public static LocalDateTime getLocalDateTime(String time, String format) {
+		DateTimeFormatter df = DateTimeFormatter.ofPattern(format);
+		return LocalDateTime.parse(time, df);
+	}
+	
+	public static long getLong(LocalDate localDate) {
+		ZoneId zone = ZoneId.systemDefault();
+		Instant instant = localDate.atStartOfDay(zone).toInstant();
+		return instant.toEpochMilli();
+	}
+	public static long getLong(LocalDateTime localDateTime) {
+		ZoneId zone = ZoneId.systemDefault();
+		Instant instant = localDateTime.atZone(zone).toInstant();
+		return instant.toEpochMilli();
+	}
+	
+	public static Date getDate(LocalDate localDate) {
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = localDate.atStartOfDay(zoneId);
+        Date date = Date.from(zdt.toInstant());
+		return date;
+    }
+	public static Date getDate(LocalDateTime localDateTime) {
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = localDateTime.atZone(zoneId);
+        Date date = Date.from(zdt.toInstant());
+		return date;
+    }
+	
 	public static void main(String[] args) {
 		try {
-		
+			System.out.println(getLong());
+			System.out.println(getLong(LocalDateTime.now()));
 //			System.out.println(firstDay());
 //			System.out.println(lastDay());
 //			System.out.println(preFirstDay());

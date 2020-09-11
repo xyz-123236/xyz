@@ -4,6 +4,11 @@ excel解析增加参数list<String> fields,把每行转换成JSONObject，方便
 清除key，添加修改/创建放在service做（继承一个servicebasce或公共类）
 插入修改通过数据库表的字段来操作，就不用删除key了
 
+如果要做用户自定义显示栏位，那要做栏位的权限控制，
+   每个表格设一个id，通过id去修改显示栏位
+   权限加在字段后面，显示权限，修改权限，不加权限表示任何人都能看
+   默认排序+用户自定义排序
+
 find返回jsonobject,包括count和data
 把conn放在外面，用于service控制事务
 where条件and改为query对象：使用setString（key，value），setint(),setdate()添加不同的值（可以通过数据库字段类型处理）

@@ -129,7 +129,7 @@ public class ToolsString {
 			}
 			System.out.println(new Date().getTime()-a);
 			for (int i = 0; i < 10000; i++) {
-				id = getId16();
+				id = getId();
 			}
 			
 			System.out.println(new Date().getTime()-a);

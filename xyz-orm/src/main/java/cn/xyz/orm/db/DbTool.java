@@ -97,7 +97,7 @@ public class DbTool extends Basic {
 			if(!Tools.isEmpty(create_by)) {
 				row.put("create_by", create_by);
 				row.put("create_date", ToolsDate.getLongString());
-			}
+			}   
 			String primary_name = getPrimaryName(db, table);
 			for(String key: row.keySet()){
 				fileds += key + ",";
@@ -499,10 +499,9 @@ public class DbTool extends Basic {
         	return obj.toString().trim();
         }
 	}
-	public String escape(String str) {
-		return str.replaceAll("\"", "&quot;").replaceAll("'", "&apos;").replaceAll("&", "&amp;")
-				.replaceAll("\n", "<br>")
-				.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll(" ", "&nbsp;");
+	public static String escape(String str) {
+		return str.replaceAll("\"", "&quot;").replaceAll("'", "&apos;").replaceAll(" ", "&nbsp;")
+				.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>");//.replaceAll("&", "&amp;")
 	}
 	/*private DbBase getDefaultDb() throws Exception {
 		return DbBase.getDruid();
@@ -546,6 +545,7 @@ public class DbTool extends Basic {
 	public JSONObject get(DbBase db) throws Exception {
 		return db.get(this.getSql());
 	}
+	
 	public static void main(String[] args) {
 		try {
 			/*String a = " name as  n ";
@@ -562,11 +562,12 @@ public class DbTool extends Basic {
 			System.out.println(dt.columns);
 			System.out.println(dt.getSql());*/
 			JSONObject row = new JSONObject();
-			row.put("dat", "9h");
+			row.put("dat", "9'h");
 			row.put("num", "9");
-			row.put("ok", "99");
-			row.put("ng", "999");
+			row.put("ok", "9\'9");
+			row.put("ng", "9\"99");
 			row.put("pid", "9");
+			row.put("ng", escape(row.getString("ng")));
 			DbTool d = DbTool.getInstance();
 			try {
 				System.out.println(d.insert(DbBase.getJdbc(DbBase.DEFAULT_DB), "test3", row, null));

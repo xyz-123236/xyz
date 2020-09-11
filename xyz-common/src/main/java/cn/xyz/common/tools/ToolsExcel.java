@@ -302,6 +302,7 @@ public class ToolsExcel {
 							} else if (types[j] == 5 || types[j] == 6) {
 								// float
 								cell.setCellValue((Double.valueOf((map.get(fileds[j])) + "")).doubleValue());
+								//cell.setCellValue(new BigDecimal(String.valueOf(map.get(fileds[j]))).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
 							} else {
 								cell.setCellValue(map.get(fileds[j]) + "");
 							}

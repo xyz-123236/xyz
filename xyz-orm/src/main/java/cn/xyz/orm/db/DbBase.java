@@ -472,11 +472,14 @@ public abstract class DbBase {
         ResultSet rs = null;
         try{
             DatabaseMetaData dbmd = this.getConnection().getMetaData();
- 
+            System.out.println("数据库已知的用户1: "+ dbmd.getCatalogSeparator());
+            System.out.println("数据库已知的用户2: "+ dbmd.getDatabaseProductName());
+            
             System.out.println("数据库已知的用户: "+ dbmd.getUserName());//IT_JIPC
             System.out.println("数据库的系统函数的逗号分隔列表: "+ dbmd.getSystemFunctions());//DATABASE,IFNULL,USER
             System.out.println("数据库的时间和日期函数的逗号分隔列表: "+ dbmd.getTimeDateFunctions());
             System.out.println("数据库的字符串函数的逗号分隔列表: "+ dbmd.getStringFunctions());
+            System.out.println("数据库供应商用于 'catalog' 的首选术语: "+ dbmd.getCatalogTerm());//SCHEMA
             System.out.println("数据库供应商用于 'schema' 的首选术语: "+ dbmd.getSchemaTerm());//SCHEMA
             System.out.println("数据库URL: " + dbmd.getURL());//jdbc:sap://10.122.2.101:30515
             System.out.println("是否允许只读:" + dbmd.isReadOnly());//false

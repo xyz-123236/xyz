@@ -1,8 +1,8 @@
 package cn.xyz.common.pojo;
 
 public class Basic {
-	protected Integer page;// 开始页
-	protected Integer rows;// 页面容量
+	protected int page;// 开始页
+	protected int rows;// 页面容量
 	protected String sort;//排序的列
 	protected String order;//升序还是降序
 	protected String jsp_name; //请求页面
@@ -12,16 +12,16 @@ public class Basic {
 	protected String update_date;
 	protected String remark;
 	
-	public Integer getPage() {
+	public int getPage() {
 		return this.page;
 	}
-	public void setPage(Integer page) {
+	public void setPage(int page) {
 		this.page = page;
 	}
-	public Integer getRows() {
+	public int getRows() {
 		return this.rows;
 	}
-	public void setRows(Integer rows) {
+	public void setRows(int rows) {
 		this.rows = rows;
 	}
 	public String getSort() {
