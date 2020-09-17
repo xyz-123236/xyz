@@ -99,8 +99,10 @@ public class T004 {
 
 
 	    private T004(String propertyFile) {
-	        InputStream is = null;
-	        is = getClass().getResourceAsStream(propertyFile);
+	        try (InputStream is = getClass().getResourceAsStream(propertyFile);){
+				
+			
+	        
 	        //File propertyFile = new File("C:/Temp/testMDB/TestTranslator/abc.txt");
 	        if (is != null) {
 	            BufferedReader reader = null;
@@ -124,6 +126,9 @@ public class T004 {
 	            }
 	        }
 	        initializeHelper();
+	        } catch (Exception e) {
+				// TODO: handle exception
+			}
 	    }
 
 	    @SuppressWarnings("rawtypes")

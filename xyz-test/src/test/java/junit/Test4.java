@@ -1,6 +1,7 @@
 package junit;
 
-import org.junit.jupiter.api.Test;
+
+import org.junit.Test;
 
 import com.alibaba.fastjson.JSONObject;
 

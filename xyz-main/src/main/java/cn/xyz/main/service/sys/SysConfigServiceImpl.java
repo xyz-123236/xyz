@@ -19,7 +19,7 @@ public class SysConfigServiceImpl implements SysConfigService {
 	@Override
 	public String get(String key) throws Exception {
 		if(Tools.isEmpty(config)) {
-			JSONArray data = scd.find();
+			JSONArray data = this.scd.find();
 			for (int i = 0; i < data.size(); i++) {
 				config.put(data.getJSONObject(i).getString("key"), data.getJSONObject(i).getString("value"));
 			}

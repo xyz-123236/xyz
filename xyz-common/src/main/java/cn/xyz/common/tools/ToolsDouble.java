@@ -47,26 +47,25 @@ public class ToolsDouble {
 		return div(v1, v2, DEF_SCALE);
 	}
 	public static Double div(Double v1, Double v2, int scale) {//除
-		if (scale < 0) scale = DEF_SCALE;
 		BigDecimal b1 = new BigDecimal(Double.toString(v1));
 		BigDecimal b2 = new BigDecimal(Double.toString(v2));
-		return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+		return b1.divide(b2, handleScale(scale), BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 
 	public static Double round(Double v) {//四舍五入
 		return round(v, DEF_SCALE);
 	}
 	public static Double round(Double v, int scale) {//四舍五入
-		if (scale < 0) scale = DEF_SCALE;
-		return new BigDecimal(String.valueOf(v)).setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+		return new BigDecimal(String.valueOf(v)).setScale(handleScale(scale), BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 	public static Double up(Double v, int scale) {//向上舍入
-		if (scale < 0) scale = DEF_SCALE;
-		return new BigDecimal(String.valueOf(v)).setScale(scale, BigDecimal.ROUND_UP).doubleValue();
+		return new BigDecimal(String.valueOf(v)).setScale(handleScale(scale), BigDecimal.ROUND_UP).doubleValue();
 	}
 	public static Double down(Double v, int scale) {//向下
-		if (scale < 0) scale = DEF_SCALE;
-		return new BigDecimal(String.valueOf(v)).setScale(scale, BigDecimal.ROUND_DOWN).doubleValue();
+		return new BigDecimal(String.valueOf(v)).setScale(handleScale(scale), BigDecimal.ROUND_DOWN).doubleValue();
+	}
+	public static int handleScale(int scale) {//四舍五入
+		return scale < 0 ? DEF_SCALE : scale;
 	}
 	public static String getString(Double v) {//转为字符串
 		return new BigDecimal(String.valueOf(v)).toPlainString();

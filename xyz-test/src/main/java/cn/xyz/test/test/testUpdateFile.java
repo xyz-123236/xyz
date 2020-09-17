@@ -12,7 +12,7 @@ import cn.xyz.orm.db.DbJdbc;
 
 public class testUpdateFile {
 	public static void main(String[] args) {
-		String path = testUpdateFile.class.getResource("/").getPath() + "test.properties";
+		/*String path = testUpdateFile.class.getResource("/").getPath() + "test.properties";
 		System.out.println(path);
 		String fileUrl = testUpdateFile.class.getClassLoader().getResource("test.properties").getPath();
 		System.out.println(fileUrl);
@@ -21,9 +21,9 @@ public class testUpdateFile {
 		InputStream fis = null;
 		OutputStream fos = null;
 		try {
-			/*
+			
 			 * File file = new File(path); if (!file.exists()) file.createNewFile();
-			 */
+			 
 			 fis = new FileInputStream(fileUrl);
 			//fis = testUpdateFile.class.getClassLoader().getResourceAsStream("test.properties");
 			prop.load(fis);
@@ -39,6 +39,6 @@ public class testUpdateFile {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 }

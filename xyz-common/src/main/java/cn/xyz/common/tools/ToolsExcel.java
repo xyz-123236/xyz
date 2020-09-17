@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -53,22 +54,40 @@ public class ToolsExcel {
      * @throws Exception 
      */
 	public static JSONArray readExcel(File file, String fileName) throws Exception {
-    	
-    	FileInputStream fis = new FileInputStream(file);
-    	String ext = fileName.substring(fileName.lastIndexOf(".")+1);
-    	Workbook wb = null;
-        if ("xls".equals(ext)) {
-        	wb = new HSSFWorkbook(new POIFSFileSystem(fis));
-        } else if ("xlsx".equals(ext)) {
-        	wb = new XSSFWorkbook(fis);
-        } else {
-        	fis.close();
-        	return null;
-        }
+		String ext = fileName.substring(fileName.lastIndexOf(".")+1);
+		try (FileInputStream fis = new FileInputStream(file);){
+			if ("xls".equals(ext)) {
+				return xssf(fis, fileName);
+	        }else if("xlsx".equals(ext)) {
+	        	return hssf(fis, fileName);
+	        }else {
+	        	return null;
+	        }
+		}catch (Exception e) {
+			throw e;
+		}
+		
+	}
+	public static JSONArray hssf(FileInputStream fis, String fileName) throws Exception {
+		try (Workbook wb = new XSSFWorkbook(fis);){
+			return readExcel(wb);
+		} catch (IOException e) {
+			throw e;
+		}
+	}
+	public static JSONArray xssf(FileInputStream fis, String fileName) throws Exception {
+		try (Workbook wb = new HSSFWorkbook(new POIFSFileSystem(fis));){
+			return readExcel(wb);
+		} catch (IOException e) {
+			throw e;
+		}
+	}
+	public static JSONArray readExcel(Workbook wb) throws Exception {
         Cell cell = null;
         JSONArray data = new JSONArray();
 		for (int i = 0; i < wb.getNumberOfSheets(); i++) {//多表
 			Sheet st = wb.getSheetAt(i);
+			
 			Row rowHead = st.getRow(0);
 			Row rowCode = st.getRow(1);
 			if (rowHead == null || rowCode == null) {
@@ -143,8 +162,6 @@ public class ToolsExcel {
 				hasSheet = false;
 			}
 		}
-		wb.close();
-		fis.close();
 		return data;
     }
 	
