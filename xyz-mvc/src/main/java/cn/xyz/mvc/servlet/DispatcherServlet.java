@@ -39,7 +39,7 @@ public class DispatcherServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init();
         try {
-			properties = ToolsProperties.load(config.getInitParameter("contextConfigLocation"));
+			this.properties = ToolsProperties.load(config.getInitParameter("contextConfigLocation"));
 			//2.根据properties，初始化所有相关联的类,扫描用户设定的包下面所有的类
 	        doScanner(this.properties.getProperty("scanPackage"));
 	        //3.拿到扫描到的类,通过反射机制,实例类,并且放到ioc容器中(k-v  beanName-bean) beanName默认是首字母小写

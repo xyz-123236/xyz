@@ -451,10 +451,10 @@ public class DbTool extends Basic {
 		return db.find(countSql);
 	}
 	public JSONArray sum(DbBase db, String projection, boolean deleteLimit) throws Exception {
-		String _sql = sql.toString();
+		String _sql = this.sql.toString();
 		int beginIndex = _sql.toLowerCase().indexOf(" from ");
-		int endIndex1 = _sql.toLowerCase().indexOf(" order ") > 1 ? _sql.toLowerCase().indexOf(" order ") : sql.length();
-		int endIndex2 = _sql.toLowerCase().indexOf(" limit ") > 1 ? _sql.toLowerCase().indexOf(" limit ") : sql.length();
+		int endIndex1 = _sql.toLowerCase().indexOf(" order ") > 1 ? _sql.toLowerCase().indexOf(" order ") : this.sql.length();
+		int endIndex2 = _sql.toLowerCase().indexOf(" limit ") > 1 ? _sql.toLowerCase().indexOf(" limit ") : this.sql.length();
 		if(deleteLimit) {
 			return db.find("select " + projection +_sql.substring(beginIndex, endIndex1 < endIndex2 ? endIndex1 : endIndex2));
 		}else {

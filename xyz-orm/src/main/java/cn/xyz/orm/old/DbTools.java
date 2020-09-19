@@ -292,7 +292,7 @@ public class DbTools extends Basic {
         }
 	}
 	public String getSql() {
-		return sql.toString();
+		return this.sql.toString();
 	}
 	public DbTools setSql(String sql) {
 		this.sql = new StringBuffer(sql);

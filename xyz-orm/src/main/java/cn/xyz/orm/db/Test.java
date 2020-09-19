@@ -43,17 +43,17 @@ public class Test {
 		
 	}
 	public static void delete(DbBase db, DbTool dt, JSONArray rows, JSONObject row, JSONObject form) throws Exception {
-		
+		//
 		
 		
 	}
 	public static void update(DbBase db, DbTool dt, JSONArray rows, JSONObject row, JSONObject form) throws Exception {
-		
+		//
 		
 		
 	}
 	public static void select(DbBase db, DbTool dt, JSONArray rows, JSONObject row, JSONObject form) throws Exception {
-		
+		//
 		
 	}
 }
