@@ -12,12 +12,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>cn.xyz</groupId>
-			<artifactId>xyz-orm</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>cn.xyz</groupId>
-			<artifactId>xyz-mvc</artifactId>
+			<artifactId>xyz-common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

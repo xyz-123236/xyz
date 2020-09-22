@@ -1,10 +1,7 @@
-package cn.xyz.test.testJdbc;
+package cn.xyz.common.orm;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
-import cn.xyz.common.orm.DbBase;
-
 
 public class Test1 {
 
@@ -12,7 +9,7 @@ public class Test1 {
 		DbBase db = null;
 		try {
 			db = DbBase.getJdbc();
-			//System.out.println(db.find("select * from test"));
+			System.out.println(db.find("select * from test"));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
 			//System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));
@@ -31,7 +28,7 @@ public class Test1 {
 			//String str = "insert into sn_detail (batch_id,sn_detail) values";
 			//System.out.println(str.replaceAll("values", ""));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (24,?)",a));
-			System.out.println(db.insert("insert into t3 (code,name) values (57,'cc') "));
+			//System.out.println(db.insert("insert into t3 (code,name) values (?,?) ",a));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values",a));
 			//System.out.println(db.insertBatch("insert into sn_detail (batch_id,sn_detail) values",data));
 			//DbTool.getInstance(null).insertBatch(db,"t3", data, "tang.wu",true);

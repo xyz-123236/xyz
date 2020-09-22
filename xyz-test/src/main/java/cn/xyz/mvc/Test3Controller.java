@@ -21,7 +21,7 @@ import com.atlassian.crowd.service.client.ClientPropertiesImpl;
 import com.atlassian.crowd.service.client.ClientResourceLocator;
 import com.atlassian.crowd.service.client.CrowdClient;
 
-import cn.xyz.mvc.annotation.*;
+import cn.xyz.common.annotation.*;
 
 @Controller()
 @RequestMapping("t3")

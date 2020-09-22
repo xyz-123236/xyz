@@ -2,7 +2,8 @@ package cn.xyz.test.testJdbc;
 
 import com.alibaba.fastjson.JSONArray;
 
-import cn.xyz.orm.db.DbBase;
+import cn.xyz.common.orm.DbBase;
+
 
 public class Test2 {
 

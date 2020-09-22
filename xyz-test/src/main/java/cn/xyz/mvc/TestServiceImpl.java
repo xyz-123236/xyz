@@ -2,7 +2,7 @@ package cn.xyz.mvc;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.mvc.annotation.Service;
+import cn.xyz.common.annotation.Service;
 
 @Service
 public class TestServiceImpl implements TestService {

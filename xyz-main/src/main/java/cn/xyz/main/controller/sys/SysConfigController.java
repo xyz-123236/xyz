@@ -1,6 +1,6 @@
 package cn.xyz.main.controller.sys;
 
-import cn.xyz.mvc.annotation.Controller;
+import cn.xyz.common.annotation.*;
 
 @Controller
 public class SysConfigController {

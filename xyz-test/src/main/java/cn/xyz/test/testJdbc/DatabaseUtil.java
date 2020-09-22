@@ -4,8 +4,8 @@ import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONArray;
 
-import cn.xyz.orm.db.DbBase;
-import cn.xyz.orm.db.DbJdbc;
+import cn.xyz.common.orm.DbBase;
+
 
 public class DatabaseUtil {
     public static void main(String[] args) {

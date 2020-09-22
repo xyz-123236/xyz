@@ -3,8 +3,7 @@ package cn.xyz.main.tools;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.orm.db.DbBase;
-import cn.xyz.orm.db.DbTool;
+import cn.xyz.common.orm.DbTool;
 
 public class ToolsConfig {
 	public static JSONObject config = new JSONObject();

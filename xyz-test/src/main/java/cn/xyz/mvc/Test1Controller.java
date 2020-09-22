@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.mvc.annotation.*;
+import cn.xyz.common.annotation.*;
 
 @Controller()
 @RequestMapping("t1")

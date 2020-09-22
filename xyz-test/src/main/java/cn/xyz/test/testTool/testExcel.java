@@ -3,8 +3,8 @@ package cn.xyz.test.testTool;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.orm.DbBase;
 import cn.xyz.common.tools.ToolsExcel;
-import cn.xyz.orm.db.DbBase;
 
 public class testExcel {
 	public static void main(String[] args) {

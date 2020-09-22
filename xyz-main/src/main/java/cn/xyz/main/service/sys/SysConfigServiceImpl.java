@@ -3,10 +3,11 @@ package cn.xyz.main.service.sys;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.annotation.Autowired;
+import cn.xyz.common.annotation.Service;
 import cn.xyz.common.tools.Tools;
 import cn.xyz.main.dao.sys.SysConfigDao;
-import cn.xyz.mvc.annotation.Autowired;
-import cn.xyz.mvc.annotation.Service;
+
 
 @Service
 public class SysConfigServiceImpl implements SysConfigService {

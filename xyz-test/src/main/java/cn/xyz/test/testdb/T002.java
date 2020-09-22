@@ -2,8 +2,8 @@ package cn.xyz.test.testdb;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cn.xyz.orm.db.DbBase;
-import cn.xyz.orm.db.DbTool;
+import cn.xyz.common.orm.DbTool;
+import cn.xyz.common.orm.DbBase;
 
 public class T002 {
 

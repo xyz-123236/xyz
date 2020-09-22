@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.tools.Tools;
-import cn.xyz.orm.db.DbBase;
+import cn.xyz.common.orm.DbBase;
 
 public class T003 {
 

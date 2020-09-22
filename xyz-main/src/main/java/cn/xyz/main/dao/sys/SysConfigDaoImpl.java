@@ -2,8 +2,8 @@ package cn.xyz.main.dao.sys;
 
 import com.alibaba.fastjson.JSONArray;
 
-import cn.xyz.orm.db.DbBase;
-import cn.xyz.orm.db.DbTool;
+import cn.xyz.common.orm.DbBase;
+import cn.xyz.common.orm.DbTool;
 
 public class SysConfigDaoImpl implements SysConfigDao{
 

@@ -2,9 +2,10 @@ package cn.xyz.test.testdb;
 
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.orm.DbTool;
+import cn.xyz.common.orm.DbBase;
 import cn.xyz.common.pojo.Config;
-import cn.xyz.orm.db.DbBase;
-import cn.xyz.orm.db.DbTool;
+
 
 public class Test001 {
 

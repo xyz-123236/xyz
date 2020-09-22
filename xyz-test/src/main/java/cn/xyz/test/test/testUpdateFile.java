@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import cn.xyz.orm.db.DbJdbc;
+import cn.xyz.common.orm.DbJdbc;
 
 public class testUpdateFile {
 	public static void main(String[] args) {

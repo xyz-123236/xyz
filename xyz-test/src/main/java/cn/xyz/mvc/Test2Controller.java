@@ -3,7 +3,7 @@ package cn.xyz.mvc;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.xyz.mvc.annotation.*;
+import cn.xyz.common.annotation.*;
 
 @Controller
 @RequestMapping("t2")
