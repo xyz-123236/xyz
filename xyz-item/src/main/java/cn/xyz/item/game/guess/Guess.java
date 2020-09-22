@@ -9,23 +9,25 @@ public class Guess {
 		int a = (int)(Math.random()*101);
 		int max = 100;
 		int min = 0;
-		Scanner scanner = new Scanner(System.in);
-		while(true) {
-			System.out.print("请输入");
-			int i = scanner.nextInt();
-			if(a > i){
-				min = i;
-				System.out.println("比竞猜数小，提示范围："+i+"-"+max);
-			}else if(a < i){
-				max = i;
-				System.out.println("比竞猜数大，提示范围："+min+"-"+i);
-			}else{
-				System.out.println("成功"+a);
-				break;
-			} 
+		try (Scanner scanner = new Scanner(System.in);){
+			while(true) {
+				System.out.print("请输入");
+				int i = scanner.nextInt();
+				if(a > i){
+					min = i;
+					System.out.println("比竞猜数小，提示范围："+i+"-"+max);
+				}else if(a < i){
+					max = i;
+					System.out.println("比竞猜数大，提示范围："+min+"-"+i);
+				}else{
+					System.out.println("成功"+a);
+					break;
+				} 
+			}
+			System.out.println("y游戏结束");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		System.out.println("y游戏结束");
-		scanner.close();
 	}
 
 }
