@@ -10,7 +10,7 @@
     <tag>
         <description>if</description>
         <name>if</name>
-        <tag-class>cn.xyz.test.tags.TagIf</tag-class>
+        <tag-class>cn.xyz.common.tags.TagIf</tag-class>
         <body-content>scriptless</body-content><!-- scriptless表示标签里有内容, empty表示标签里没内容 -->
         <attribute>
             <name>role</name>
@@ -26,7 +26,7 @@
     <tag>
         <description>if2</description>
         <name>if2</name>
-        <tag-class>cn.xyz.test.tags.TagIf2</tag-class>
+        <tag-class>cn.xyz.common.tags.TagIf2</tag-class>
         <body-content>scriptless</body-content><!-- scriptless表示标签里有内容, empty表示标签里没内容 -->
         <attribute>
             <name>role</name>
