@@ -1,7 +1,7 @@
-package cn.xyz.mail;
+package cn.xyz.common.tools;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.Properties;
@@ -9,10 +9,8 @@ import java.util.Properties;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.Message.RecipientType;
@@ -23,7 +21,6 @@ import javax.mail.internet.MimeMultipart;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.sun.mail.util.MailSSLSocketFactory;
 
 import cn.xyz.common.tools.Tools;
 
@@ -70,11 +67,13 @@ public class ToolsEmail {
         InternetAddress fromAddress = new InternetAddress(properties.getProperty("email"), properties.getProperty("username"), "utf-8");
         // 设置发送邮件方
         msg.setFrom(fromAddress);
-        InternetAddress receiveAddress = new InternetAddress(obj.getString("email"), obj.getString("username"), "utf-8");
         // 设置邮件接收方
-        msg.setRecipient(RecipientType.TO, receiveAddress);
+        msg.setRecipients(RecipientType.TO, InternetAddress.parse(obj.getString("email_to")));
+        // 设置CC
+        if(!Tools.isEmpty(obj.getString("email_cc"))) {
+            msg.setRecipients(RecipientType.CC, InternetAddress.parse(obj.getString("email_cc")));
+        }
         // 设置邮件标题
-        
         msg.setSubject(obj.getString("subject"), "utf-8");
         //msg.setText("test内容");
         // 创建消息部分
@@ -90,12 +89,17 @@ public class ToolsEmail {
         // 设置文本消息部分
         multipart.addBodyPart(messageBodyPart);
         // 附件部分
-        if (!Tools.isEmpty(obj.getString("file_url"))){
-            BodyPart messageAttachmentPart = new MimeBodyPart();
-            DataSource source = new FileDataSource(obj.getString("file_url"));
-            messageAttachmentPart.setDataHandler(new DataHandler(source));
-            messageAttachmentPart.setFileName(obj.getString("file_name"));
-            multipart.addBodyPart(messageAttachmentPart);
+        JSONArray file_url = obj.getJSONArray("file_url");
+        if(!Tools.isEmpty(file_url)) {
+        	for (int i = 0; i < file_url.size(); i++) {
+        		String url = file_url.getString(i);
+        		File file = new File(url);
+            	BodyPart messageAttachmentPart = new MimeBodyPart();
+                DataSource source = new FileDataSource(file);
+                messageAttachmentPart.setDataHandler(new DataHandler(source));
+                messageAttachmentPart.setFileName(url.substring(url.lastIndexOf(File.separator)+1, url.length()));
+                multipart.addBodyPart(messageAttachmentPart);
+			}
         }
         msg.setContent(multipart);
         // 设置显示的发件时间
@@ -192,3 +196,4 @@ public class ToolsEmail {
 
 	}
 }
+

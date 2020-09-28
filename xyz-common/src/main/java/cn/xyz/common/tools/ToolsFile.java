@@ -21,6 +21,7 @@ import org.apache.commons.fileupload.FileItem;
 import com.alibaba.fastjson.JSONObject;
 
 public class ToolsFile {
+	//保存文件的方法单独处来
 	public static String[] unitNames = {"B", "KB", "MB","GB", "TB", "PB"};
 	public static int radix = 1024;
 	public static String formatSize(long size) {

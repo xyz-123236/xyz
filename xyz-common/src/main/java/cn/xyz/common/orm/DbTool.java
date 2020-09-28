@@ -11,6 +11,7 @@ import com.alibaba.druid.sql.visitor.functions.Insert;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.exception.CustomException;
 import cn.xyz.common.pojo.Basic;
 import cn.xyz.common.tools.Tools;
 import cn.xyz.common.tools.ToolsDate;
@@ -77,6 +78,75 @@ public class DbTool extends Basic {
 			}
 		}
 		return true;
+	}
+	public boolean createTable(DbBase db, JSONObject obj) throws Exception {
+		return db.execute(createTableSql(obj));
+	}
+	public String createTableSql(JSONObject obj) throws Exception {
+		this.sql = new StringBuffer("");
+		JSONArray rows = obj.getJSONArray("rows");
+		String table = obj.getString("table");
+		String database = obj.getString("database");
+		if(Tools.isEmpty(table)) throw new CustomException("表名不能为空");
+		this.sql.append("CREATE TABLE "+database+"."+table+" (\r\n\t" );
+		String primary = "";
+		String unique = "";
+		if(Tools.isEmpty(rows)) throw new CustomException("表字段不能为空");
+		for (int i = 0; i < rows.size(); i++) {
+			JSONObject row = rows.getJSONObject(i);
+			String field = row.getString("field");
+			String type = row.getString("type");
+			String length = row.getString("length");
+			String default_value = row.getString("default_value");
+			String comment = row.getString("comment");
+			if(Tools.isEmpty(field)) {
+				throw new CustomException("列名不能为空");
+			}else {
+				this.sql.append(""+field+" ");
+			}
+			if(Tools.isEmpty(type)) {
+				throw new CustomException("类型为空");
+			}
+			if(Tools.isEmpty(length)) {
+				this.sql.append(type+" ");
+			}else {
+				this.sql.append(type+"("+length+") ");
+			}
+			if(row.getBooleanValue("not_null")) {
+				this.sql.append("NOT NULL ");
+			}
+			if("0".equals(default_value)) {
+				this.sql.append("DEFAULT 0 ");
+			}else if("_null".equals(default_value)) {
+				this.sql.append("DEFAULT null ");
+			}else if("empty".equals(default_value)) {
+				this.sql.append("DEFAULT '' ");
+			}else if(!Tools.isEmpty(default_value)) {
+				this.sql.append("DEFAULT '"+default_value+"' ");
+			}
+			if(row.getBooleanValue("auto_increment")) {
+				this.sql.append("AUTO_INCREMENT ");
+			}
+			if(!Tools.isEmpty(comment)) {
+				this.sql.append("COMMENT '"+comment+"' ");
+			}
+			if(row.getBooleanValue("unique")) {
+				unique += ""+field + ""+",";
+			}
+			if(row.getBooleanValue("primary")) {
+				primary += ""+field + ""+",";
+			}
+			this.sql.append(",\r\n\t");
+		}
+		if(!Tools.isEmpty(unique)) {
+			this.sql.append("UNIQUE KEY "+table+"_index1 ("+unique.substring(0, unique.lastIndexOf(","))+"),\r\n\t");
+		}
+		if(Tools.isEmpty(primary)) {
+			throw new CustomException("不能没有主键");
+		}
+		this.sql.append("PRIMARY KEY ("+primary.substring(0, primary.lastIndexOf(","))+")\r\n");
+		this.sql.append(") ENGINE="+obj.getString("engine")+" DEFAULT CHARSET="+obj.getString("charset")+" COLLATE="+obj.getString("collate")+"\r\n");
+		return this.sql.toString();
 	}
 	/**
 	 * 插入和修改可以是null，不用赋初值，但类型还是需要（sybase不支持数字类型插入字符串）
@@ -548,6 +618,35 @@ public class DbTool extends Basic {
 	
 	public static void main(String[] args) {
 		try {
+			JSONObject obj = new JSONObject();
+			obj.put("table", "t6");
+			obj.put("database", "xyz");
+			obj.put("engine", "InnoDB");
+			obj.put("charset", "utf8");
+			obj.put("collate", "utf8_general_ci");
+			JSONArray rows = new JSONArray();
+			for (int i = 0; i < 10; i++) {
+				JSONObject row = new JSONObject();
+				row.put("field", "f"+i);
+				if(i==0) {
+					row.put("type", "bigint");
+					row.put("auto_increment", true);
+					row.put("not_null", true);
+					row.put("primary", true);
+				}else {
+					row.put("type", "varchar");
+				}
+				if(i==2 || i== 3) {
+					row.put("unique", true);
+				}
+				row.put("length", 10+i);
+				row.put("default_value", 0);
+				row.put("comment", "备注"+i);
+				rows.add(row);
+			}
+			obj.put("rows", rows);
+			System.out.println(DbTool.getInstance().createTableSql(obj));
+			//DbTool.getInstance().createTable(DbBase.getJdbc(), obj);
 			/*String a = " name as  n ";
 			String[] arr = a.trim().split(" ");
 			for (int i = 0; i < arr.length; i++) {
@@ -561,7 +660,7 @@ public class DbTool extends Basic {
 			/*DbTool dt = DbTool.getInstance().select("test t","t.*,a.str1 as cc,c.str1 as dd,a.str2,b.num1,b.num2,sum(CAST(c.ENTBY AS INTEGER)),ifnull(d.NUM5, 0)+ifnull(d.NUM6, 0)");
 			System.out.println(dt.columns);
 			System.out.println(dt.getSql());*/
-			JSONObject row = new JSONObject();
+			/*JSONObject row = new JSONObject();
 			row.put("dat", "9'h");
 			row.put("num", "9");
 			row.put("ok", "9\'9");
@@ -574,7 +673,7 @@ public class DbTool extends Basic {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println(d.getSql());
+			System.out.println(d.getSql());*/
 			/*Stack<Integer> stack =new Stack<>();
 			System.out.println(stack);
 			System.out.println(Tools.isEmpty(stack));*/

@@ -37,8 +37,22 @@ function checkFileType(fileName, type){
 }
 
 //返回2位小数/.xx
-function formatNumberPrecision(value){
-	if(!isEmpty(value)) return parseFloat(value).toFixed(2);
+function formatNumber2(value){
+	return formatNumber(value, 2);
+}
+//返回3位小数/.xxx
+function formatNumber3(value){
+	return formatNumber(value, 3);
+}
+function formatNumber(value, scale){
+	if(isEmpty(value)) value = 0;
+	if(isEmpty(scale)) scale = 2;
+	//if(/^[-0-9].*$/.test(value)){
+	if(isNaN(value)){
+		return value;
+	}else{
+		return parseFloat(value).toFixed(scale);
+	}
 }
 //返回年月/yyyy-MM
 function formatDateYM(value){
@@ -211,7 +225,50 @@ var date_ym_options = {
         return d.getFullYear() + '-' +a;
     }	
 }
-
+$.extend($.fn.validatebox.defaults.rules, {//options:{validType: 'workcenterNo',}
+	workcenterNo: {  
+		validator: function (value) {  
+			return /^12[A-Z]([0-9]{2}|[0-9]{4})$/.test(value);  
+		},  
+		message: '工作中心只能是5位或7位'  
+	},
+	workcenterNoSeven: {  
+		validator: function (value) {  
+			return /^12[A-Z][0-9]{4}$/.test(value);  
+		},  
+		message: '工作中心只能是7位'  
+	},
+	workorderNo: {  
+		validator: function (value) {  
+			return /^[0-9]{10}$/.test(value);  
+		},  
+		message: '工单为10位数字'  
+	},
+	userno: {  
+		validator: function (value) {  
+			return /^[0-9]{7}$/.test(value);  
+		},  
+		message: '工号为7位数字'  
+	},
+	minute: {  
+		validator: function (value) {  
+			return value >= 0 && value <= 60;  
+		},  
+		message: '只能是0到60'  
+	},
+	gtZero: {  
+		validator: function (value) {  
+			return value > 0;  
+		},  
+		message: '值必须大于0'  
+	},
+	lgZero: {  
+		validator: function (value) {  
+			return value < 0;  
+		},  
+		message: '值必须小于0'  
+	},
+});
 //清除表单数据
 function clearForm(elements){
 	elements.forEach(function (element) {
