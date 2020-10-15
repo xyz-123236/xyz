@@ -22,6 +22,7 @@ import javax.mail.internet.MimeMultipart;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.pojo.Email;
 import cn.xyz.common.tools.Tools;
 
 public class ToolsEmail {
@@ -34,7 +35,7 @@ public class ToolsEmail {
 			e.printStackTrace();
 		}
 	}
-	public static void SendEmail(JSONObject obj) throws Exception {
+	public static void SendEmail(Email email) throws Exception {
         // 创建邮件配置
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", properties.getProperty("protocol")); // 使用的协议（JavaMail规范要求）
@@ -68,36 +69,37 @@ public class ToolsEmail {
         // 设置发送邮件方
         msg.setFrom(fromAddress);
         // 设置邮件接收方
-        msg.setRecipients(RecipientType.TO, InternetAddress.parse(obj.getString("email_to")));
+        msg.setRecipients(RecipientType.TO, InternetAddress.parse(email.getEmail_to()));
         // 设置CC
-        if(!Tools.isEmpty(obj.getString("email_cc"))) {
-            msg.setRecipients(RecipientType.CC, InternetAddress.parse(obj.getString("email_cc")));
+        if(!Tools.isEmpty(email.getEmail_cc())) {
+            msg.setRecipients(RecipientType.CC, InternetAddress.parse(email.getEmail_cc()));
         }
         // 设置邮件标题
-        msg.setSubject(obj.getString("subject"), "utf-8");
+        msg.setSubject(email.getSubject(), "utf-8");
         //msg.setText("test内容");
         // 创建消息部分
         BodyPart messageBodyPart = new MimeBodyPart();
         // 消息
-        if (obj.getBooleanValue("ishtml")){
-            messageBodyPart.setContent(obj.getString("content"),"text/html;charset=UTF-8");
+        if (email.isHtml()){
+            messageBodyPart.setContent(email.getContent(),"text/html;charset=UTF-8");
         }else {
-            messageBodyPart.setText(obj.getString("content"));
+            messageBodyPart.setText(email.getContent());
         }
         // 创建多重消息
         Multipart multipart = new MimeMultipart();
         // 设置文本消息部分
         multipart.addBodyPart(messageBodyPart);
         // 附件部分
-        JSONArray file_url = obj.getJSONArray("file_url");
-        if(!Tools.isEmpty(file_url)) {
-        	for (int i = 0; i < file_url.size(); i++) {
-        		String url = file_url.getString(i);
-        		File file = new File(url);
+        String[] file_urls = email.getFile_urls();
+        if(!Tools.isEmpty(file_urls)) {
+        	for (int i = 0; i < file_urls.length; i++) {
+        		String file_url = file_urls[i];
+        		if(Tools.isEmpty(file_url)) continue;
+        		File file = new File(file_url);
             	BodyPart messageAttachmentPart = new MimeBodyPart();
                 DataSource source = new FileDataSource(file);
                 messageAttachmentPart.setDataHandler(new DataHandler(source));
-                messageAttachmentPart.setFileName(url.substring(url.lastIndexOf(File.separator)+1, url.length()));
+                messageAttachmentPart.setFileName(file_url.substring(file_url.lastIndexOf(File.separator)+1, file_url.length()));
                 multipart.addBodyPart(messageAttachmentPart);
 			}
         }
@@ -181,15 +183,13 @@ public class ToolsEmail {
 			
 			StringBuilder table = createTable(head,employees,"账号密码");
 			
-			JSONObject obj = new JSONObject();
-			obj.put("email", "tang.wu@fujikon.com");
-			obj.put("username", "tang.wu");
-			obj.put("subject", "test主题");
-			obj.put("content", table);
-			obj.put("file_url", "E:\\file\\temp\\test.txt");
-			obj.put("file_name", "test.txt");
-			obj.put("ishtml", true);
-			SendEmail(obj);
+			Email email = new Email();
+			email.setEmail_to("tang.wu@fujikon.com");
+			email.setSubject("test主题");
+			email.setContent(table.toString());
+			email.setFile_urls(new String[] {"E:\\file\\temp\\test.txt"});
+			email.setHtml(true);
+			SendEmail(email);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

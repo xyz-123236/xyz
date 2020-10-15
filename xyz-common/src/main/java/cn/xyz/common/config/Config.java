@@ -1,15 +1,23 @@
-package cn.xyz.common.pojo;
+package cn.xyz.common.config;
+
+import java.util.Properties;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.tools.ToolsProperties;
+
 public class Config {
-	public static final String MYSQL = "mysql";
-	public static final String SPACE = " ";
-	public static final String LOGIN_USER = "login_user";
-	
+	private static Properties properties = null;
 	public static JSONObject config = new JSONObject();
-	public static final String DATE_PATTERN = "date_pattern";
+	//加载系统配置文件
+	static {
+		try {
+			properties = ToolsProperties.load("xyz.properties");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	public static Integer getInt(String key) throws Exception {
 		
 		return config.getInteger(key);

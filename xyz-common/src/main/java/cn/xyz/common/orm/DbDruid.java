@@ -11,6 +11,8 @@ import javax.sql.DataSource;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 
+import cn.xyz.common.tools.ToolsProperties;
+
 public class DbDruid extends DbBase{
 	private static Map<String, DataSource> map_ds = new HashMap<>();
 	public static final String[] DB_NAMES = {"oracle", "mysql", "sqlserver", "postgresql", "mongodb", "sybase", "hana"};
@@ -21,9 +23,8 @@ public class DbDruid extends DbBase{
 	static {
 		for (int i = 0; i < DB_NAMES.length; i++) {
 			try(InputStream is = DbDruid.class.getClassLoader().getResourceAsStream("druid/druid_"+ DB_NAMES[i] +".properties")) {
-				if(is != null) {
-					Properties properties = new Properties();
-					properties.load(is);
+				Properties properties = ToolsProperties.load("druid/druid_"+ DB_NAMES[i] +".properties");
+				if(properties != null) {
 					DataSource ds = DruidDataSourceFactory.createDataSource(properties);
 					map_ds.put(DB_NAMES[i], ds);
 				}
@@ -42,9 +43,8 @@ public class DbDruid extends DbBase{
 	public DataSource getDataSource() {
 		DataSource ds = map_ds.get(this.db_name);
 		if(ds == null) {
-			try(InputStream is = DbDruid.class.getClassLoader().getResourceAsStream("druid/druid_"+ this.db_name +".properties")) {
-				Properties properties = new Properties();
-				properties.load(is);
+			try {
+				Properties properties = ToolsProperties.load("druid/druid_"+ this.db_name +".properties");
 				ds = DruidDataSourceFactory.createDataSource(properties);
 				map_ds.put(this.db_name, ds);
 			} catch (Exception e) {

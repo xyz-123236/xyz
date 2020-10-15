@@ -11,7 +11,8 @@ public class ToolsProperties {
 			pro.load(is);
 			return pro;
 		} catch (Exception e) {
-			throw e;
+			e.printStackTrace();
+			return null;
 		}
     }
 	

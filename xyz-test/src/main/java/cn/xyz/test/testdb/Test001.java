@@ -3,8 +3,8 @@ package cn.xyz.test.testdb;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.orm.DbTool;
+import cn.xyz.common.config.Config;
 import cn.xyz.common.orm.DbBase;
-import cn.xyz.common.pojo.Config;
 
 
 public class Test001 {

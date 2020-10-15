@@ -18,12 +18,6 @@ public class DbJdbc extends DbBase{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	    /*try(InputStream is = DbJdbc.class.getClassLoader().getResourceAsStream(DB_FILE_NAME)) {
-	    	properties = new Properties();
-			properties.load(is);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
 	}
 	private DbJdbc(String db_name) {
 		this.db_name = db_name;

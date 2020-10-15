@@ -12,7 +12,7 @@ public class SysTableImpl implements SysTable {
 	public boolean createTable(JSONObject obj) throws Exception {
 		//创建表
 		DbBase db = DbBase.getDruid();
-		DbTool.getInstance().createInsertSql(db, table, row, create_by)
+		//DbTool.getInstance().createInsertSql(db, table, row, create_by)
 		//添加到sys_fields
 		return false;
 	}
