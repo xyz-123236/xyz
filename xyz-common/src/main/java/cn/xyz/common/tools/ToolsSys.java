@@ -9,8 +9,20 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import cn.xyz.common.pojo.SysUser;
 
 public class ToolsSys {
+	public static final String LOGIN_USER = "login_user";
+	
+	public static String getUsercode(HttpSession session) throws Exception {
+		SysUser login_user = (SysUser) session.getAttribute(LOGIN_USER);
+		if(Tools.isEmpty(login_user)) {
+			throw new Exception("没有登录");
+		}
+		return login_user.getUsercode();
+	}
 	/**
 	 * *获取客户端ip
 	 * @param request

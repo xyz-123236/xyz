@@ -17,25 +17,37 @@ public class ToolsSn {
 		check(sn);
 		return createSn(sn, ToolsSn.RANGE_DEFAULT.substring(0, radix), number);
 	}
-	public static Sn check(Sn sn) {
-		if(Tools.isEmpty(snFrom)) throw new CustomException("编号不能为空");
+	public static Sn check(Sn sn) throws CustomException {
 		String position = sn.getPosition();
 		String snFrom = sn.getSnFrom();
+		if(Tools.isEmpty(snFrom)) throw new CustomException("编号不能为空");
 		if(!Tools.isEmpty(position)) {
 			String[] positions = position.split("-");
 			if(positions.length == 2) {
 				sn.setEndIndex(Integer.parseInt(positions[1])-1);
 				sn.setBeginIndex(Integer.parseInt(positions[0])-1);
 			}else if(positions.length == 1){//一个数表示后几位
-				sn.setEndIndex(sn.length()-1);
-				sn.setBeginIndex(sn.length() - Integer.parseInt(positions[0]));
+				sn.setEndIndex(snFrom.length()-1);
+				sn.setBeginIndex(snFrom.length() - Integer.parseInt(positions[0]));
 			}else {
 				throw new CustomException("流水号位置不合法");
 			}
 		}else {
-			obj.put("beginIndex", 0);
-			obj.put("endIndex", sn.length()-1);
+			sn.setBeginIndex(0);
+			sn.setEndIndex(snFrom.length()-1);
 		}
+
+
+
+		if(number == 0) return Tools.success(sn);
+
+		if(beginIndex >= sn.length() || beginIndex < 0) return Tools.error("开始位置超出范围");
+		if(endIndex >= sn.length() || endIndex < 0) return Tools.error("结束位置超出范围");
+		if(beginIndex > endIndex) return Tools.error("开始位置不能大于结束位置");
+		String regex = "["+range+"]{"+(endIndex-beginIndex+1)+"}";
+		if(!Pattern.matches(regex, sn.substring(beginIndex, endIndex+1))) return Tools.error("编号流水号不合法");
+		//if(!sn.substring(beginIndex, endIndex+1).matches("["+range+"]{"+(endIndex-beginIndex+1)+"}")) return null;
+		Integer radix = range.length();
 		return sn;
 	}
 	public static JSONObject createSn(String sn, Integer radix, Integer number) throws Exception {
