@@ -120,12 +120,11 @@ public class ToolsSys {
 	 * @return
 	 */
 	public static boolean isWindowsOS() {
-		boolean isWindowsOS = false;
 		String osName = System.getProperty("os.name");
 		if (osName.toLowerCase().indexOf("windows") > -1) {
-			isWindowsOS = true;
+			return true;
 		}
-		return isWindowsOS;
+		return false;
 	}
 
 	public static void main(String[] args) {

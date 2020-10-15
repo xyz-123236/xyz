@@ -18,7 +18,7 @@ public class Tools {
 	private final static Comparator<Object> CHINA_COMPARE = Collator.getInstance(java.util.Locale.CHINA);
 
     
-    public static boolean isEmpty(Object obj) throws Exception {
+    public static boolean isEmpty(Object obj) {
 		if (obj == null) {
             return true;
         }else if (obj instanceof String) {
@@ -109,13 +109,24 @@ public class Tools {
                 for (int i = 0; i < order.length; i++) {
                     String valA = ToolsString.toString(one[sort[i]]);
 	                String valB = ToolsString.toString(two[sort[i]]);
-                    if (valA.compareToIgnoreCase(valB) > 0) { 
+                    /*if (valA.compareToIgnoreCase(valB) > 0) { 
                         return "asc".equals(order[i])? 1 : -1;    
                 	} else if (valA.compareToIgnoreCase(valB) < 0) {   
                         return "asc".equals(order[i])? -1 : 1;    
                     } else {    
                         continue;  //如果按一条件比较结果相等，就使用第二个条件进行比较。  
-                    }
+                    }*/
+                    try {
+						if (sort(valA,valB) > 0) { 
+						    return "asc".equals(order[i])? 1 : -1;    
+						} else if (sort(valA,valB) < 0) {   
+						    return "asc".equals(order[i])? -1 : 1;    
+						} else {    
+						    continue;  //如果按一条件比较结果相等，就使用第二个条件进行比较。  
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
                 }
                 return 0;
             }
@@ -155,13 +166,24 @@ public class Tools {
 	        	for (int i = 0; i < sorts.length; i++) {    
 	        		String valA = ToolsString.toString(a.getString(sorts[i]));
 	                String valB = ToolsString.toString(b.getString(sorts[i]));
-	                if (valA.compareToIgnoreCase(valB) > 0) { 
+	                /*if (valA.compareToIgnoreCase(valB) > 0) { 
                         return "asc".equals(orders[i])? 1 : -1;    
                 	} else if (valA.compareToIgnoreCase(valB) < 0) {   
                         return "asc".equals(orders[i])? -1 : 1;    
                     } else {    
                         continue;  //如果按一条件比较结果相等，就使用第二个条件进行比较。  
-                    }
+                    }*/
+	                try {
+						if (sort(valA,valB) > 0) { 
+						    return "asc".equals(orders[i])? 1 : -1;    
+						} else if (sort(valA,valB) < 0) {   
+						    return "asc".equals(orders[i])? -1 : 1;    
+						} else {    
+						    continue;  //如果按一条件比较结果相等，就使用第二个条件进行比较。  
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
                 }
                 return 0;
 	        });
@@ -172,7 +194,66 @@ public class Tools {
 		}
 		return data;
 	}
-	public static JSONArray limit(JSONArray data, Integer page, Integer rows) throws Exception {
+	public static int sort(String a, String b) throws Exception {
+		if(isEmpty(a)) return -1;
+		if(isEmpty(b)) return 1;
+		if(a.equals(b)) return 0;
+		List<String[]> al = spilt(a);
+		List<String[]> bl = spilt(b);
+		for (int i = 0; i < al.size(); i++) {
+			if(bl.size() < i+1) return 1;
+			String[] ar = al.get(i);
+			String[] br = bl.get(i);
+			if(ar[1].equals(br[1])) {
+				continue;
+			}
+			if("N".equals(ar[0]) && "N".equals(br[0])) {
+				return Integer.parseInt(ar[1]) > Integer.parseInt(br[1]) ? 1 : -1;
+			}else {
+				return ar[1].compareToIgnoreCase(br[1]);
+			}
+		}
+		return -1;
+	}
+	public static List<String[]> spilt(String str){
+		List<String[]> l = new ArrayList<>();
+		if(!isEmpty(str)) {
+			String temp = "";
+			String type = "";
+			for (int i = 0; i < str.length(); i++) {
+				char c = str.charAt(i);
+				if (Character.isDigit(c)) {
+					if("N".equals(type) || "".equals(type)) {
+						temp += c;
+					}else {
+						String[] arr = new String[2];
+						arr[0] = "S";
+						arr[1] = temp;
+						l.add(arr);
+						temp = String.valueOf(c);
+					}
+					type = "N";
+				}else {
+					if("S".equals(type) || "".equals(type)) {
+						temp += c;
+					}else {
+						String[] arr = new String[2];
+						arr[0] = "N";
+						arr[1] = temp;
+						l.add(arr);
+						temp = String.valueOf(c);
+					}
+					type = "S";
+				}
+			}
+			String[] arr = new String[2];
+			arr[0] = type;
+			arr[1] = temp;
+			l.add(arr);
+		}
+		return l;
+	}
+	public static JSONArray limit(JSONArray data, Integer page, Integer rows) {
 		if(!Tools.isEmpty(data)){
 			int begin = (page-1)*rows;
 			int end = (begin+rows) > data.size()?data.size():(begin+rows);
@@ -199,12 +280,21 @@ public class Tools {
 	}
 	
 	public static void main(String[] args) {
+		try {
+			System.out.println(sort("5A","11A23"));
+			System.out.println(sort("11A","11A23"));
+			System.out.println(sort("11A23","11A"));
+			ToolsSys.isWindowsOS();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 		Object array[][] = new Object[][] {     
             { 12, 55, 68, 32, 9, 12, 545 },     
             { 34, 72, 82, 57, 56, 0, 213 },     
-            { 12, 34, 68, 32, 21, 945, 23 },     
-            { 91, 10, 3, 2354, 73, 34, 18 },    
-            { 12, 83, 189, 26, 27, 98, 33 },     
+            { "11A", 34, 68, 32, 21, 945, 23 },     
+            { "11A23", 10, 3, 2354, 73, 34, 18 },    
+            { "11A156a", 83, 189, 26, 27, 98, 33 },     
             { "zz", 23, 889, 24, 899, 23, 657 },     
             { null, 34, 68, 343, 878, 235, 768 },     
             { 12, 34, 98, 56, 78, 12, 546 },     

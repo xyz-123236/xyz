@@ -1,5 +1,6 @@
 package cn.xyz.common.orm;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.exception.CustomException;
 import cn.xyz.common.pojo.Basic;
+import cn.xyz.common.pojo.SysUser;
 import cn.xyz.common.tools.Tools;
 import cn.xyz.common.tools.ToolsDate;
 import cn.xyz.common.tools.ToolsJson;
@@ -24,61 +26,59 @@ public class DbTool extends Basic {
 	private StringBuffer sql = new StringBuffer();
 	protected JSONObject columns = new JSONObject();
 	protected JSONObject tables = new JSONObject();
-	
-	protected String table;
+	protected DbBase db = null;
+	/*protected String table;
 	protected String alias;
 	protected String where;
 	protected String limit;
 	protected String on;
-	protected String join_type;
+	protected String join_type;*/
 	
 	static {
 		//初始化数据字典，把表字段/类型添加到缓存
 	}
 	protected DbTool() {}
-	public DbTool(JSONObject obj) {
-		if(obj != null) {
-			this.rows = obj.getInteger("rows");
-			this.page = obj.getInteger("page");
-			this.sort = obj.getString("sort");
-			this.order = obj.getString("order");
+	public DbTool(String db_name, JSONObject obj) {
+		try {
+			this.db = DbBase.getDruid(db_name);
+			if(obj != null) {
+				this.rows = obj.getInteger("rows");
+				this.page = obj.getInteger("page");
+				this.sort = obj.getString("sort");
+				this.order = obj.getString("order");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	public static DbTool getInstance() {
-		return getInstance(null);
+		return getInstance(DbBase.DEFAULT_DB, null);
+	}
+	public static DbTool getInstance(String db_name) {
+		return getInstance(db_name, null);
 	}
 	public static DbTool getInstance(JSONObject obj) {
-		return new DbTool(obj);
+		return getInstance(DbBase.DEFAULT_DB, obj);
+	}
+	public static DbTool getInstance(String db_name, JSONObject obj) {
+		return new DbTool(db_name, obj);
+	}
+	// 开启事务
+	public DbTool startTransaction() throws Exception {
+		this.db.startTransaction();
+		return this;
+	}
+	// 回滚事务
+	public DbTool rollback() throws Exception {
+		this.db.rollback();
+		return this;
+	}
+	// 提交事务
+	public DbTool commit() throws Exception {
+		this.db.commit();
+		return this;
 	}
 	
-	public JSONArray insert(DbBase db, String table, JSONObject row, String create_by) throws Exception{
-		return db.insert(createInsertSql(db, table, row, create_by));
-	}
-	/**
-	 * excel应限制上传格式：第一行中文名，第二行英文名
-	 * @param db
-	 * @param table
-	 * @param rows
-	 * @param create_by
-	 * @param remove
-	 * @param keys
-	 * @throws Exception
-	 */
-	public boolean insertBatch(DbBase db, String table,JSONArray rows, String create_by) throws Exception {
-		int n = (int)Math.ceil((double)(rows.size())/128);
-		for (int i = 0; i < n; i++) {
-			int begin=i*128;
-			int end=((i+1)*128) > rows.size() ? rows.size() : (i+1)*128 ;
-			String sqls[] = new String[end - begin + 1];
-			for (int j = begin; j < end; j++) {
-				sqls[j] = createInsertSql(db, table, rows.getJSONObject(j), create_by);
-			}
-			if(!db.insertBatch(sqls)) {
-				return false;
-			}
-		}
-		return true;
-	}
 	public boolean createTable(DbBase db, JSONObject obj) throws Exception {
 		return db.execute(createTableSql(obj));
 	}
@@ -147,6 +147,34 @@ public class DbTool extends Basic {
 		this.sql.append("PRIMARY KEY ("+primary.substring(0, primary.lastIndexOf(","))+")\r\n");
 		this.sql.append(") ENGINE="+obj.getString("engine")+" DEFAULT CHARSET="+obj.getString("charset")+" COLLATE="+obj.getString("collate")+"\r\n");
 		return this.sql.toString();
+	}
+	public JSONArray insert(DbBase db, String table, JSONObject row, String create_by) throws Exception{
+		return db.insert(createInsertSql(db, table, row, create_by));
+	}
+	/**
+	 * excel应限制上传格式：第一行中文名，第二行英文名
+	 * @param db
+	 * @param table
+	 * @param rows
+	 * @param create_by
+	 * @param remove
+	 * @param keys
+	 * @throws Exception
+	 */
+	public boolean insertBatch(DbBase db, String table,JSONArray rows, String create_by) throws Exception {
+		int n = (int)Math.ceil((double)(rows.size())/128);
+		for (int i = 0; i < n; i++) {
+			int begin=i*128;
+			int end=((i+1)*128) > rows.size() ? rows.size() : (i+1)*128 ;
+			String sqls[] = new String[end - begin + 1];
+			for (int j = begin; j < end; j++) {
+				sqls[j] = createInsertSql(db, table, rows.getJSONObject(j), create_by);
+			}
+			if(!db.insertBatch(sqls)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	/**
 	 * 插入和修改可以是null，不用赋初值，但类型还是需要（sybase不支持数字类型插入字符串）
@@ -616,8 +644,18 @@ public class DbTool extends Basic {
 		return db.get(this.getSql());
 	}
 	
+	public void a(Basic bean) {
+		//
+	}
+	public void b(SysUser bean) {
+		//
+	}
 	public static void main(String[] args) {
 		try {
+			Basic bean = new Basic();
+			//DbTool.getInstance().b(bean);
+			SysUser bean2 = new SysUser();
+			DbTool.getInstance().a(bean2);
 			JSONObject obj = new JSONObject();
 			obj.put("table", "t6");
 			obj.put("database", "xyz");

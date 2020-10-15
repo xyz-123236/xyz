@@ -47,7 +47,7 @@ public abstract class DbBase {
 	}
 	// 开启事务
 	public DbBase startTransaction() throws Exception {
-		this.getConnection().setAutoCommit(false);
+		this.getConnection().setAutoCommit(false);//false开启事务
 		return this;
 	}
 

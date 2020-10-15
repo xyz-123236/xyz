@@ -6,6 +6,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.exception.CustomException;
+import cn.xyz.common.tools.Tools;
+
 public class Result {
 	private static Logger logger = Logger.getLogger(Result.class.getName());
 
@@ -21,12 +24,21 @@ public class Result {
 	public static String error(String msg){
 		return result(msg, null, null, false, 500);
 	}
-	public static String error(Exception e) {
+	public static String error(Exception e) throws Exception {
 		return error(e, "程序异常");
 	}
-	public static String error(Exception e, String msg) {
+	public static String error(Exception e, String msg) throws Exception {
+		if(!Tools.isEmpty(msg) && e.getMessage().contains("unique constraint violated")) {
+			return error(msg);
+		}
 		logger.error("程序异常", e);
-		return error(msg);
+		//发邮件
+		
+		if(e instanceof CustomException) {
+			return error(e.getMessage());
+		}
+		return error("程序异常");
+		
 	}
 	public static String result() {
 		return result(null, new JSONArray(), 0, true, 200);

@@ -14,7 +14,7 @@ import cn.xyz.common.pojo.Basic;
 
 public class ToolsBean {
 
-	public static <T> T mapToBean(Map<String, Object> map, Class<T> beanClass) throws Exception {    
+	public static <T> T mapToBean(Map<String, Object> map, Class<T> beanClass) throws InstantiationException, IllegalAccessException {    
         if (map == null)  
             return null;    
   

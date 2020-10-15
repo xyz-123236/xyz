@@ -5,13 +5,39 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.exception.CustomException;
+import cn.xyz.common.pojo.Sn;
 import cn.xyz.common.tools.Tools;
 
 public class ToolsSn {
-	public static String RANGE_DEFAULT = "0123456789ABCDEFGHIJKLMNOPQRSTUVWTools";
+	public static String RANGE_DEFAULT = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	public static Integer JUMP_DEFAULT = 1;
 	public static Integer LIMIT_DEFAULT = 50000;
-
+	public static JSONObject createSn(Sn sn) throws Exception {
+		check(sn);
+		return createSn(sn, ToolsSn.RANGE_DEFAULT.substring(0, radix), number);
+	}
+	public static Sn check(Sn sn) {
+		if(Tools.isEmpty(snFrom)) throw new CustomException("编号不能为空");
+		String position = sn.getPosition();
+		String snFrom = sn.getSnFrom();
+		if(!Tools.isEmpty(position)) {
+			String[] positions = position.split("-");
+			if(positions.length == 2) {
+				sn.setEndIndex(Integer.parseInt(positions[1])-1);
+				sn.setBeginIndex(Integer.parseInt(positions[0])-1);
+			}else if(positions.length == 1){//一个数表示后几位
+				sn.setEndIndex(sn.length()-1);
+				sn.setBeginIndex(sn.length() - Integer.parseInt(positions[0]));
+			}else {
+				throw new CustomException("流水号位置不合法");
+			}
+		}else {
+			obj.put("beginIndex", 0);
+			obj.put("endIndex", sn.length()-1);
+		}
+		return sn;
+	}
 	public static JSONObject createSn(String sn, Integer radix, Integer number) throws Exception {
 		return createSn(sn, ToolsSn.RANGE_DEFAULT.substring(0, radix), number);
 	}

@@ -87,45 +87,58 @@ function formatBackgroundColorDateYMD(value){
 }
 //优先数字排序
 function sortPriorityNumber(a,b){
-	if(isNaN(parseInt(a))){
-		if(isNaN(parseInt(b))){
-			var a_s = a, a_i = undefined;
-			for (var i = 0; i < a.length; i++) {
-				if(!isNaN(a.substring(i,a.length))){
-					a_s = a.substring(0,i);
-					a_i = a.substring(i,a.length);
-					break;
-				}
-			}
-			var b_s = b, b_i = undefined;
-			for (var i = 0; i < b.length; i++) {
-				if(!isNaN(b.substring(i,b.length))){
-					b_s = b.substring(0,i);
-					b_i = b.substring(i,b.length);
-					break;
-				}
-			}
-			if(a_s == b_s){
-				if(a_i != undefined && b_i != undefined){
-					return parseInt(a_i) > parseInt(b_i) ? 1 : -1;
-				}else{
-					return a > b ? 1 : -1;
-				}
+	if(isEmpty(a)) return -1;
+	if(isEmpty(b)) return 1;
+	if(isNaN(parseInt(a)) && !isNaN(parseInt(b))) return 1;
+	if(!isNaN(parseInt(a)) && isNaN(parseInt(b))) return -1;
+	if(isNaN(parseInt(a)) && isNaN(parseInt(b))) {
+		var a_s = '', a_u;
+		for (var i = 0; i < a.length; i++) {
+			if(isNaN(a.substring(i, i+1))){
+				a_s += a.substring(i, i+1);
+				a_u = a.substring(i+1, a.length);
 			}else{
-				return a > b ? 1 : -1;
+				break;
 			}
-		}else{
-			return 1;
 		}
-	}else{
-		if(isNaN(parseInt(b))){
-			return -1;
-		}else{
-			if(parseInt(a) == parseInt(b)){
-				return a > b ? 1 : -1;
+		var b_s = '', b_u;
+		for (var i = 0; i < b.length; i++) {
+			if(isNaN(b.substring(i, i+1))){
+				b_s += b.substring(i, i+1);
+				b_u = b.substring(i+1, b.length);
 			}else{
-				return parseInt(a) > parseInt(b) ? 1 : -1;
+				break;
 			}
+		}
+		if(a_s == b_s){
+			return sortPriorityNumber(a_u, b_u);
+		}else{
+			return a_s > b_s ? 1 : -1;
+		}
+	}
+	if(!isNaN(parseInt(a)) && !isNaN(parseInt(b))) {
+		var a_s = '', a_u;
+		for (var i = 0; i < a.length; i++) {
+			if(!isNaN(a.substring(i, i+1))){
+				a_s += a.substring(i, i+1);
+				a_u = a.substring(i+1, a.length);
+			}else{
+				break;
+			}
+		}
+		var b_s = '', b_u;
+		for (var i = 0; i < b.length; i++) {
+			if(!isNaN(b.substring(i, i+1))){
+				b_s += b.substring(i, i+1);
+				b_u = b.substring(i+1, b.length);
+			}else{
+				break;
+			}
+		}
+		if(a_s == b_s){
+			return sortPriorityNumber(a_u, b_u);
+		}else{
+			return parseInt(a_s) > parseInt(b_s) ? 1 : -1;
 		}
 	}
 }
