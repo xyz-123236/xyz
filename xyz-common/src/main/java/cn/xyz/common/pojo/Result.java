@@ -24,10 +24,10 @@ public class Result {
 	public static String error(String msg){
 		return result(msg, null, null, false, 500);
 	}
-	public static String error(Exception e) throws Exception {
+	public static String error(Exception e) {
 		return error(e, "程序异常");
 	}
-	public static String error(Exception e, String msg) throws Exception {
+	public static String error(Exception e, String msg) {
 		if(!Tools.isEmpty(msg) && e.getMessage().contains("unique constraint violated")) {
 			return error(msg);
 		}
