@@ -43,6 +43,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.xyz.common.exception.CustomException;
 import cn.xyz.common.pojo.Excel;
 
 
@@ -197,17 +198,48 @@ public class ToolsExcel {
 			throw e;
 		}
 	}
-
+	public static Excel check(Excel excel) throws CustomException{
+		if(Tools.isEmpty(excel.getFileds())) throw new CustomException("字段不能为空");
+		if(Tools.isEmpty(excel.getHeads())) throw new CustomException("表头不能为空");
+		if(Tools.isEmpty(excel.getData())) throw new CustomException("数据不能为空");
+		if(Tools.isEmpty(excel.getFormats())) {
+			excel.setFormats(handle(excel.getFileds().length, 11));
+		}else {
+			if(excel.getFormats().length != excel.getFileds().length) throw new CustomException("格式化数组的长度不同于字段数组");
+		}
+		if(Tools.isEmpty(excel.getWidths())) {
+			excel.setWidths(handle(excel.getFileds().length, 256));
+		}else {
+			if(excel.getWidths().length != excel.getFileds().length) throw new CustomException("宽带数组的长度不同于字段数组");
+		}
+		if(Tools.isEmpty(excel.getLocks())) {
+			excel.setLocks(handle(excel.getFileds().length, 0));
+		}else {
+			if(excel.getLocks().length != excel.getFileds().length) throw new CustomException("锁列数组的长度不同于字段数组");
+		}
+		if(Tools.isEmpty(excel.getFile_name())) excel.setFile_name("excel");
+		if(Tools.isEmpty(excel.getFile_path())) excel.setFile_path("E:/temp/");
+		if(Tools.isEmpty(excel.getSheet_name())) excel.setSheet_name("sheet1");
+		return excel;
+	}
+	public static Integer[] handle(int length, int val) {
+		Integer[] arr = new Integer[length];
+		for (int i = 0; i < length; i++) {
+			arr[i] = val;
+		}
+		return arr;
+	}
 	public static HSSFWorkbook createWB(Excel excel) throws Exception {
 		try(HSSFWorkbook wb = new HSSFWorkbook();) {
+			check(excel);
 			JSONArray data = excel.getData();
 			String sheet_name = excel.getSheet_name();
 			String title = excel.getTitle();
-			LinkedHashMap<String,String> heads = excel.getHeads();
+			String[] heads = excel.getHeads();
 			String[] fileds = excel.getFileds();
 			Integer[] types = excel.getFormats();
 			Integer[] widths = excel.getWidths();
-			
+			Integer[] locks = excel.getLocks();
 			// 创建一个sheet
 			HSSFSheet sheet = wb.createSheet((!Tools.isEmpty(sheet_name)) ? sheet_name : "sheet1");
 			
@@ -241,7 +273,6 @@ public class ToolsExcel {
 				CellRangeAddress region = new CellRangeAddress(0, 0, 0, fileds.length-1);
 			    sheet.addMergedRegion(region);
 				index++;
-
 			}
 			if (heads != null) {
 				HSSFRow row = sheet.createRow(index);
@@ -257,10 +288,10 @@ public class ToolsExcel {
 				style.setBorderLeft(BorderStyle.THIN);
 				style.setBorderRight(BorderStyle.THIN);
 				style.setBorderTop(BorderStyle.THIN);
-				for (int i = 0; i < fileds.length; i++) {
+				for (int i = 0; i < heads.length; i++) {
 					if(Tools.isEmpty(widths))sheet.setColumnWidth(i, widths[i]);
 					HSSFCell cell = row.createCell(i);
-					cell.setCellValue(fileds[i]);
+					cell.setCellValue(heads[i]);
 					cell.setCellStyle(style);
 				}
 				index++;
@@ -268,7 +299,6 @@ public class ToolsExcel {
 			// 表格主体 解析list
 			if (data != null) {
 				List<HSSFCellStyle> styleList = new ArrayList<HSSFCellStyle>();
-
 				for (int i = 0; i < fileds.length; i++) { // 列数
 					HSSFCellStyle style = wb.createCellStyle();
 					HSSFFont font = wb.createFont();
@@ -289,17 +319,13 @@ public class ToolsExcel {
 							style.setAlignment(HorizontalAlignment.CENTER);
 						} else if (types[i] == 13) {
 							style.setAlignment(HorizontalAlignment.RIGHT);
-							// int类型
-						} else if (types[i] == 20) {
+						} else if (types[i] == 20) {// int类型
 							style.setAlignment(HorizontalAlignment.RIGHT);
-							// int类型
 							style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0"));
-						} else if (types[i] > 30 && types[i] < 40) {
-							// float类型
+						} else if (types[i] > 30 && types[i] < 40) {// float类型
 							style.setAlignment(HorizontalAlignment.RIGHT);
 							style.setDataFormat(dataformat.getFormat("#,##0."+"000000000".substring(0, types[i]-30)));
-						} else if (types[i] > 40 && types[i] < 50) {
-							// 百分比类型
+						} else if (types[i] > 40 && types[i] < 50) {// 百分比类型
 							style.setAlignment(HorizontalAlignment.RIGHT);
 							style.setDataFormat(dataformat.getFormat("0."+"000000000".substring(0, types[i]-40)+"%"));
 						}
@@ -318,19 +344,16 @@ public class ToolsExcel {
 						}else {
 							if (o == null || "".equals(o)) {
 								cell.setCellValue("");
-							} else if (types[j] == 20) {
-								// int
+							} else if (types[j] == 20) {// int
 								cell.setCellValue((Long.valueOf((map.get(fileds[j])) + "")).longValue());
-							} else if (types[j] > 30 || types[j] < 50) {
-								// float
-								cell.setCellValue((Double.valueOf((map.get(fileds[j])) + "")).doubleValue());
+							} else if (types[j] > 30 || types[j] < 50) {// float
 								cell.setCellValue(new BigDecimal(String.valueOf(map.get(fileds[j]))).setScale(types[j]%10, BigDecimal.ROUND_HALF_UP).doubleValue());
 							} else {
 								cell.setCellValue(map.get(fileds[j]) + "");
 							}
 						}
 						cell.setCellStyle(styleList.get(j));
-						if(j == 2) {
+						if(locks[j] == 1) {
 							cell.getCellStyle().cloneStyleFrom(lock_style);
 						}else {
 							cell.getCellStyle().cloneStyleFrom(un_lock_style);

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.orm.DbBase;
+import cn.xyz.common.pojo.Excel;
 import cn.xyz.common.tools.ToolsExcel;
 
 public class testExcel {
@@ -11,21 +12,18 @@ public class testExcel {
 		try {
 			DbBase db = DbBase.getJdbc();
 			JSONArray data = db.find("select * from sn_detail");
-			
-			JSONObject obj = new JSONObject();
-			//obj.put("data", data);
-			obj.put("file_name", "test1");
-			obj.put("sheet_name", "sheet1");
-			obj.put("title", "title");
-			obj.put("prohibits", ",2,1,");
-			String[][] cells = {{"用户名","姓名","密码"}
-			,{"id","batch_id","sn_detail"}};
-			Integer[][] formats = {
-					{}
-					,{4000,4000,4000}	
-			};
-			
-			ToolsExcel.export(obj, cells, formats);
+			Excel excel = new Excel();
+			//excel.setFile_name("test1");
+			//excel.setFile_path("");
+			//excel.setSheet_name("");
+			//excel.setTitle("");
+			excel.setData(data);
+			excel.setHeads(new String[] {"用户名","姓名","密码"});
+			excel.setFileds(new String[] {"id","batch_id","sn_detail"});
+			excel.setLocks(new Integer[] {2,1});
+			excel.setFormats(new Integer[] {12,12,12});
+			excel.setWidths(new Integer[] {4000,4000,4000});
+			ToolsExcel.create(excel);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

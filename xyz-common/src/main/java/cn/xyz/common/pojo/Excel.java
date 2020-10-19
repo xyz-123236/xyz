@@ -1,7 +1,5 @@
 package cn.xyz.common.pojo;
 
-import java.util.LinkedHashMap;
-
 import com.alibaba.fastjson.JSONArray;
 
 public class Excel {
@@ -9,12 +7,12 @@ public class Excel {
 	private String file_path;//文件路径
 	private String sheet_name;//excel表名
 	private String title;//标题
-	private LinkedHashMap<String,String> heads;//表头
+	private String[] heads;//表头
 	private String[] fileds;
 	private JSONArray data;//数据
 	private Integer[] formats;//格式化:字符串11/12/13，整数20，小数31/32/33/34
 	private Integer[] widths;//宽度
-	private Integer[] lock;//锁行
+	private Integer[] locks;//锁行
 	
 	public String getFile_name() {
 		return this.file_name;
@@ -40,10 +38,10 @@ public class Excel {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public LinkedHashMap<String, String> getHeads() {
+	public String[] getHeads() {
 		return this.heads;
 	}
-	public void setHeads(LinkedHashMap<String, String> heads) {
+	public void setHeads(String[] heads) {
 		this.heads = heads;
 	}
 	public JSONArray getData() {
@@ -64,11 +62,11 @@ public class Excel {
 	public void setWidths(Integer[] widths) {
 		this.widths = widths;
 	}
-	public Integer[] getLock() {
-		return this.lock;
+	public Integer[] getLocks() {
+		return this.locks;
 	}
-	public void setLock(Integer[] lock) {
-		this.lock = lock;
+	public void setLocks(Integer[] locks) {
+		this.locks = locks;
 	}
 	public String[] getFileds() {
 		return this.fileds;
