@@ -8,9 +8,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -38,6 +42,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
+import cn.xyz.common.pojo.Excel;
 
 
 public class ToolsExcel {
@@ -165,44 +171,42 @@ public class ToolsExcel {
 		return data;
     }
 	
-	//需要增加导出小数格式化的位数
-	/**
-	 * export：导出excel
-	 * @param obj
-	  			data: 数据
-				file_name：文件名
-				sheet_name：表名
-				title：标题
-				prohibits：禁用列（前后需紧跟逗号","）
-				
-	 * @param formats
-				第一行：表头（中文）
-				第二行：字段名（英文）
-				第三行：数据类型
-				第四行：表格宽度
-	 * @throws Exception
-	 */
-	public static void export(JSONObject obj, String[][] cells, Integer[][] formats) throws Exception {
-		JSONArray data = obj.getJSONArray("data");
-		String file_name = obj.getString("file_name");
-		String sheet_name = obj.getString("sheet_name");
-		String title = obj.getString("title");
-		//String prohibits = obj.getString("prohibits");
-		file_name = "E:\\file\\temp\\"+file_name + ".xls";
-		try(HSSFWorkbook wb = new HSSFWorkbook();
-			OutputStream out = new FileOutputStream(file_name);) {
-			String[] heads = (String[]) cells[0];
-			String[] fileds = (String[]) cells[1];
-			Integer[] types = null;
-			Integer[] widths = null;
-			if(formats.length > 0 && !Tools.isEmpty(formats[0])) {
-				types = (Integer[]) formats[0];
-			} 
-			if(formats.length > 1 && !Tools.isEmpty(formats[1])) {
-				widths = (Integer[]) formats[1];
+	public static void download(Excel excel, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		try (OutputStream os = response.getOutputStream();
+				HSSFWorkbook wb = createWB(excel);){
+			String file_name = encodeChineseDownloadFileName(request, excel.getFile_name() + ".xls");
+			response.setHeader("Content-disposition", file_name);
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-disposition", "attachment;filename=" + file_name);
+			response.setHeader("Pragma", "No-cache");
+			wb.write(os);
+			os.flush();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	public static void create(Excel excel) throws Exception {
+		try (OutputStream out = new FileOutputStream(excel.getFile_path() + excel.getFile_name() + ".xls");
+				HSSFWorkbook wb = createWB(excel);){
+			File newFile = new File(excel.getFile_path());
+			if (!newFile.exists()) {
+				newFile.mkdirs();
 			}
-			
-			// 创建一个工作薄
+	        wb.write(out);  
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public static HSSFWorkbook createWB(Excel excel) throws Exception {
+		try(HSSFWorkbook wb = new HSSFWorkbook();) {
+			JSONArray data = excel.getData();
+			String sheet_name = excel.getSheet_name();
+			String title = excel.getTitle();
+			LinkedHashMap<String,String> heads = excel.getHeads();
+			String[] fileds = excel.getFileds();
+			Integer[] types = excel.getFormats();
+			Integer[] widths = excel.getWidths();
 			
 			// 创建一个sheet
 			HSSFSheet sheet = wb.createSheet((!Tools.isEmpty(sheet_name)) ? sheet_name : "sheet1");
@@ -234,7 +238,7 @@ public class ToolsExcel {
 				HSSFCell cell = row.createCell(0);
 				cell.setCellValue(title);
 				cell.setCellStyle(style);
-				CellRangeAddress region = new CellRangeAddress(0, 0, 0, heads.length-1);
+				CellRangeAddress region = new CellRangeAddress(0, 0, 0, fileds.length-1);
 			    sheet.addMergedRegion(region);
 				index++;
 
@@ -253,10 +257,10 @@ public class ToolsExcel {
 				style.setBorderLeft(BorderStyle.THIN);
 				style.setBorderRight(BorderStyle.THIN);
 				style.setBorderTop(BorderStyle.THIN);
-				for (int i = 0; i < heads.length; i++) {
+				for (int i = 0; i < fileds.length; i++) {
 					if(Tools.isEmpty(widths))sheet.setColumnWidth(i, widths[i]);
 					HSSFCell cell = row.createCell(i);
-					cell.setCellValue(heads[i]);
+					cell.setCellValue(fileds[i]);
 					cell.setCellStyle(style);
 				}
 				index++;
@@ -265,9 +269,10 @@ public class ToolsExcel {
 			if (data != null) {
 				List<HSSFCellStyle> styleList = new ArrayList<HSSFCellStyle>();
 
-				for (int i = 0; i < heads.length; i++) { // 列数
+				for (int i = 0; i < fileds.length; i++) { // 列数
 					HSSFCellStyle style = wb.createCellStyle();
 					HSSFFont font = wb.createFont();
+					HSSFDataFormat dataformat = wb.createDataFormat();
 					font.setFontName(excelfont);
 					font.setFontHeightInPoints((short) 10);
 					style.setFont(font);
@@ -278,25 +283,25 @@ public class ToolsExcel {
 					if(Tools.isEmpty(types)) {
 						style.setAlignment(HorizontalAlignment.LEFT);
 					}else {
-						if (types[i] == 1) {
+						if (types[i] == 11) {
 							style.setAlignment(HorizontalAlignment.LEFT);
-						} else if (types[i] == 2) {
+						} else if (types[i] == 12) {
 							style.setAlignment(HorizontalAlignment.CENTER);
-						} else if (types[i] == 3) {
+						} else if (types[i] == 13) {
 							style.setAlignment(HorizontalAlignment.RIGHT);
 							// int类型
-						} else if (types[i] == 4) {
+						} else if (types[i] == 20) {
 							style.setAlignment(HorizontalAlignment.RIGHT);
 							// int类型
 							style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0"));
-						} else if (types[i] == 5) {
+						} else if (types[i] > 30 && types[i] < 40) {
 							// float类型
 							style.setAlignment(HorizontalAlignment.RIGHT);
-							style.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0.00"));
-						} else if (types[i] == 6) {
+							style.setDataFormat(dataformat.getFormat("#,##0."+"000000000".substring(0, types[i]-30)));
+						} else if (types[i] > 40 && types[i] < 50) {
 							// 百分比类型
 							style.setAlignment(HorizontalAlignment.RIGHT);
-							style.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00%"));
+							style.setDataFormat(dataformat.getFormat("0."+"000000000".substring(0, types[i]-40)+"%"));
 						}
 					}
 					styleList.add(style);
@@ -313,13 +318,13 @@ public class ToolsExcel {
 						}else {
 							if (o == null || "".equals(o)) {
 								cell.setCellValue("");
-							} else if (types[j] == 4) {
+							} else if (types[j] == 20) {
 								// int
 								cell.setCellValue((Long.valueOf((map.get(fileds[j])) + "")).longValue());
-							} else if (types[j] == 5 || types[j] == 6) {
+							} else if (types[j] > 30 || types[j] < 50) {
 								// float
 								cell.setCellValue((Double.valueOf((map.get(fileds[j])) + "")).doubleValue());
-								//cell.setCellValue(new BigDecimal(String.valueOf(map.get(fileds[j]))).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
+								cell.setCellValue(new BigDecimal(String.valueOf(map.get(fileds[j]))).setScale(types[j]%10, BigDecimal.ROUND_HALF_UP).doubleValue());
 							} else {
 								cell.setCellValue(map.get(fileds[j]) + "");
 							}
@@ -342,23 +347,7 @@ public class ToolsExcel {
 				}
 				sheet.protectSheet("123456");
 			}
-			 
-			wb.write(out);
-			/*String filename = "";
-			try {
-				filename = encodeChineseDownloadFileName(request, fileName);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			response.setHeader("Content-disposition", filename);
-			response.setContentType("application/vnd.ms-excel");
-			response.setHeader("Content-disposition", "attachment;filename=" + filename);
-			response.setHeader("Pragma", "No-cache");
-			OutputStream ouputStream = response.getOutputStream();
-			wb.write(ouputStream);
-			ouputStream.flush();
-			ouputStream.close();
-			session.setAttribute("state", "open");*/
+			return wb; 
 		} catch (Exception e) {
 			throw e;
 		}
