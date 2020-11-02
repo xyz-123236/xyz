@@ -1,17 +1,17 @@
 Array.prototype.indexOf = function(item){
-	for(var i = 0; i < this.length; i++){
-		if(item == this[i]){
+	for(let i = 0; i < this.length; i++){
+		if(item === this[i]){
 			return i;
 		}
 	}
 	return -1;
 }
 function isEmpty(value) {
-	if (value == undefined || value == null) {
+	if (value === undefined || value == null) {
 		return true;
 	}else{
 		value += '';
-		if(value.trim().length == 0){
+		if(value.trim().length === 0){
 			return true;
 		}
 	}
@@ -19,16 +19,16 @@ function isEmpty(value) {
 }
 function checkFileType(fileName, type){
 	if(isEmpty(type)) return true;
-	var obj = {
+	let obj = {
 		txt: 'txt',
 		excel: 'xls,xlsx',
 		image: 'jpg,gif,png,pdf',
 		media: 'mp3,mp4,avi,rm,rmvb',
 		file: 'doc,docx,xls,xlsx,ppt,pdf,txt,rar,zip,gz,bz2',	
 	};
-	var types = type.split(',');
-	var ext = fileName.substring(fileName.lastIndexOf(".")+1);
-	for (var i = 0; i < types.length; i++) {
+	let types = type.split(',');
+	let ext = fileName.substring(fileName.lastIndexOf(".")+1);
+	for (let i = 0; i < types.length; i++) {
 		if(obj[types[i]].indexOf(ext.toLowerCase()) >= 0){
 			return true;
 		}
@@ -64,22 +64,22 @@ function formatDateYMD(value){
 }
 function formatLevel(value){
 	if(!isEmpty(value)){
-		if(value == "1") return '初级';
-		if(value == "2") return '中级';
-		if(value == "3") return '高级';
+		if(value === "1") return '初级';
+		if(value === "2") return '中级';
+		if(value === "3") return '高级';
 	}
 }
 function formatBoolean(value){
 	if(!isEmpty(value)){
-		if(value == "Y") return '是';
+		if(value === "Y") return '是';
 	}else{
 		return "";
 	}
 }
 function formatBackgroundColorDateYMD(value){
 	if(isEmpty(value)) return "";
-	var str = value.replace(/-/g, '/');
-	var date = new Date(str);
+	let str = value.replace(/-/g, '/');
+	let date = new Date(str);
 	if(date < new Date()){
 		return '<span style="background-color:#ccc;">'+value.substr(0,10)+'</span>';
 	}
@@ -92,8 +92,8 @@ function sortPriorityNumber(a,b){
 	if(isNaN(parseInt(a)) && !isNaN(parseInt(b))) return 1;
 	if(!isNaN(parseInt(a)) && isNaN(parseInt(b))) return -1;
 	if(isNaN(parseInt(a)) && isNaN(parseInt(b))) {
-		var a_s = '', a_u;
-		for (var i = 0; i < a.length; i++) {
+		let a_s = '', a_u;
+		for (let i = 0; i < a.length; i++) {
 			if(isNaN(a.substring(i, i+1))){
 				a_s += a.substring(i, i+1);
 				a_u = a.substring(i+1, a.length);
@@ -101,8 +101,8 @@ function sortPriorityNumber(a,b){
 				break;
 			}
 		}
-		var b_s = '', b_u;
-		for (var i = 0; i < b.length; i++) {
+		let b_s = '', b_u;
+		for (let i = 0; i < b.length; i++) {
 			if(isNaN(b.substring(i, i+1))){
 				b_s += b.substring(i, i+1);
 				b_u = b.substring(i+1, b.length);
@@ -110,15 +110,15 @@ function sortPriorityNumber(a,b){
 				break;
 			}
 		}
-		if(a_s == b_s){
+		if(a_s === b_s){
 			return sortPriorityNumber(a_u, b_u);
 		}else{
 			return a_s > b_s ? 1 : -1;
 		}
 	}
 	if(!isNaN(parseInt(a)) && !isNaN(parseInt(b))) {
-		var a_s = '', a_u;
-		for (var i = 0; i < a.length; i++) {
+		let a_s = '', a_u;
+		for (let i = 0; i < a.length; i++) {
 			if(!isNaN(a.substring(i, i+1))){
 				a_s += a.substring(i, i+1);
 				a_u = a.substring(i+1, a.length);
@@ -126,8 +126,8 @@ function sortPriorityNumber(a,b){
 				break;
 			}
 		}
-		var b_s = '', b_u;
-		for (var i = 0; i < b.length; i++) {
+		let b_s = '', b_u;
+		for (let i = 0; i < b.length; i++) {
 			if(!isNaN(b.substring(i, i+1))){
 				b_s += b.substring(i, i+1);
 				b_u = b.substring(i+1, b.length);
@@ -135,50 +135,50 @@ function sortPriorityNumber(a,b){
 				break;
 			}
 		}
-		if(a_s == b_s){
+		if(a_s === b_s){
 			return sortPriorityNumber(a_u, b_u);
 		}else{
 			return parseInt(a_s) > parseInt(b_s) ? 1 : -1;
 		}
 	}
 }
-/*var _input = {
+/*let _input = {
 	width: 360, height: 30, labelAlign: 'right', labelWidth: 90
 }
 
 function initInput(){
-	var textboxs = $('.mes-textbox');
+	let textboxs = $('.mes-textbox');
 	textboxs.each(function(index,element){
 	 	$(element).textbox(_input);
 	});
-	var numberboxs = $('.mes-numberbox');
+	let numberboxs = $('.mes-numberbox');
 	numberboxs.each(function(index,element){
 	 	$(element).numberbox(_input);
 	});
-	var fileboxs = $('.mes-filebox');
+	let fileboxs = $('.mes-filebox');
 	fileboxs.each(function(index,element){
 	 	$(element).filebox(_input);
 	});
-	var dateboxs = $('.mes-datebox');
+	let dateboxs = $('.mes-datebox');
 	dateboxs.each(function(index,element){
 	 	$(element).datebox(_input);
 	});
-	var dateboxYms = $('.mes-datebox-ym');
+	let dateboxYms = $('.mes-datebox-ym');
 	dateboxYms.each(function(index,element){
 	 	$(element).datebox({
 	 		width: _input.width, height: _input.height, labelAlign: _input.labelAlign, labelWidth: _input.labelWidth,
 	 		onShowPanel: function () {//显示日趋选择对象后再触发弹出月份层的事件，初始化时没有生成月份层
-				var _this = this;
-				var p = $(_this).datebox('panel'); //日期选择对象
-                var tds = false; //日期选择对象中月份
-                var yearIpt = p.find('input.calendar-menu-year');//年份输入框
-                var span = p.find('span.calendar-text'); //显示月份层的触发控件
+				let _this = this;
+				let p = $(_this).datebox('panel'); //日期选择对象
+                let tds = false; //日期选择对象中月份
+                let yearIpt = p.find('input.calendar-menu-year');//年份输入框
+                let span = p.find('span.calendar-text'); //显示月份层的触发控件
                 span.trigger('click'); //触发click事件弹出月份层
                 if (!tds) setTimeout(function () {//延时触发获取月份对象，因为上面的事件触发和对象生成有时间间隔
                     tds = p.find('div.calendar-menu-month-inner td');
                     tds.click(function (e) {
                         e.stopPropagation(); //禁止冒泡执行easyui给月份绑定的事件
-                        var year = /\d{4}/.exec(span.html())[0]//得到年份
+                        let year = /\d{4}/.exec(span.html())[0]//得到年份
                         , month = parseInt($(this).attr('abbr'), 10); //月份，这里不需要+1
                         $(_this).datebox('hidePanel')//隐藏日期对象
                         .datebox('setValue', year + '-' + month); //设置日期的值
@@ -188,11 +188,11 @@ function initInput(){
             },
             parser: function (s) {
                 if (!s) return new Date();
-                var arr = s.split('-');
+                let arr = s.split('-');
                 return new Date(parseInt(arr[0], 10), parseInt(arr[1], 10) - 1, 1);
             },
             formatter: function (d) {
-                var a = parseInt(d.getMonth())<parseInt('9')?'0'+parseInt(d.getMonth()+ 1):d.getMonth() + 1;
+                let a = parseInt(d.getMonth())<parseInt('9')?'0'+parseInt(d.getMonth()+ 1):d.getMonth() + 1;
                 return d.getFullYear() + '-' +a;
             }
 	 	});
@@ -208,19 +208,19 @@ function stylerBackgroundByDate(index, row){
 	}
 }
 //日期控件只显示年月
-var date_ym_options = {
+let date_ym_options = {
 	onShowPanel: function () {//显示日趋选择对象后再触发弹出月份层的事件，初始化时没有生成月份层
-		var _this = this;
-		var p = $(_this).datebox('panel'); //日期选择对象
-        var tds = false; //日期选择对象中月份
-        var yearIpt = p.find('input.calendar-menu-year');//年份输入框
-        var span = p.find('span.calendar-text'); //显示月份层的触发控件
+		let _this = this;
+		let p = $(_this).datebox('panel'); //日期选择对象
+        let tds = false; //日期选择对象中月份
+        let yearIpt = p.find('input.calendar-menu-year');//年份输入框
+        let span = p.find('span.calendar-text'); //显示月份层的触发控件
         span.trigger('click'); //触发click事件弹出月份层
         if (!tds) setTimeout(function () {//延时触发获取月份对象，因为上面的事件触发和对象生成有时间间隔
             tds = p.find('div.calendar-menu-month-inner td');
             tds.click(function (e) {
                 e.stopPropagation(); //禁止冒泡执行easyui给月份绑定的事件
-                var year = /\d{4}/.exec(span.html())[0]//得到年份
+                let year = /\d{4}/.exec(span.html())[0]//得到年份
                 , month = parseInt($(this).attr('abbr'), 10); //月份，这里不需要+1
                 $(_this).datebox('hidePanel')//隐藏日期对象
                 .datebox('setValue', year + '-' + month); //设置日期的值
@@ -230,11 +230,11 @@ var date_ym_options = {
     },
     parser: function (s) {
         if (!s) return new Date();
-        var arr = s.split('-');
+        let arr = s.split('-');
         return new Date(parseInt(arr[0], 10), parseInt(arr[1], 10) - 1, 1);
     },
     formatter: function (d) {
-        var a = parseInt(d.getMonth())<parseInt('9')?'0'+parseInt(d.getMonth()+ 1):d.getMonth() + 1;
+        let a = parseInt(d.getMonth())<parseInt('9')?'0'+parseInt(d.getMonth()+ 1):d.getMonth() + 1;
         return d.getFullYear() + '-' +a;
     }	
 }

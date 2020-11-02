@@ -6,21 +6,20 @@ import java.util.Set;
 import com.alibaba.fastjson.JSONObject;
 
 public class ToolsJson {
-	public static JSONObject removeKey(JSONObject row, Object...keys) throws Exception {
+	public static JSONObject removeKey(JSONObject row, Object...keys) {
 		if(Tools.isEmpty(row)) return null;
 		JSONObject obj = (JSONObject)row.clone();
 		if(!Tools.isEmpty(keys)) {
-			for (int i = 0; i < keys.length; i++) {
-				Object key = keys[i];
-				if(key.getClass().isArray()){//用于keys是：String,String,String...(最后一个是数组)
-					String[] o = (String[])key;
-					for (int j = 0; j < o.length; j++) {
-						obj.remove(o[j].trim());
+			for (Object key : keys) {
+				if (key.getClass().isArray()) {//用于keys是：String,String,String...(最后一个是数组)
+					String[] o = (String[]) key;
+					for (String s : o) {
+						obj.remove(s.trim());
 					}
-				}else {
-					String[] s = ((String)key).split(",");
-					for (int j = 0; j < s.length; j++) {
-						obj.remove(s[j].trim());
+				} else {
+					String[] s = ((String) key).split(",");
+					for (String value : s) {
+						obj.remove(value.trim());
 					}
 				}
 			}
@@ -39,7 +38,7 @@ public class ToolsJson {
 	}
 
 	//清除空key
-	public static JSONObject clearNull(JSONObject row) throws Exception {
+	public static JSONObject clearNull(JSONObject row) {
 		Set<String> set = new HashSet<>();
 		for(String key: row.keySet()){
 			String value = row.getString(key);
@@ -56,14 +55,14 @@ public class ToolsJson {
 	public static JSONObject toNull(JSONObject row) {
 		for(String key:row.keySet()){
 			String value = row.getString(key);
-			if(value != null && value.trim() == "") {
+			if(value != null && value.trim().equals("")) {
 				row.put(key, null);
 			}
 		}
 		return row;
 	}
 	//清空某些不用显示的值，如0，N
-	public static JSONObject clearDefaultValue(JSONObject row, String v, String... keys) throws Exception {
+	public static JSONObject clearDefaultValue(JSONObject row, String v, String... keys) {
 		for(String key: row.keySet()){
 			String value = row.getString(key);
 			if(Tools.isEmpty(keys)) {
@@ -72,7 +71,7 @@ public class ToolsJson {
 				}
 			}else {
 				String _keys = ","+String.join(",",keys)+",";
-				if(_keys.indexOf(","+key+",")>=0) {
+				if(_keys.contains("," + key + ",")) {
 					if(v.equals(value)) {
 						row.put(key, null);
 					}

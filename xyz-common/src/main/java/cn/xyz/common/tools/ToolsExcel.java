@@ -1,20 +1,13 @@
 package cn.xyz.common.tools;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -46,135 +39,123 @@ import com.alibaba.fastjson.JSONObject;
 import cn.xyz.common.exception.CustomException;
 import cn.xyz.common.pojo.Excel;
 
-
 public class ToolsExcel {
 	// excel默认宽度；
 	public static final int WIDTH = 256 * 14;
 	// 默认字体
-	private static String excelfont = "微软雅黑";
-	
-	/**
-	 * 先下载模板，再上传，下载模板里应有字段序号
-     * @param file 文件
-     * @param fileName 文件名
-     * @return 3级JSONArray[表][行][列]
-     * @throws Exception 
-     */
-	public static JSONArray readExcel(File file, String fileName) throws Exception {
+	private static final String FONT = "微软雅黑";
+
+
+	public static JSONArray readExcel(File file, String fileName, String[] fileds) throws Exception {
+		return readExcel(file, fileName, fileds, 0);
+	}
+	public static JSONArray readExcel(File file, String fileName, String[] fileds, int sheetIndex) throws Exception {
 		String ext = fileName.substring(fileName.lastIndexOf(".")+1);
-		try (FileInputStream fis = new FileInputStream(file);){
+		try (FileInputStream fis = new FileInputStream(file)){
 			if ("xls".equals(ext)) {
-				return xssf(fis, fileName);
+				return xssf(fis, fileds, sheetIndex);
 	        }else if("xlsx".equals(ext)) {
-	        	return hssf(fis, fileName);
+	        	return hssf(fis, fileds, sheetIndex);
 	        }else {
 	        	return null;
 	        }
-		}catch (Exception e) {
-			throw e;
-		}
-		
-	}
-	public static JSONArray hssf(FileInputStream fis, String fileName) throws Exception {
-		try (Workbook wb = new XSSFWorkbook(fis);){
-			return readExcel(wb);
-		} catch (IOException e) {
-			throw e;
 		}
 	}
-	public static JSONArray xssf(FileInputStream fis, String fileName) throws Exception {
-		try (Workbook wb = new HSSFWorkbook(new POIFSFileSystem(fis));){
-			return readExcel(wb);
-		} catch (IOException e) {
-			throw e;
+	public static JSONArray hssf(FileInputStream fis, String[] fileds, int sheetIndex) throws Exception {
+		try (Workbook wb = new XSSFWorkbook(fis)){
+			return readExcel(wb, fileds, sheetIndex);
 		}
 	}
-	public static JSONArray readExcel(Workbook wb) throws Exception {
-        Cell cell = null;
+	public static JSONArray xssf(FileInputStream fis, String[] fileds, int sheetIndex) throws Exception {
+		try (Workbook wb = new HSSFWorkbook(new POIFSFileSystem(fis))){
+			return readExcel(wb, fileds, sheetIndex);
+		}
+	}
+
+	public static JSONArray readExcel(Workbook wb, String[] fileds, int sheetIndex) {
         JSONArray data = new JSONArray();
-		for (int i = 0; i < wb.getNumberOfSheets(); i++) {//多表
-			Sheet st = wb.getSheetAt(i);
-			
-			Row rowHead = st.getRow(0);
-			Row rowCode = st.getRow(1);
-			if (rowHead == null || rowCode == null) {
+		Sheet st = wb.getSheetAt(sheetIndex);
+
+		Row rowHead = st.getRow(0);
+		Row rowCode = st.getRow(1);
+		if (rowHead == null || rowCode == null) {
+			return null;
+		}
+		//JSONArray sheet = new JSONArray();
+		boolean hasRow = false;
+		//boolean hasSheet = false;
+		int cellNum = rowHead.getLastCellNum();
+		int rowNum = st.getLastRowNum();
+		for (int j = 2; j <= rowNum; j++) {//行
+			Row row = st.getRow(j);
+			if (row == null) {
 				continue;
 			}
-			JSONArray sheet = new JSONArray();
-			boolean hasRow = false;
-			boolean hasSheet = false;
-			int cellNum = rowHead.getLastCellNum();
-			int rowNum = st.getLastRowNum();
-			for (int j = 2; j <= rowNum; j++) {//行
-				Row row = st.getRow(j);
-				if (row == null) {
-					continue;
-				}
-				JSONArray values = new JSONArray();
-				//Arrays.fill(values, "");//填充数组Arrays.fill(arrayname ,starting index ,ending index ,value)
-				for (int k = 0; k <= cellNum; k++) {//列
-					String value = "";
-					cell = row.getCell(k);
-					if (cell != null) {
-						switch (cell.getCellTypeEnum()) {
-				            case NUMERIC://分为纯数字和日期型数字
-				            	if (DateUtil.isCellDateFormatted(cell)) { // date类型
-				            		value = ToolsDate.getString(DateUtil.getJavaDate(cell.getNumericCellValue()),"yyyy-MM-dd HH:mm:ss");  
-				                } else { // 纯数字   
-				                    value = new BigDecimal(String.valueOf(cell.getNumericCellValue())).toPlainString();
-				                    //value = new DecimalFormat("0").format(cell.getNumericCellValue());//0：没有补0，#：没有为空
-				                }
-				            	hasRow = true;
-				                break;
-				            case STRING://字符
-				            	value = cell.getStringCellValue();
-				            	hasRow = true;
-				                break;
-				            case FORMULA://公式
-								//value = cell.getCellFormula();// 导入时为公式
-				            	try {
-				            		value = String.valueOf(cell.getNumericCellValue());
-				            	} catch (Exception e) {
-				            		value = String.valueOf(cell.getStringCellValue());
-				            	}
-				            	hasRow = true;
-								break;
-				            case BLANK: //空值
-				            	value = "";
-				                break;
-				            case BOOLEAN://boolean
-				            	value = cell.getBooleanCellValue() == true ? "Y" : "N";
-				            	hasRow = true;
-				                break;
-				            case ERROR://故障
-				            	value = "";
-				                break;
-				            default:
-				            	value = "";
-				            	break;
-				        }
-						values.add(value.trim());
-					}else {
-						values.add("");
+			//JSONArray values = new JSONArray();
+			JSONObject obj = new JSONObject();
+			//Arrays.fill(values, "");//填充数组Arrays.fill(arrayname ,starting index ,ending index ,value)
+			for (int k = 0; k <= cellNum; k++) {//列
+				String value = "";
+				Cell cell = row.getCell(k);
+				if (cell != null) {
+					switch (cell.getCellTypeEnum()) {
+						case NUMERIC://分为纯数字和日期型数字
+							if (DateUtil.isCellDateFormatted(cell)) { // date类型
+								value = ToolsDate.getString(DateUtil.getJavaDate(cell.getNumericCellValue()),"yyyy-MM-dd HH:mm:ss");
+							} else { // 纯数字
+								value = new BigDecimal(String.valueOf(cell.getNumericCellValue())).toPlainString();
+								//value = new DecimalFormat("0").format(cell.getNumericCellValue());//0：没有补0，#：没有为空
+							}
+							hasRow = true;
+							break;
+						case STRING://字符
+							value = cell.getStringCellValue();
+							hasRow = true;
+							break;
+						case FORMULA://公式
+							//value = cell.getCellFormula();// 导入时为公式
+							try {
+								value = String.valueOf(cell.getNumericCellValue());
+							} catch (Exception e) {
+								value = String.valueOf(cell.getStringCellValue());
+							}
+							hasRow = true;
+							break;
+						case BLANK: //空值
+							break;
+						case BOOLEAN://boolean
+							value = cell.getBooleanCellValue() ? "Y" : "N";
+							hasRow = true;
+							break;
+						case ERROR://故障
+							break;
+						default:
+							break;
 					}
-				}
-				if (hasRow) {
-					sheet.add(values);
-					hasSheet = true;
-					hasRow = false;
+					obj.put(fileds[k],value.trim());
+					//values.add(value.trim());
+				}else {
+					obj.put(fileds[k],"");
+					//values.add("");
 				}
 			}
-			if (hasSheet) {
-				data.add(sheet);
-				hasSheet = false;
+			if (hasRow) {
+				//sheet.add(values);
+				data.add(obj);
+				//hasSheet = true;
+				hasRow = false;
 			}
 		}
+		/*if (hasSheet) {
+			data.add(sheet);
+			hasSheet = false;
+		}*/
 		return data;
     }
 	
 	public static void download(Excel excel, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		try (OutputStream os = response.getOutputStream();
-				HSSFWorkbook wb = createWB(excel);){
+				HSSFWorkbook wb = createWB(excel)){
 			String file_name = encodeChineseDownloadFileName(request, excel.getFile_name() + ".xls");
 			response.setHeader("Content-disposition", file_name);
 			response.setContentType("application/vnd.ms-excel");
@@ -182,23 +163,21 @@ public class ToolsExcel {
 			response.setHeader("Pragma", "No-cache");
 			wb.write(os);
 			os.flush();
-		} catch (Exception e) {
-			throw e;
 		}
 	}
 	public static void create(Excel excel) throws Exception {
 		try (OutputStream out = new FileOutputStream(excel.getFile_path() + excel.getFile_name() + ".xls");
-				HSSFWorkbook wb = createWB(excel);){
+				HSSFWorkbook wb = createWB(excel)){
 			File newFile = new File(excel.getFile_path());
 			if (!newFile.exists()) {
-				newFile.mkdirs();
+				if(!newFile.mkdirs()){
+					throw new CustomException("创建目录异常");
+				}
 			}
 	        wb.write(out);  
-		} catch (Exception e) {
-			throw e;
 		}
 	}
-	public static Excel check(Excel excel) throws CustomException{
+	public static void check(Excel excel) throws CustomException{
 		if(Tools.isEmpty(excel.getFileds())) throw new CustomException("字段不能为空");
 		if(Tools.isEmpty(excel.getHeads())) throw new CustomException("表头不能为空");
 		if(Tools.isEmpty(excel.getData())) throw new CustomException("数据不能为空");
@@ -208,7 +187,7 @@ public class ToolsExcel {
 			if(excel.getFormats().length != excel.getFileds().length) throw new CustomException("格式化数组的长度不同于字段数组");
 		}
 		if(Tools.isEmpty(excel.getWidths())) {
-			excel.setWidths(handle(excel.getFileds().length, 256));
+			excel.setWidths(handle(excel.getFileds().length, WIDTH));
 		}else {
 			if(excel.getWidths().length != excel.getFileds().length) throw new CustomException("宽带数组的长度不同于字段数组");
 		}
@@ -220,7 +199,6 @@ public class ToolsExcel {
 		if(Tools.isEmpty(excel.getFile_name())) excel.setFile_name("excel");
 		if(Tools.isEmpty(excel.getFile_path())) excel.setFile_path("E:/temp/");
 		if(Tools.isEmpty(excel.getSheet_name())) excel.setSheet_name("sheet1");
-		return excel;
 	}
 	public static Integer[] handle(int length, int val) {
 		Integer[] arr = new Integer[length];
@@ -230,7 +208,7 @@ public class ToolsExcel {
 		return arr;
 	}
 	public static HSSFWorkbook createWB(Excel excel) throws Exception {
-		try(HSSFWorkbook wb = new HSSFWorkbook();) {
+		try(HSSFWorkbook wb = new HSSFWorkbook()) {
 			check(excel);
 			JSONArray data = excel.getData();
 			String sheet_name = excel.getSheet_name();
@@ -257,7 +235,7 @@ public class ToolsExcel {
 				HSSFCellStyle style = wb.createCellStyle();
 				HSSFFont font = wb.createFont();
 				font.setBold(true);
-				font.setFontName(excelfont);
+				font.setFontName(FONT);
 				font.setColor(IndexedColors.BLACK.index);
 				font.setFontHeightInPoints((short) 20);
 				style.setFont(font);
@@ -280,7 +258,7 @@ public class ToolsExcel {
 				HSSFCellStyle style = wb.createCellStyle();
 				HSSFFont font = wb.createFont();
 				font.setBold(true);
-				font.setFontName(excelfont);
+				font.setFontName(FONT);
 				font.setFontHeightInPoints((short) 14);
 				style.setFont(font);
 				style.setAlignment(HorizontalAlignment.CENTER);
@@ -298,12 +276,12 @@ public class ToolsExcel {
 			}
 			// 表格主体 解析list
 			if (data != null) {
-				List<HSSFCellStyle> styleList = new ArrayList<HSSFCellStyle>();
+				List<HSSFCellStyle> styleList = new ArrayList<>();
 				for (int i = 0; i < fileds.length; i++) { // 列数
 					HSSFCellStyle style = wb.createCellStyle();
 					HSSFFont font = wb.createFont();
 					HSSFDataFormat dataformat = wb.createDataFormat();
-					font.setFontName(excelfont);
+					font.setFontName(FONT);
 					font.setFontHeightInPoints((short) 10);
 					style.setFont(font);
 					style.setBorderBottom(BorderStyle.THIN);
@@ -345,7 +323,7 @@ public class ToolsExcel {
 							if (o == null || "".equals(o)) {
 								cell.setCellValue("");
 							} else if (types[j] == 20) {// int
-								cell.setCellValue((Long.valueOf((map.get(fileds[j])) + "")).longValue());
+								cell.setCellValue((Long.parseLong((map.get(fileds[j])) + "")));
 							} else if (types[j] > 30 || types[j] < 50) {// float
 								cell.setCellValue(new BigDecimal(String.valueOf(map.get(fileds[j]))).setScale(types[j]%10, BigDecimal.ROUND_HALF_UP).doubleValue());
 							} else {
@@ -371,26 +349,22 @@ public class ToolsExcel {
 				sheet.protectSheet("123456");
 			}
 			return wb; 
-		} catch (Exception e) {
-			throw e;
 		}
-
 	}
 	/**
 	 * 对文件流输出下载的中文文件名进行编码 屏蔽各种浏览器版本的差异性
-	 * 
-	 * @throws UnsupportedEncodingException
+	 *
 	 */
 	public static String encodeChineseDownloadFileName(HttpServletRequest request, String pFileName) throws Exception {
 
-		String filename = null;
+		String filename;
 		String agent = request.getHeader("USER-AGENT");
 		if (null != agent) {
-			if (-1 != agent.indexOf("Firefox")) {// Firefox
+			if (agent.contains("Firefox")) {// Firefox
 				filename = "=?UTF-8?B?"
-						+ (new String(Base64.encodeBase64(pFileName.getBytes("UTF-8"))))
+						+ (new String(Base64.encodeBase64(pFileName.getBytes(StandardCharsets.UTF_8))))
 						+ "?=";
-			} else if (-1 != agent.indexOf("Chrome")) {// Chrome
+			} else if (agent.contains("Chrome")) {// Chrome
 				filename = new String(pFileName.getBytes(), "ISO8859-1");
 			} else {// IE7+
 				filename = java.net.URLEncoder.encode(pFileName, "UTF-8");
@@ -414,7 +388,11 @@ public class ToolsExcel {
 	
 	public static void main(String[] args) {
 		try {
-			//
+			JSONArray data = ToolsExcel.readExcel(new File(""),"",new String[]{""});
+			System.out.println("data = " + data);
+			ToolsExcel.export("","","","");
+
+			//data
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

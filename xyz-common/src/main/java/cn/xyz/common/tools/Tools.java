@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -15,35 +14,18 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 public class Tools {
-	private final static Comparator<Object> CHINA_COMPARE = Collator.getInstance(java.util.Locale.CHINA);
 
-    
     public static boolean isEmpty(Object obj) {
 		if (obj == null) {
             return true;
         }else if (obj instanceof String) {
-			if(((String)obj).trim().length() == 0) {
-				return true;
-			}
+			return ((String) obj).trim().length() == 0;
 		}else if(obj instanceof List){
-			if(((List<?>)obj).isEmpty() || ((List<?>)obj).size() == 0) {
-				return true;
-			}
+			return ((List<?>) obj).isEmpty() || ((List<?>) obj).size() == 0;
 		}else if(obj instanceof Map){
-			if(((Map<?, ?>)obj).isEmpty() || ((Map<?, ?>)obj).size() == 0) {
-				return true;
-			}
+			return ((Map<?, ?>) obj).isEmpty() || ((Map<?, ?>) obj).size() == 0;
 		}else if(obj.getClass().isArray()){
-			if(((Object[])obj).length == 0) {
-				return true;
-			}
-			/*Object[] o = (Object[])obj;
-			for (int i = 0; i < o.length; i++) {
-				if(!isEmpty(o[i])) {
-					return false;
-				}
-			}
-			return true;*/
+			return ((Object[]) obj).length == 0;
 		}
 		return false;
 	}
@@ -67,14 +49,14 @@ public class Tools {
 			return true;
 		}else if(obj.getClass().isArray()){
 			Object[] o = (Object[])obj;
-			for (int i = 0; i < o.length; i++) {
-				if(!isEmpty(o[i])) {
+			for (Object value : o) {
+				if (!isEmpty(value)) {
 					return false;
 				}
 			}
 			return true;
 		}else {
-			Class<?> object = (Class<?>) obj.getClass();// 得到类对象
+			Class<?> object = obj.getClass();// 得到类对象
 	        Field[] fs = object.getDeclaredFields();//得到属性集合
 			for (Field f : fs) {//遍历属性
 			    f.setAccessible(true); // 设置属性是可以访问的(私有的也可以)
@@ -87,114 +69,84 @@ public class Tools {
 	}
 	public static void test(String obj) throws ClassNotFoundException {
 		//获取字节码对象.class .getClass() Class.forName(全类名)
-		Class<?> clazz = (Class<?>) Class.forName(obj);
+		Class<?> clazz = Class.forName(obj);
 		//1.获取方法
 		//  1.1 获取取clazz对应类中的所有方法--方法数组（一）
 		Method[] methods = clazz.getMethods();//不能获取private方法,且获取从父类继承来的所有方法
-		methods = clazz.getDeclaredMethods();//所有方法
+		Method[] methods2 = clazz.getDeclaredMethods();//所有方法
 		//调用invoke方法来调用
+		System.out.println(Arrays.toString(methods));
+		System.out.println(Arrays.toString(methods2));
 	}
 	public static void sort(Object[][] object, int[] sorts) {
 		String[] orders = new String[sorts.length];
-		for (int i = 0; i < orders.length; i++) {
-			orders[i] = "asc";
-		}
+		Arrays.fill(orders, "asc");
 		sort(object, sorts, orders);
 	}
-	public static void sort(Object[][] object, int[] sort, String[] order) {    
-        Arrays.sort(object, new Comparator<Object>() {    
-            public int compare(Object o1, Object o2) {    
-            	Object[] one = (Object[]) o1;    
-            	Object[] two = (Object[]) o2;    
-                for (int i = 0; i < order.length; i++) {
-                    String valA = ToolsString.toString(one[sort[i]]);
-	                String valB = ToolsString.toString(two[sort[i]]);
-                    /*if (valA.compareToIgnoreCase(valB) > 0) { 
-                        return "asc".equals(order[i])? 1 : -1;    
-                	} else if (valA.compareToIgnoreCase(valB) < 0) {   
-                        return "asc".equals(order[i])? -1 : 1;    
-                    } else {    
-                        continue;  //如果按一条件比较结果相等，就使用第二个条件进行比较。  
-                    }*/
-                    try {
-						if (sort(valA,valB) > 0) { 
-						    return "asc".equals(order[i])? 1 : -1;    
-						} else if (sort(valA,valB) < 0) {   
-						    return "asc".equals(order[i])? -1 : 1;    
-						} else {    
-						    continue;  //如果按一条件比较结果相等，就使用第二个条件进行比较。  
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
+	public static void sort(Object[][] object, int[] sort, String[] order) {
+    	//Arrays.sort单线程 Arrays.parallelSort并线，超过10000用后者
+		Arrays.parallelSort(object, (o1, o2) -> {
+			for (int i = 0; i < order.length; i++) {
+				String valA = ToolsString.toString(o1[sort[i]]);
+				String valB = ToolsString.toString(o2[sort[i]]);
+				try {
+					if (sort(valA,valB) > 0) {
+						return "asc".equals(order[i])? 1 : -1;
+					} else if (sort(valA,valB) < 0) {
+						return "asc".equals(order[i])? -1 : 1;
 					}
-                }
-                return 0;
-            }
-        });
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return 0;
+		});
     }  
 	public static void sortAsc(JSONArray data, String sort) {
 		data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(sort)));
-		
 	}
 	public static void sortDesc(JSONArray data, String sort) {
 		data.sort(Comparator.comparing(obj -> ((JSONObject) obj).getString(sort)).reversed());
 	}
-	public static JSONArray sort(JSONArray data, String sort) throws Exception {
+	public static void sort(String[] names){//中文排序
+		Arrays.sort(names, Collator.getInstance(java.util.Locale.CHINA));//升序;
+	}
+	public static JSONArray sort(JSONArray data, String sort) {
 		String[] sorts = sort.split(",");
 		return sort(data, sorts);
 	}
-	public static JSONArray sort(JSONArray data, String sort, String order) throws Exception {
+	public static JSONArray sort(JSONArray data, String sort, String order) {
 		String[] sorts = sort.split(",");
     	String[] orders = order.split(",");
     	return sort(data, sorts, orders);
 	}
-	public static JSONArray sort(JSONArray data, String[] sorts) throws Exception {
+	public static JSONArray sort(JSONArray data, String[] sorts) {
 		String[] orders = new String[sorts.length];
-		for (int i = 0; i < orders.length; i++) {
-			orders[i] = "asc";
-		}
+		Arrays.fill(orders, "asc");
 		return sort(data, sorts, orders);
 	}
-	public static JSONArray sort(JSONArray data, String[] sorts, String[] orders) throws Exception {
+	public static JSONArray sort(JSONArray data, String[] sorts, String[] orders) {
 		if(!Tools.isEmpty(data)) {
-			JSONArray sortData = new JSONArray();
-	        List<JSONObject> list = new ArrayList<JSONObject>();
-	        for (int i = 0; i < data.size(); i++) {
-	        	list.add(data.getJSONObject(i));
-	        }
-	        Collections.sort(list, (JSONObject a, JSONObject b)-> {
-	        	for (int i = 0; i < sorts.length; i++) {    
-	        		String valA = ToolsString.toString(a.getString(sorts[i]));
-	                String valB = ToolsString.toString(b.getString(sorts[i]));
-	                /*if (valA.compareToIgnoreCase(valB) > 0) { 
-                        return "asc".equals(orders[i])? 1 : -1;    
-                	} else if (valA.compareToIgnoreCase(valB) < 0) {   
-                        return "asc".equals(orders[i])? -1 : 1;    
-                    } else {    
-                        continue;  //如果按一条件比较结果相等，就使用第二个条件进行比较。  
-                    }*/
-	                try {
-						if (sort(valA,valB) > 0) { 
-						    return "asc".equals(orders[i])? 1 : -1;    
-						} else if (sort(valA,valB) < 0) {   
-						    return "asc".equals(orders[i])? -1 : 1;    
-						} else {    
-						    continue;  //如果按一条件比较结果相等，就使用第二个条件进行比较。  
+			data.sort((a, b) -> {
+				for (int i = 0; i < sorts.length; i++) {
+					String valA = ToolsString.toString(((JSONObject)a).getString(sorts[i]));
+					String valB = ToolsString.toString(((JSONObject)b).getString(sorts[i]));
+					try {
+						if (sort(valA, valB) > 0) {
+							return "asc".equals(orders[i]) ? 1 : -1;
+						} else if (sort(valA, valB) < 0) {
+							return "asc".equals(orders[i]) ? -1 : 1;
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-                }
-                return 0;
-	        });
-	        for (int i = 0; i < list.size(); i++) {
-	        	sortData.add(list.get(i));
-	        }
-	        return sortData;
+				}
+				return 0;
+			});
 		}
 		return data;
 	}
-	public static int sort(String a, String b) throws Exception {
+	public static int sort(String a, String b) {
 		if(isEmpty(a)) return -1;
 		if(isEmpty(b)) return 1;
 		if(a.equals(b)) return 0;
@@ -218,37 +170,37 @@ public class Tools {
 	public static List<String[]> spilt(String str){
 		List<String[]> l = new ArrayList<>();
 		if(!isEmpty(str)) {
-			String temp = "";
+			StringBuilder temp = new StringBuilder();
 			String type = "";
 			for (int i = 0; i < str.length(); i++) {
 				char c = str.charAt(i);
 				if (Character.isDigit(c)) {
 					if("N".equals(type) || "".equals(type)) {
-						temp += c;
+						temp.append(c);
 					}else {
 						String[] arr = new String[2];
 						arr[0] = "S";
-						arr[1] = temp;
+						arr[1] = temp.toString();
 						l.add(arr);
-						temp = String.valueOf(c);
+						temp = new StringBuilder(String.valueOf(c));
 					}
 					type = "N";
 				}else {
 					if("S".equals(type) || "".equals(type)) {
-						temp += c;
+						temp.append(c);
 					}else {
 						String[] arr = new String[2];
 						arr[0] = "N";
-						arr[1] = temp;
+						arr[1] = temp.toString();
 						l.add(arr);
-						temp = String.valueOf(c);
+						temp = new StringBuilder(String.valueOf(c));
 					}
 					type = "S";
 				}
 			}
 			String[] arr = new String[2];
 			arr[0] = type;
-			arr[1] = temp;
+			arr[1] = temp.toString();
 			l.add(arr);
 		}
 		return l;
@@ -256,7 +208,7 @@ public class Tools {
 	public static JSONArray limit(JSONArray data, Integer page, Integer rows) {
 		if(!Tools.isEmpty(data)){
 			int begin = (page-1)*rows;
-			int end = (begin+rows) > data.size()?data.size():(begin+rows);
+			int end = Math.min((begin + rows), data.size());
 			JSONArray t = new JSONArray();
 			for (int i = begin; i < end; i++) {
 				t.add(data.getJSONObject(i));
@@ -281,6 +233,27 @@ public class Tools {
 	
 	public static void main(String[] args) {
 		try {
+			JSONArray arr = new JSONArray();
+			JSONObject obj1 = new JSONObject();
+			obj1.put("aa","gdf");
+			obj1.put("bb","fdsg");
+			JSONObject obj2 = new JSONObject();
+			obj2.put("aa","adf");
+			obj2.put("bb","fdsg");
+			JSONObject obj3 = new JSONObject();
+			obj3.put("aa","adf");
+			obj3.put("bb","bdsg");
+			JSONObject obj4 = new JSONObject();
+			obj4.put("aa","edf");
+			obj4.put("bb","bdsg");
+			arr.add(obj1);
+			arr.add(obj2);
+			arr.add(obj3);
+			arr.add(obj4);
+			Tools.sort(arr,"aa,bb");
+			arr.forEach(System.out::println);
+			Tools.sortAsc(new JSONArray(), "");
+			Tools.sortDesc(new JSONArray(), "");
 			System.out.println(sort("5A","11A23"));
 			System.out.println(sort("11A","11A23"));
 			System.out.println(sort("11A23","11A"));
@@ -289,7 +262,7 @@ public class Tools {
 			e1.printStackTrace();
 		}
 		
-		Object array[][] = new Object[][] {     
+		Object[][] array = new Object[][] {
             { 12, 55, 68, 32, 9, 12, 545 },     
             { 34, 72, 82, 57, 56, 0, 213 },     
             { "11A", 34, 68, 32, 21, 945, 23 },     

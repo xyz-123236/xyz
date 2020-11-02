@@ -1,0 +1,18 @@
+用户继承用户不能保留继承用户，用户可能换组，保留权限即可
+缓存表结构：
+    {
+        table1:{
+            主键：“p1”，
+            字段类型：{
+                filed1：int，
+                filed2：string
+            }
+        }
+        table2:{
+            主键：“p2”，
+            字段类型：{
+                filed3：int，
+                filed4：string
+            }
+        }
+    }

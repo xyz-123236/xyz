@@ -9,7 +9,7 @@ public class Test1 {
 		DbBase db = null;
 		try {
 			db = DbBase.getJdbc();
-			System.out.println(db.find("select * from test"));
+			System.out.println(db.select("select * from test"));
 			//System.out.println(db.insert("insert into sn_detail (batch_id,sn_detail) values (20,'ccc')"));
 			//System.out.println(db.executeQueryJson("select * from sn_detail"));
 			//System.out.println(db.executeUpdate("alter table t1 add code varchar(10) after id"));

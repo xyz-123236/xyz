@@ -11,7 +11,7 @@ public class testExcel {
 	public static void main(String[] args) {
 		try {
 			DbBase db = DbBase.getJdbc();
-			JSONArray data = db.find("select * from sn_detail");
+			JSONArray data = db.select("select * from sn_detail");
 			Excel excel = new Excel();
 			//excel.setFile_name("test1");
 			//excel.setFile_path("");

@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
@@ -33,16 +32,16 @@ public abstract class DbBase {
 
 	public abstract Connection getConnection() throws Exception;
 	
-	public static DbBase getJdbc() throws Exception {
+	public static DbBase getJdbc() {
 		return getJdbc(DbBase.DEFAULT_DB);
 	}
-	public static DbBase getJdbc(String dbName) throws Exception {
+	public static DbBase getJdbc(String dbName) {
 		return DbJdbc.getInstance(dbName);
 	}
-	public static DbBase getDruid() throws Exception {
+	public static DbBase getDruid() {
 		return getDruid(DbBase.DEFAULT_DB);
 	}
-	public static DbBase getDruid(String dbName) throws Exception {
+	public static DbBase getDruid(String dbName) {
 		return DbDruid.getInstance(dbName);
 	}
 	// 开启事务
@@ -66,8 +65,6 @@ public abstract class DbBase {
 	public void commit() throws Exception {
 		try {
 			this.conn.commit();
-		} catch (Exception e) {
-			throw e;
 		} finally {
 			this.closeConnection();
 		}
@@ -76,10 +73,7 @@ public abstract class DbBase {
 	// 原生
 	public boolean execute(String sql, Object... params) throws Exception {
 		try {
-			this.fillPstm(sql, params).execute();
-			return true;
-		} catch (Exception e) {
-			throw e;
+			return this.fillPstm(sql, params).execute();
 		} finally {
 			this.close();
 		}
@@ -92,67 +86,60 @@ public abstract class DbBase {
 	}
 	 
 	// 原生修改
-	public Integer executeUpdate(String sql, Object... params) throws Exception {
+	public int executeUpdate(String sql, Object... params) throws Exception {
 		try {
 			return this.fillPstm(sql, params).executeUpdate();
-		} catch (Exception e) {
-			throw e;
 		} finally {
 			this.close();
 		}
 	}
 	//close是否关闭,params返回的序号
-		public CallableStatement call(String sql,boolean close,Integer... params) throws Exception {
-			CallableStatement cstm = null;
-			try {
-				cstm = this.getConnection().prepareCall(sql);
-				cstm.execute();
-				JSONObject obj = new JSONObject();
-				for (int i = 0; i < params.length; i++) {
-					
-					obj.put(params[i]+"", cstm.getObject(params[i]));
-				}
-				//ResultSet rs = (ResultSet)cstm.getObject(2);
-				//return obj;
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			if(close) {
-				closeCall(cstm);
-				closeConnection();
-				return null;
-			}else {
-				return cstm;
-			}
+	public CallableStatement call(String sql,boolean close,Integer... params) throws Exception {
+		CallableStatement cstm = null;
+		try {
+			cstm = this.getConnection().prepareCall(sql);
+			cstm.execute();
+			/*JSONObject obj = new JSONObject();
+			for (Integer param : params) {
+				obj.put(param + "", cstm.getObject(param));
+			}*/
+			//ResultSet rs = (ResultSet)cstm.getObject(2);
+			//return obj;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		public static void closeCall(CallableStatement cstm) {
-			try {
-				if(cstm != null){
-					cstm.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+		if(close) {
+			closeCall(cstm);
+			closeConnection();
+			return null;
+		}else {
+			return cstm;
 		}
+	}
+	public static void closeCall(CallableStatement cstm) {
+		try {
+			if(cstm != null){
+				cstm.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	// 查询返回json
-	public JSONArray find(String sql, Object... params) throws Exception {
+	public JSONArray select(String sql, Object... params) throws Exception {
 		ResultSet rs = null;
 		try {
 			rs = this.executeQuery(sql, params);
 			return rsToArray(rs);
-		} catch (Exception e) {
-			throw e;
 		} finally {
 			this.close(rs);
 		}
 	}
-	public JSONObject get(String sql, Object... params) throws Exception {
+	public JSONObject selectOne(String sql, Object... params) throws Exception {
 		ResultSet rs = null;
 		try {
 			rs = this.executeQuery(sql, params);
 			return rsToJson(rs);
-		} catch (Exception e) {
-			throw e;
 		} finally {
 			this.close(rs);
 		}
@@ -160,7 +147,7 @@ public abstract class DbBase {
 	
 
 	public Integer count(String sql, Object... params) throws Exception {
-		JSONObject data = get(sql, params);
+		JSONObject data = selectOne(sql, params);
 		if (data != null && !data.isEmpty()) {
 			if(data.size() == 1) {
 				return data.getInteger("count");
@@ -170,14 +157,8 @@ public abstract class DbBase {
 		}
 		return null;
 	}
-	/**
-	 * 
-	 * @param sql
-	 * @param params
-	 * @return 返回主键id
-	 * @throws Exception
-	 */
-	public JSONArray insert(String sql, Object... params) throws Exception{
+
+	public JSONObject insert(String sql, Object... params) throws Exception{
 		ResultSet rs = null;
 		try {
 			this.fillPstm(sql, params).executeUpdate();
@@ -189,52 +170,44 @@ public abstract class DbBase {
 		        throw new Exception("返回主键失败"); 
 		    }
 			return id;*/
-			return rsToArray(rs);
-		} catch (Exception e) {
-			throw e;
-		}finally {
+			return rsToJson(rs);
+		} finally {
 			closeResource(rs);
 		}
 	}
 	
 	//批量插入
 	public boolean insertBatch(String sql, JSONArray params) throws Exception{
-		ResultSet rs = null;
 		try {
 			int[] result = this.fillPstm(sql, params).executeBatch();
-			for (int i = 0; i < result.length; i++) {
-				if(result[i] != 1) {
+			for (int value : result) {
+				if (value != 1) {
 					return false;
 				}
 			}
 			return true;
-		} catch (Exception e) {
-			throw e;
-		}finally {
-			closeResource(rs);
+		} finally {
+			close();
 		}
 	}
-	public boolean insertBatch(String[] sqls) throws Exception{
-		ResultSet rs = null;
+	public boolean insertBatch(List<String> sqls) throws Exception{
 		try {
 			if(sqls != null) {
-				this.pstm = this.getConnection().prepareStatement(sqls[0], Statement.RETURN_GENERATED_KEYS);
-				for (int i = 0; i < sqls.length; i++) {
-					this.pstm.addBatch(sqls[i]);
+				this.pstm = this.getConnection().prepareStatement(sqls.get(0), Statement.RETURN_GENERATED_KEYS);
+				for (String sql : sqls) {
+					this.pstm.addBatch(sql);
 				}
 				int[] result = this.pstm.executeBatch();
-				for (int i = 0; i < result.length; i++) {
-					if(result[i] != 1) {
+				for (int value : result) {
+					if (value != 1) {
 						return false;
 					}
 				}
 				return true;
 			}
 			return false;
-		} catch (Exception e) {
-			throw e;
-		}finally {
-			closeResource(rs);
+		} finally {
+			close();
 		}
 	}
 	//批量插入:用于excel
@@ -284,7 +257,7 @@ public abstract class DbBase {
 		return this.pstm;
 	}
 	//用json填补？
-	public PreparedStatement fillPstm2(String sql, JSONObject params) throws Exception {
+	public void fillPstm2(String sql, JSONObject params) throws Exception {
 		this.pstm = this.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		if(params != null) {
 			//字段数组
@@ -301,7 +274,6 @@ public abstract class DbBase {
 			}
 		}
 		printSql();
-		return this.pstm;
 	}
 	
 	//输出sql
@@ -365,8 +337,6 @@ public abstract class DbBase {
 			// 从元数据中获取到所有的表名
 			rs = db.getCatalogs();
 			return rsToArray(rs);
-		} catch (SQLException e) {
-			throw e;
 		} finally {
 			this.close(rs);
 		}
@@ -379,8 +349,6 @@ public abstract class DbBase {
 			// 从元数据中获取到所有的表名
 			rs = db.getSchemas(null, null);
 			return rsToArray(rs);
-		} catch (SQLException e) {
-			throw e;
 		} finally {
 			this.close(rs);
 		}
@@ -389,11 +357,9 @@ public abstract class DbBase {
 	/**
 	 * 获取数据库下的所有表名
 	 * @param catalog 表目录（可能为空）conn.getCatalog()
-	 * @param schemaPattern 表架构（可能为空）conn.getCatalog()
-	 * @param tableNamePattern 表名 "%"
+	 * @param databaseName：schemaPattern 表架构（可能为空）conn.getCatalog()
+	 * @param tableName：tableNamePattern 表名 "%"
 	 * @param types :new String[] { "TABLE" }:"TABLE","VIEW", "SYSTEM TABLE", "GLOBAL TEMPORARY","LOCAL TEMPORARY", "ALIAS","SYNONYM"
-	 * @return
-	 * @throws Exception
 	 */
 	public JSONArray getTables(String catalog, String databaseName, String tableName, String[] types) throws Exception {
 		ResultSet rs = null;
@@ -403,15 +369,13 @@ public abstract class DbBase {
 			// 从元数据中获取到所有的表名
 			rs = db.getTables(catalog, databaseName, tableName, types);
 			return rsToArray(rs);
-		} catch (SQLException e) {
-			throw e;
 		} finally {
 			this.close(rs);
 		}
 	}
 
 	public JSONObject getFiledType(String tableName) throws Exception {
-		try (PreparedStatement pStemt = this.getConnection().prepareStatement(SQL + tableName);) {
+		try (PreparedStatement pStemt = this.getConnection().prepareStatement(SQL + tableName)) {
 			// 结果集元数据
 			ResultSetMetaData rsmd = pStemt.getMetaData();
 			JSONObject obj = new JSONObject();
@@ -419,8 +383,6 @@ public abstract class DbBase {
 				obj.put(rsmd.getColumnName(i + 1), rsmd.getColumnTypeName(i + 1));
 			}
 			return obj;
-		} catch (SQLException e) {
-			throw e;
 		} finally {
 			close();
 		}
@@ -435,8 +397,6 @@ public abstract class DbBase {
 			DatabaseMetaData rsmd = this.getConnection().getMetaData();
 			rs =rsmd.getColumns(null, databaseName, tableName, null);
 			return rsToArray(rs);
-		} catch (SQLException e) {
-			throw e;
 		} finally {
 			close(rs);
 		}
@@ -450,9 +410,7 @@ public abstract class DbBase {
             DatabaseMetaData dbmd = this.getConnection().getMetaData();
             rs = dbmd.getPrimaryKeys(null, databaseName, tableName);
             return rsToArray(rs);
-        }catch (SQLException e){
-        	throw e;
-        }finally{
+        } finally{
         	close(rs);
         }
     }
@@ -493,8 +451,6 @@ public abstract class DbBase {
             while (rs.next()) {
                 System.out.println(rs.getString("TABLE_TYPE"));
             }
-        }catch (Exception e){
-        	throw e;
         } finally{
         	close(rs);
         }

@@ -1,8 +1,6 @@
 package cn.xyz.common.tools;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 
 /**
  * 由于Java的简单类型不能够精确的对浮点数进行运算，这个工具类提供精 确的浮点数运算，包括加减乘除和四舍五入。
@@ -16,7 +14,7 @@ public class ToolsDouble {
     }
 	
 	//DoubleOpr:运算方式
-    public static Double opr(DoubleOpr opr, Object v1, Object v2, int scale) throws Exception{
+    public static Double opr(DoubleOpr opr, Object v1, Object v2, int scale) {
         BigDecimal num1 = new BigDecimal(String.valueOf(v1));
         BigDecimal num2 = new BigDecimal(String.valueOf(v2));
         switch (opr){

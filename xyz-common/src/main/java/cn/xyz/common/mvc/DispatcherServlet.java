@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.xyz.common.exception.CustomException;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -28,20 +29,19 @@ public class DispatcherServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private Properties properties = new Properties();
-    private List<String> classNames = new ArrayList<>();
-    private Map<String, Object> ioc = new HashMap<>();
+    private final List<String> classNames = new ArrayList<>();
+    private final Map<String, Object> ioc = new HashMap<>();
     //handlerMapping的类型可以自定义为Handler
-    private Map<String, Method> handlerMapping = new  HashMap<>();
-    private Map<String, Object> controllerMap  =new HashMap<>();
+    private final Map<String, Method> handlerMapping = new  HashMap<>();
+    private final Map<String, Object> controllerMap  =new HashMap<>();
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init();
         try {
-			this.properties = ToolsProperties.load(config.getInitParameter("contextConfigLocation"));
+            Properties properties = ToolsProperties.load(config.getInitParameter("contextConfigLocation"));
 			//2.根据properties，初始化所有相关联的类,扫描用户设定的包下面所有的类
-	        doScanner(this.properties.getProperty("scanPackage"));
+	        doScanner(properties.getProperty("scanPackage"));
 	        //3.拿到扫描到的类,通过反射机制,实例类,并且放到ioc容器中(k-v  beanName-bean) beanName默认是首字母小写
 	        doInstance();
 	        // 4.自动化注入依入?
@@ -55,7 +55,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // 注释掉父类实现，不然会报错：405 HTTP method GET is not supported by this URL
         //super.doPost(req, resp);
         System.out.println("执行MyDispatcherServlet的doPost()");
@@ -68,7 +68,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // 注释掉父类实现，不然会报错：405 HTTP method GET is not supported by this URL
         //super.doGet(req, resp);
         System.out.println("执行MyDispatcherServlet的doGet()");
@@ -85,7 +85,7 @@ public class DispatcherServlet extends HttpServlet {
             return;
         }
         String url =request.getRequestURI();
-        if(url.indexOf("statics")>=0) {
+        if(url.contains("statics")) {
         	//request.getRequestDispatcher("logo.png").forward(request, response); 
         	return;
         }
@@ -99,7 +99,7 @@ public class DispatcherServlet extends HttpServlet {
          //System.out.println( request.getAttribute("Content-Type"));
         JSONObject obj = new JSONObject();
         
-        if(request.getContentType() != null && request.getContentType().indexOf("multipart/form-data") >= 0) {
+        if(request.getContentType() != null && request.getContentType().contains("multipart/form-data")) {
         	request.setCharacterEncoding("utf-8");  //设置编码
             //获得磁盘文件条目工厂  
             DiskFileItemFactory factory = new DiskFileItemFactory();  
@@ -111,12 +111,12 @@ public class DispatcherServlet extends HttpServlet {
               
             //如果没以下两行设置的话，上传大的 文件 会占�? 很多内存�?  
             //设置暂时存放�? 存储�? , 这个存储室，可以�? �?终存储文�? 的目录不�?  
-            /** 
-             * 原理 它是先存�? 暂时存储室，然后在真正写�? 对应目录的硬盘上�?  
-             * 按理来说 当上传一个文件时，其实是上传了两份，第一个是�? .tem 格式�?  
-             * 然后再将其真正写�? 对应目录的硬盘上 
-             */  
-    		factory.setRepository(new File(path));  
+
+             // 原理 它是先存�? 暂时存储室，然后在真正写�? 对应目录的硬盘上�?
+             // 按理来说 当上传一个文件时，其实是上传了两份，第一个是�? .tem 格式�?
+             // 然后再将其真正写�? 对应目录的硬盘上
+
+    		factory.setRepository(new File(path));
             //设置 缓存的大小，当上传文件的容量超过该缓存时，直接放�? 暂时存储�?  
             factory.setSizeThreshold(1024*1024) ;  
          
@@ -126,7 +126,7 @@ public class DispatcherServlet extends HttpServlet {
             upload.setSizeMax(100*1024*1024L);
             try {  
                 //可以上传多个文件  
-                List<FileItem> list = (List<FileItem>)upload.parseRequest(request);
+                List<FileItem> list = upload.parseRequest(request);
                 for(FileItem item : list) {  
                     //获取表单的属性名�?  
                     String name = item.getFieldName();
@@ -146,7 +146,7 @@ public class DispatcherServlet extends HttpServlet {
                     	}
                     } else {  //对传入的�? �?单的字符串进行处�? ，比如说二进制的 图片，电影这�? 
                     	//System.out.println(item.getSize());
-                    	if(item != null && item.getSize() > 0) {
+                    	if(item.getSize() > 0) {
                     		if(obj.containsKey(name)) {
                         		if(obj.get(name).getClass().isArray()) {
                         			obj.getJSONArray(name).add(ToolsFile.upload(item, path, url2, response));
@@ -177,7 +177,7 @@ public class DispatcherServlet extends HttpServlet {
 			Map<String, String[]> parameterMap = request.getParameterMap();
         	//System.out.println(parameterMap.entrySet());
         	for (Map.Entry<String, String[]> param : parameterMap.entrySet()) {
-                String value =Arrays.toString(param.getValue()).replaceAll("\\[|\\]", "").replaceAll(",\\s", ",");
+                String value =Arrays.toString(param.getValue()).replaceAll("[\\[\\]]", "").replaceAll(",\\s", ",");
                 obj.put(param.getKey(), value);
             }
         }
@@ -218,7 +218,6 @@ public class DispatcherServlet extends HttpServlet {
             }
             if (requestParam.equals("JSONObject")){
                 paramValues[i] = obj;
-                continue;
             }
             //文件怎么接收
             /*if(requestParam.equals("JSONObject")){//不合�?
@@ -236,7 +235,7 @@ public class DispatcherServlet extends HttpServlet {
             System.out.println(obj2);
             if(method.isAnnotationPresent(ResponseBoby.class)){
             	response.getWriter().write(obj2);
-            }else if(obj2.indexOf("redirect:") >= 0) {
+            }else if(obj2.contains("redirect:")) {
             	//重定向带数据：使用model，再拼接url
             	response.sendRedirect(obj2.substring(9));
             }else {
@@ -257,10 +256,11 @@ public class DispatcherServlet extends HttpServlet {
      * Des: 将指定包下扫描得到的类，添加到classNames字段中；
      * @param packageName 要扫描的包名
      */
-    private void doScanner(String packageName) {
+    private void doScanner(String packageName) throws CustomException {
         URL url  =this.getClass().getClassLoader().getResource(packageName.replaceAll("\\.", "/"));
+        if(url == null) throw new CustomException("初始扫描包异常");
         File dir = new File(url.getFile());
-        for (File file : dir.listFiles()) {
+        for (File file : Objects.requireNonNull(dir.listFiles())) {
             if(file.isDirectory()){
                 //递归读取
                 doScanner(packageName+"."+file.getName());
@@ -298,12 +298,8 @@ public class DispatcherServlet extends HttpServlet {
                     	this.ioc.put(i.getName(),instance);
                     }
                 }
-                else{
-                    continue;
-                }
             } catch (Exception e) {
                 e.printStackTrace();
-                continue;
             }
         }
     }
@@ -333,9 +329,7 @@ public class DispatcherServlet extends HttpServlet {
                     field.set(entry.getValue(),this.ioc.get(beanName));//字段.set(对象，实例)
                 }catch (Exception e){
                     e.printStackTrace();
-                    continue;
                 }
-
             }
         }
     }
@@ -362,9 +356,7 @@ public class DispatcherServlet extends HttpServlet {
                     field.set(entry.getValue(),this.ioc.get(beanName));
                 }catch (Exception e){
                     e.printStackTrace();
-                    continue;
                 }
-
             }
         }
     }
@@ -379,7 +371,7 @@ public class DispatcherServlet extends HttpServlet {
         }
         try {
             for (Map.Entry<String, Object> entry: this.ioc.entrySet()) {
-                Class<? extends Object> clazz = entry.getValue().getClass();
+                Class<?> clazz = entry.getValue().getClass();
                 if(!clazz.isAnnotationPresent(Controller.class)){
                     continue;
                 }

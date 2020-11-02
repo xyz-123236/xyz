@@ -1,5 +1,6 @@
 package cn.xyz.common.tools;
 
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -16,7 +17,7 @@ public class ToolsLocale {
 		// 处理乱码
 		String msg = resourceBundle.getString("hello");
 		try {
-		    msg = new String(msg.getBytes("ISO-8859-1"), "UTF-8");
+		    msg = new String(msg.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
@@ -56,7 +57,7 @@ public class ToolsLocale {
 	    if (args == null || args.length == 0) {
 	        msg = resourceBundle.getString(key);
 	        try {
-	            msg = new String(msg.getBytes("ISO-8859-1"), "UTF-8");
+	            msg = new String(msg.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
 	            return msg;
 	        } catch (Exception e) {
 	            //UtilFunctions.log.error("UtilFunctions getMessage error, msg:{}, exception:{}", e.toString(), e);
@@ -67,7 +68,7 @@ public class ToolsLocale {
 	    //处理中英文替换，公用部分也需要中英文，拼接不支持国家化
 	    msg = MessageFormat.format(resourceBundle.getString(key), args);// format(" {0} {1} {2} {3}", "a", "bb","","ccc"))
 	    try {
-	        msg = new String(msg.getBytes("ISO-8859-1"), "UTF-8");
+	        msg = new String(msg.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
 	    } catch (Exception e) {
 	        //UtilFunctions.log.error("UtilFunctions getMessage error, msg:{}, exception:{}", e.toString(), e);
 	        //UtilFunctions.reportError("UtilFunctions getMessage: " + e.toString(), e);

@@ -1,29 +1,21 @@
 package cn.xyz.common.orm;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
-import com.alibaba.druid.sql.visitor.functions.Insert;
+import cn.xyz.common.pojo.Result;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.exception.CustomException;
 import cn.xyz.common.pojo.Basic;
-import cn.xyz.common.pojo.SysUser;
 import cn.xyz.common.tools.Tools;
 import cn.xyz.common.tools.ToolsDate;
 import cn.xyz.common.tools.ToolsJson;
-import cn.xyz.common.tools.ToolsString;
 
 public class DbTool extends Basic {
-	public static String[] DEFAULT_REMOVE_KEYS = {"page","rows","sort","order","jsp_name"};
 	public static final String DEFAULT_JUDGE = "=";
 	private StringBuffer sql = new StringBuffer();
+	private List<String> sqls;
 	protected JSONObject columns = new JSONObject();
 	protected JSONObject tables = new JSONObject();
 	protected DbBase db = null;
@@ -33,14 +25,45 @@ public class DbTool extends Basic {
 	protected String limit;
 	protected String on;
 	protected String join_type;*/
-	
+	public static JSONObject tables_info = new JSONObject();//缓存表信息
+	public static JSONObject config = new JSONObject();//缓存配置信息
 	static {
-		//初始化数据字典，把表字段/类型添加到缓存
+		init();
+	}
+	public static void init(){
+		DbBase db = DbBase.getDruid();
+		try {
+			//初始化表信息
+			JSONArray tableNames = db.getTables(null,"xyz","%",null);
+			for(int i = 0; i < tableNames.size(); i++){
+				String table = tableNames.getJSONObject(i).getString("TABLE_NAME");
+				JSONObject obj = new JSONObject();
+				JSONArray data = db.getPrimaryKey("xyz", table);
+				if(Tools.isEmpty(data)){
+					System.out.println("没有主键"+table);
+				}else{
+					if(data.size() == 1){
+						obj.put("primaryKey", db.getPrimaryKey("xyz", table).getJSONObject(0).getString("COLUMN_NAME"));
+					}else{
+						System.out.println("主键不是一列"+table);
+					}
+				}
+				obj.put("filedType", db.getFiledType(table));
+				tables_info.put(table, obj);
+			}
+			//初始化配置信息
+			JSONArray data = db.select("select * from sys_config");
+			for (int i = 0; i < data.size(); i++) {
+				config.put(data.getJSONObject(i).getString("key"), data.getJSONObject(i).get("value"));
+			}
+		} catch (Exception e) {
+			Result.error(e);
+		}
 	}
 	protected DbTool() {}
 	public DbTool(String db_name, JSONObject obj) {
 		try {
-			this.db = DbBase.getDruid(db_name);
+			this.db = DbBase.getJdbc(db_name);
 			if(obj != null) {
 				this.rows = obj.getInteger("rows");
 				this.page = obj.getInteger("page");
@@ -69,7 +92,7 @@ public class DbTool extends Basic {
 		return this;
 	}
 	// 回滚事务
-	public DbTool rollback() throws Exception {
+	public DbTool rollback() {
 		this.db.rollback();
 		return this;
 	}
@@ -78,19 +101,52 @@ public class DbTool extends Basic {
 		this.db.commit();
 		return this;
 	}
-	
-	public boolean createTable(DbBase db, JSONObject obj) throws Exception {
-		return db.execute(createTableSql(obj));
+
+	public boolean create() throws Exception {
+		return this.db.execute(this.sql.toString());
 	}
-	public String createTableSql(JSONObject obj) throws Exception {
-		this.sql = new StringBuffer("");
+	public JSONObject insert() throws Exception {
+		return this.db.insert(this.sql.toString());
+	}
+	public boolean insertBatch() throws Exception {
+		return this.db.insertBatch(this.sqls);
+	}
+	public int delete() throws Exception {
+		if(this.sql.toString().toLowerCase().contains(" where ")){
+			String sql = this.sql.toString().substring(this.sql.toString().toLowerCase().indexOf(" where ")+6).replace(" 1 = 1 ","").trim();
+			if(Tools.isEmpty(sql)){
+				throw new CustomException("删除不能没有条件1");
+			}
+		}else{
+			throw new CustomException("删除不能没有条件2");
+		}
+
+		return this.db.executeUpdate(this.sql.toString());
+	}
+	public int update() throws Exception {
+		return this.db.executeUpdate(this.sql.toString());
+	}
+	public JSONArray select() throws Exception {
+		return this.db.select(this.sql.toString());
+	}
+	public JSONObject selectOne() throws Exception {
+		String sql = this.sql.toString();
+		if(sql.toLowerCase().contains(" limit ")){
+			sql = sql.substring(0, sql.toLowerCase().indexOf(" limit ")) + "limit 1";
+		}else{
+			sql = sql + "limit 1";
+		}
+		return this.db.selectOne(sql);
+	}
+	public DbTool createTableSql(JSONObject obj) throws Exception {
+		this.sql = new StringBuffer();
 		JSONArray rows = obj.getJSONArray("rows");
 		String table = obj.getString("table");
 		String database = obj.getString("database");
 		if(Tools.isEmpty(table)) throw new CustomException("表名不能为空");
-		this.sql.append("CREATE TABLE "+database+"."+table+" (\r\n\t" );
-		String primary = "";
-		String unique = "";
+		this.sql.append("CREATE TABLE ").append(database).append(".").append(table).append(" (\r\n\t");
+		StringBuilder primary = new StringBuilder();
+		StringBuilder unique = new StringBuilder();
 		if(Tools.isEmpty(rows)) throw new CustomException("表字段不能为空");
 		for (int i = 0; i < rows.size(); i++) {
 			JSONObject row = rows.getJSONObject(i);
@@ -102,15 +158,15 @@ public class DbTool extends Basic {
 			if(Tools.isEmpty(field)) {
 				throw new CustomException("列名不能为空");
 			}else {
-				this.sql.append(""+field+" ");
+				this.sql.append(field).append(" ");
 			}
 			if(Tools.isEmpty(type)) {
 				throw new CustomException("类型为空");
 			}
 			if(Tools.isEmpty(length)) {
-				this.sql.append(type+" ");
+				this.sql.append(type).append(" ");
 			}else {
-				this.sql.append(type+"("+length+") ");
+				this.sql.append(type).append("(").append(length).append(") ");
 			}
 			if(row.getBooleanValue("not_null")) {
 				this.sql.append("NOT NULL ");
@@ -122,256 +178,224 @@ public class DbTool extends Basic {
 			}else if("empty".equals(default_value)) {
 				this.sql.append("DEFAULT '' ");
 			}else if(!Tools.isEmpty(default_value)) {
-				this.sql.append("DEFAULT '"+default_value+"' ");
+				this.sql.append("DEFAULT '").append(default_value).append("' ");
 			}
 			if(row.getBooleanValue("auto_increment")) {
 				this.sql.append("AUTO_INCREMENT ");
 			}
 			if(!Tools.isEmpty(comment)) {
-				this.sql.append("COMMENT '"+comment+"' ");
+				this.sql.append("COMMENT '").append(comment).append("' ");
 			}
 			if(row.getBooleanValue("unique")) {
-				unique += ""+field + ""+",";
+				unique.append(field).append(",");
 			}
 			if(row.getBooleanValue("primary")) {
-				primary += ""+field + ""+",";
+				primary.append(field).append(",");
 			}
 			this.sql.append(",\r\n\t");
 		}
-		if(!Tools.isEmpty(unique)) {
-			this.sql.append("UNIQUE KEY "+table+"_index1 ("+unique.substring(0, unique.lastIndexOf(","))+"),\r\n\t");
+		if(!Tools.isEmpty(unique.toString())) {
+			this.sql.append("UNIQUE KEY ").append(table).append("_index1 (").append(unique.replace(unique.lastIndexOf(","),unique.lastIndexOf(",")+1,"")).append("),\r\n\t");
 		}
-		if(Tools.isEmpty(primary)) {
+		if(Tools.isEmpty(primary.toString())) {
 			throw new CustomException("不能没有主键");
 		}
-		this.sql.append("PRIMARY KEY ("+primary.substring(0, primary.lastIndexOf(","))+")\r\n");
-		this.sql.append(") ENGINE="+obj.getString("engine")+" DEFAULT CHARSET="+obj.getString("charset")+" COLLATE="+obj.getString("collate")+"\r\n");
-		return this.sql.toString();
+		this.sql.append("PRIMARY KEY (").append(primary.substring(0, primary.lastIndexOf(","))).append(")\r\n");
+		this.sql.append(") ENGINE=").append(obj.getString("engine")).append(" DEFAULT CHARSET=").append(obj.getString("charset")).append(" COLLATE=").append(obj.getString("collate")).append("\r\n");
+		return this;
 	}
-	public JSONArray insert(DbBase db, String table, JSONObject row, String create_by) throws Exception{
-		return db.insert(createInsertSql(db, table, row, create_by));
-	}
-	/**
-	 * excel应限制上传格式：第一行中文名，第二行英文名
-	 * @param db
-	 * @param table
-	 * @param rows
-	 * @param create_by
-	 * @param remove
-	 * @param keys
-	 * @throws Exception
-	 */
-	public boolean insertBatch(DbBase db, String table,JSONArray rows, String create_by) throws Exception {
+
+	//excel应限制上传格式：第一行中文名，第二行英文名
+	public DbTool createInsertBatchSql(String table,JSONArray rows, String create_by) throws Exception {
 		int n = (int)Math.ceil((double)(rows.size())/128);
+		JSONObject filedType = this.db.getFiledType(table);
+		String primary_name = getPrimaryName(this.db, table);
+		String sql = createInsertKeySql(table, filedType);
 		for (int i = 0; i < n; i++) {
 			int begin=i*128;
-			int end=((i+1)*128) > rows.size() ? rows.size() : (i+1)*128 ;
-			String sqls[] = new String[end - begin + 1];
+			int end= Math.min(((i + 1) * 128), rows.size());
 			for (int j = begin; j < end; j++) {
-				sqls[j] = createInsertSql(db, table, rows.getJSONObject(j), create_by);
-			}
-			if(!db.insertBatch(sqls)) {
-				return false;
+				//sqls.add(createInsertSql(table, rows.getJSONObject(j), create_by));
+				this.sqls.add(sql + createInsertValueSql(rows.getJSONObject(j), create_by, filedType, primary_name));
 			}
 		}
-		return true;
+		return this;
 	}
-	/**
-	 * 插入和修改可以是null，不用赋初值，但类型还是需要（sybase不支持数字类型插入字符串）
-	 * @param db
-	 * @param table
-	 * @param row
-	 * @param create_by
-	 * @return
-	 * @throws Exception
-	 */
-	public String createInsertSql(DbBase db, String table, JSONObject row, String create_by) throws Exception{
-		this.sql = new StringBuffer("");
-		JSONObject obj = db.getFiledType(table);
-		String number = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";
+	private static String createInsertKeySql(String table, JSONObject filedType) {
+		StringBuilder sql = new StringBuilder("insert into ").append(table).append(" (");
+		for(String key: filedType.keySet()){
+			sql.append(key).append(",");
+		}
+		return sql.substring(0, sql.lastIndexOf(",")) + ") values ";
+	}
+	private static String createInsertValueSql(JSONObject row, String create_by,JSONObject filedType,String primary_name) {
+		StringBuilder sql = new StringBuilder(" (");
+		if(!Tools.isEmpty(create_by)) {
+			row.put("create_by", create_by);
+			row.put("create_date", ToolsDate.getLongString());
+		}
+		for(String key: filedType.keySet()){
+			Object v = row.get(key);
+			String type = filedType.getString(key);
+			if(!Tools.isEmpty(v) && !Tools.isEmpty(type) && !key.equals(primary_name)) {
+				if(config.getString("number_types").contains("," + type + ",")) {
+					sql.append(" ").append(v).append(",");
+				}else {
+					sql.append(" '").append(v).append("',");
+				}
+			}
+		}
+		return sql.substring(0, sql.lastIndexOf(",")) + ")";
+	}
+	//插入和修改可以是null，不用赋初值，但类型还是需要（sybase不支持数字类型插入字符串）
+	public DbTool createInsertSql(String table, JSONObject row, String create_by) throws Exception{
+		this.sql = new StringBuffer();
 		if(!Tools.isEmpty(row)) {
-			String fileds = "";
-			String values = "";
+			JSONObject filedType = this.db.getFiledType(table);
+			String primary_name = getPrimaryName(this.db, table);
+			StringBuilder fileds = new StringBuilder();
+			StringBuilder values = new StringBuilder();
 			if(!Tools.isEmpty(create_by)) {
 				row.put("create_by", create_by);
 				row.put("create_date", ToolsDate.getLongString());
-			}   
-			String primary_name = getPrimaryName(db, table);
-			for(String key: row.keySet()){
-				fileds += key + ",";
+			}
+			for(String key: filedType.keySet()){
+				fileds.append(key).append(",");
 				Object v = row.get(key);
-				String type = obj.getString(key);
+				String type = filedType.getString(key);
 				if(!Tools.isEmpty(v) && !Tools.isEmpty(type) && !key.equals(primary_name)) {
-					if(number.indexOf(","+type+",") >= 0) {
-						values += " "+v+",";
+					if(config.getString("number_types").contains("," + type + ",")) {
+						values.append(" ").append(v).append(",");
 					}else {
-						values += " '"+v+"',";
+						values.append(" '").append(v).append("',");
 					}
 				}
 			}
-			this.sql.append( "insert into "+table+" ("+fileds.substring(0,fileds.lastIndexOf(","))+ ") values ("+values.substring(0,values.lastIndexOf(","))+ ")");
+			//this.sql.append(createInsertKeySql(table, filedType)).append(createInsertValueSql(row, create_by, filedType, primary_name));
+			this.sql.append("insert into ").append(table).append(" (").append(fileds.substring(0, fileds.lastIndexOf(","))).append(") values (").append(values.toString(), 0, values.lastIndexOf(",")).append(")");
 		}else {
 			throw new Exception("没有要插入的数据");
 		}
-		return this.sql.toString();
-	}
-	public String getPrimaryName(DbBase db, String table) throws Exception {
-		/*JSONArray pk = db.getPrimaryKey(table);
-		if(Tools.isEmpty(pk)) return null;
-		String[] pks = new String[pk.size()];
-		for (int i = 0; i < pk.size(); i++) {
-			pks[i] = pk.getJSONObject(0).getString("COLUMN_NAME");
-		}
-		return pks;*/
-		JSONArray pk = db.getPrimaryKey(table);
-		if(!Tools.isEmpty(pk) && pk.size() == 1) {
-			return pk.getJSONObject(0).getString("COLUMN_NAME");
-		}
-		return "";
-	}
-	
-	public DbTool update(DbBase db, String table, JSONObject row, String update_by) throws Exception{
-		createUpdateSql(db, table, row, update_by);
 		return this;
 	}
-	
-	public boolean updateById(DbBase db, String table, JSONObject row, String update_by) throws Exception{
-		createUpdateSql(db, table, row, update_by);
-		this.where().andPrimaryId(db, table, row);
-		if(db.executeUpdate(getSql()) > 0) {
-			return true;
-		}
-		return false;
+
+
+	public DbTool createUpdateSqlById(String table, JSONObject row, String update_by) throws Exception{
+		createUpdateSql(table, row, update_by).where().andPrimaryId(table, row);
+		return this;
 	}
-	
-	public String createUpdateSql(DbBase db, String table, JSONObject row, String update_by) throws Exception{
-		this.sql = new StringBuffer("");
-		JSONObject obj = db.getFiledType(table);
+
+	public DbTool createUpdateSql(String table, JSONObject row, String update_by) throws Exception{
+		this.createUpdateSql(table);
+		JSONObject filedType = this.db.getFiledType(table);
 		String number = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";
 		String string = ",VARCHAR,CHAR,";
 		//String date = ",DATE,DATETIME,TIME,TIMESTAMP,";
 		if(!Tools.isEmpty(row)) {
-			String set = "";
+			StringBuilder set = new StringBuilder();
 			if(!Tools.isEmpty(update_by)) {
 				row.put("update_by", update_by);
 				row.put("update_date", ToolsDate.getLongString());
 			}
-			String primary_name = getPrimaryName(db, table);
+			String primary_name = getPrimaryName(this.db, table);
 			for(String key: row.keySet()){
 				Object value = row.get(key);
-				String type = obj.getString(key);
+				String type = filedType.getString(key);
 				if(!Tools.isEmpty(type) && !key.equals(primary_name)) {
-					if(string.indexOf(","+type+",") >= 0) {
-						set += key + "='"+(Tools.isEmpty(value)?"":value)+"',";
-					}else if(number.indexOf(","+type+",") >= 0) {
-						set += key + " = "+(Tools.isEmpty(value)?"0":value)+",";
+					if(string.contains("," + type + ",")) {
+						set.append(key).append("='").append(Tools.isEmpty(value) ? "" : value).append("',");
+					}else if(number.contains("," + type + ",")) {
+						set.append(key).append(" = ").append(Tools.isEmpty(value) ? "0" : value).append(",");
 					}else{
-						set += key + "="+(Tools.isEmpty(value)?null:"'"+value+"'")+",";
+						set.append(key).append("=").append(Tools.isEmpty(value) ? null : "'" + value + "'").append(",");
 					}
 				}
 			}
-			this.sql.append( "update "+table+" set "+set.substring(0,set.lastIndexOf(",")));
+			this.sql.append(set.substring(0, set.lastIndexOf(",")));
 		}else {
 			throw new Exception("没有要修改的数据");
 		}
-		return this.sql.toString();
-	}
-	
-	public DbTool update(String table) {
-		this.sql.append("update ").append(table).append(" set ");
 		return this;
 	}
-	public DbTool setString(String field, Object obj) throws Exception {
+
+	public DbTool createUpdateSql(String table) {
+		this.sql = new StringBuffer().append("update ").append(table).append(" set ");
+		return this;
+	}
+	public DbTool setString(String field, Object obj) {
 		return setObject(field, obj, false);
 	}
-	public DbTool setNumber(String field, Object obj) throws Exception {
+	public DbTool setNumber(String field, Object obj) {
 		return setObject(field, obj, true);
 	}
-	public DbTool setObject(String field, Object obj, boolean isNumber) throws Exception {
+	public DbTool setObject(String field, Object obj, boolean isNumber) {
 		String value = getValue(field, obj);
 		if(!Tools.isEmpty(this.sql.substring(this.sql.toString().indexOf(" set ")+5))) {
 			this.sql.append(",");
 		}
 		if(!Tools.isEmpty(value)) {
 			if(isNumber) {
-				this.sql.append( " and "+field+" = "+value+" ");
+				this.sql.append(" and ").append(field).append(" = ").append(value).append(" ");
 			}else {
-				this.sql.append( " and "+field+" = '"+value+"' ");
+				this.sql.append(" and ").append(field).append(" = '").append(value).append("' ");
 			}
-			
+
 		}
 		return this;
 	}
-	public DbTool delete(String table) throws Exception {
-		this.sql = new StringBuffer();
-		this.sql.append("delete from ").append(table);
+	public DbTool createDeleteSql(String table) {
+		this.sql = new StringBuffer().append("delete from ").append(table);
 		return this;
 	}
-	
-	public boolean deleteById(DbBase db, String table, JSONObject row) throws Exception {
-		this.sql = new StringBuffer();
-		String primary_name = getPrimaryName(db, table);
-		this.sql.append("delete from ").append(table).append(" where ").append(primary_name).append(" = ").append(row.getInteger(primary_name));
-		if(db.executeUpdate(this.sql.toString()) > 0) {
-			return true;
-		}
-		return false;
+
+	public DbTool createDeleteSqlById(DbBase db, String table, JSONObject row) throws Exception {
+		createDeleteSql(table).where().andPrimaryId(table, row);
+		return this;
 	}
-	
-	public boolean deleteById(DbBase db, String table, JSONArray rows) throws Exception {
-		this.sql = new StringBuffer();
-		this.delete(table).where().andPrimaryId(db, table, rows);
-		if(db.executeUpdate(this.sql.toString()) > 0) {
-			return true;
-		}
-		return false;
+
+	public DbTool createDeleteSqlByIdLogic(DbBase db, String table, JSONObject row, String update_by) throws Exception {
+		this.createUpdateSql(table).setString("version", "D").where().andPrimaryId(table, row);
+		return this;
 	}
-	
-	public boolean deleteByIdLogic(DbBase db, String table, JSONObject row, String update_by) throws Exception {
-		this.sql = new StringBuffer();
-		this.update(table).setString("version", "D").where().andPrimaryId(db, table, row);
-		if(db.executeUpdate(getSql()) > 0) {
-			return true;
-		}
-		return false;
+	public DbTool createSelectDistinctSql(String table, String...fields) {
+		createSelectSql(table, fields);
+		this.sql.replace(0, 6, "select distinct");
+		return this;
 	}
-	
 	/**
 	 * select("test") <=> select * from test
 	 * select("test", "code,name,pwd") <=> select code,name,pwd from test
 	 * @param table 表名 ("test"),("test t")
 	 * @param fields 返回字段名  ("code,name,pwd"),("code","name","pwd"),("code","name,pwd")
-	 * @return
-	 * @throws Exception
 	 */
-	public DbTool select(String table, String...fields) throws Exception {
-		this.sql = new StringBuffer("");
+	public DbTool createSelectSql(String table, String...fields) {
+		this.sql = new StringBuffer();
 		if(Tools.isEmpty(fields)) {
-			this.sql.append( "select * from "+ table);
+			this.sql.append("select * from ").append(table);
 		}else {
-			this.sql.append( "select "+ String.join(",", fields)+" from "+ table);
-			for (int i = 0; i < fields.length; i++) {
+			this.sql.append("select ").append(String.join(",", fields)).append(" from ").append(table);
+			for (String field : fields) {
 				int begin = 0;
-				Stack<Integer> stack =new Stack<>();
+				Stack<Integer> stack = new Stack<>();
 				boolean flag = false;
-				for (int j = 0; j < fields[i].length(); j++) {
-					if(fields[i].charAt(j)=='('){
+				for (int j = 0; j < field.length(); j++) {
+					if (field.charAt(j) == '(') {
 						flag = true;
-						stack.push(j+1);
-		        	}
-					if(fields[i].charAt(j)==')'){
-						String str = fields[i].substring(stack.pop(), j);
-						if(str.indexOf("(") < 0) {
+						stack.push(j + 1);
+					}
+					if (field.charAt(j) == ')') {
+						String str = field.substring(stack.pop(), j);
+						if (!str.contains("(")) {
 							addColumns(str.split(",")[0]);
 						}
 					}
-					if(fields[i].charAt(j)==',' || j == fields[i].length()-1){
-						if(flag) {
-							if(Tools.isEmpty(stack)) {
+					if (field.charAt(j) == ',' || j == field.length() - 1) {
+						if (flag) {
+							if (Tools.isEmpty(stack)) {
 								flag = false;
 							}
-						}else {
-							addColumns(fields[i].substring(begin, (j == fields[i].length()-1)?j+1:j));
+						} else {
+							addColumns(field.substring(begin, (j == field.length() - 1) ? j + 1 : j));
 						}
 						begin = j + 1;
 					}
@@ -380,7 +404,7 @@ public class DbTool extends Basic {
 		}
 		return this;
 	}
-	public void addColumns(String value) {
+	private void addColumns(String value) {
 		String key = value.trim().split(" ")[0];
 		String[] arr = key.split("\\.");
 		if(arr.length == 2) {
@@ -396,74 +420,107 @@ public class DbTool extends Basic {
 		}
 	}
 	public DbTool left(String table, String on) {
-		this.sql.append( " left join " + table + " on " + on);
+		this.sql.append(" left join ").append(table).append(" on ").append(on);
+		return this;
+	}
+	public DbTool left(DbTool dbTool, String on) {
+		this.sql.append(" left join ").append(dbTool.getSql()).append(" on ").append(on);
 		return this;
 	}
 	public DbTool right(String table, String on) {
-		this.sql.append( " right join " + table + " on " + on);
+		this.sql.append(" right join ").append(table).append(" on ").append(on);
+		return this;
+	}
+	public DbTool right(DbTool dbTool, String on) {
+		this.sql.append(" right join ").append(dbTool.getSql()).append(" on ").append(on);
 		return this;
 	}
 	public DbTool inner(String table, String on) {
-		this.sql.append( " inner join " + table + " on " + on);
+		this.sql.append(" inner join ").append(table).append(" on ").append(on);
+		return this;
+	}
+	public DbTool inner(DbTool dbTool, String on) {
+		this.sql.append(" inner join ").append(dbTool.getSql()).append(" on ").append(on);
 		return this;
 	}
 	public DbTool full(String table, String on) {
-		this.sql.append( " full join " + table + " on " + on);
+		this.sql.append(" full join ").append(table).append(" on ").append(on);
 		return this;
 	}
-	public DbTool where() throws Exception {
+	public DbTool full(DbTool dbTool, String on) {
+		this.sql.append(" full join ").append(dbTool.getSql()).append(" on ").append(on);
+		return this;
+	}
+	public DbTool union(DbTool dbTool, String on) {
+		this.sql.append(" union ").append(dbTool.getSql());
+		return this;
+	}
+	public DbTool unionAll(DbTool dbTool, String on) {
+		this.sql.append(" union all ").append(dbTool.getSql());
+		return this;
+	}
+	public DbTool where() {
 		return where("");
 	}
-	public DbTool where(String condition) throws Exception {
-		if(!Tools.isEmpty(condition)) {
+	public DbTool where(String condition) {
+		if(Tools.isEmpty(condition)) {
 			this.sql.append( " where 1 = 1 ");
 		}else {
-			this.sql.append( " where " + condition);
+			this.sql.append(" where ").append(condition);
 		}
 		return this;
 	}
-	/**
-	 * :字段名不能以_from,_to结尾，用于范围查询(如果字段是数组，要用in)
-	 * @param row 
-	 * @param removeKey
-	 * @return
-	 * @throws Exception
-	 */
-	public DbTool where(JSONObject row, String...removeKey) throws Exception {
+	//字段名不能以_from,_to结尾，用于范围查询(如果字段是数组，要用in)
+	public DbTool where(JSONObject row, String...removeKey) {
 		//public DbTools where(JSONObject row, String... numberKey, String...removeKey) throws Exception {
 		this.sql.append( " where 1 = 1 ");
-		if(!Tools.isEmpty(row)) {
-			JSONObject obj = ToolsJson.removeKey(row, DEFAULT_REMOVE_KEYS, removeKey);
-			for(String key:obj.keySet()){
-				String value = obj.getString(key);
-				if(key.indexOf("_date_from") > 0) {
-					this.andDate(key.substring(0, key.indexOf("_from")), row);
-				}else if(key.indexOf("_from") > 0) {
-					String from = row.getString(key);
-					if(!Tools.isEmpty(from)) {
-						String to = row.getString(key.substring(0, key.indexOf("_from"))+"_to");
-						String filed = getTableKey(key.substring(0, key.indexOf("_from")));
-						if(Tools.isEmpty(to)) {
-							this.sql.append( " AND "+filed+" like '%" + from + "%' ");
-						}else {
-							this.sql.append( " AND "+filed+" >= '" + from + "' and "+filed+" <= '" + to + "' ");
-						}
+		if(Tools.isEmpty(row)) return this;
+		JSONObject obj = ToolsJson.removeKey(row, config.getString("default_remove_keys"), removeKey);
+		if(Tools.isEmpty(obj)) return this;
+		for(String key:obj.keySet()){
+			String value = obj.getString(key);
+			if(key.indexOf("_date_from") > 0) {
+				this.andDate(key.substring(0, key.indexOf("_from")), row);
+			}else if(key.indexOf("_from") > 0) {
+				String from = row.getString(key);
+				if(!Tools.isEmpty(from)) {
+					String to = row.getString(key.substring(0, key.indexOf("_from"))+"_to");
+					String filed = getTableKey(key.substring(0, key.indexOf("_from")));
+					if(Tools.isEmpty(to)) {
+						this.sql.append(" AND ").append(filed).append(" like '%").append(from).append("%' ");
+					}else {
+						this.sql.append(" AND ").append(filed).append(" >= '").append(from).append("' and ").append(filed).append(" <= '").append(to).append("' ");
 					}
-				}else {
-					if(!Tools.isEmpty(value) && key.indexOf("_to") < 0) {
-						String filed = getTableKey(key);
-						this.sql.append( " and "+filed+" like '%"+value.trim()+"%' ");
-					}
+				}
+			}else {
+				if(!Tools.isEmpty(value) && !key.contains("_to")) {
+					String filed = getTableKey(key);
+					this.sql.append(" and ").append(filed).append(" like '%").append(value.trim()).append("%' ");
 				}
 			}
 		}
 		return this;
 	}
-	public DbTool andPrimaryId(DbBase db, String table, JSONObject row) throws Exception {
-		return this.andNumber(getPrimaryName(db, table), row);
+
+	public void andPrimaryId(String table, JSONObject row) throws Exception {
+		this.andNumber(getPrimaryName(this.db, table), row);
 	}
-	public DbTool andPrimaryId(DbBase db, String table, JSONArray rows) throws Exception {
-		return this.in(getPrimaryName(db, table), rows);
+	public void andPrimaryId(String table, JSONArray rows) throws Exception {
+		this.in(getPrimaryName(this.db, table), rows);
+	}
+	private static String getPrimaryName(DbBase db, String table) throws Exception {
+		/*JSONArray pk = db.getPrimaryKey(table);
+		if(Tools.isEmpty(pk)) return null;
+		String[] pks = new String[pk.size()];
+		for (int i = 0; i < pk.size(); i++) {
+			pks[i] = pk.getJSONObject(0).getString("COLUMN_NAME");
+		}
+		return pks;*/
+		JSONArray pk = db.getPrimaryKey(table);
+		if(!Tools.isEmpty(pk) && pk.size() == 1) {
+			return pk.getJSONObject(0).getString("COLUMN_NAME");
+		}
+		return "";
 	}
 	public DbTool in(String field, JSONArray rows){
 		this.sql.append(" and ").append(field).append(" in (");
@@ -476,39 +533,44 @@ public class DbTool extends Basic {
 		this.sql.append(")");
 		return this;
 	}
-	public DbTool andString(String field, Object obj, String... judge) throws Exception {
+	public DbTool in(String field, String[] values){
+		this.sql.append(" and ").append(field).append(" in (");
+		for (int i = 0; i < values.length; i++) {
+			if(i > 0) {
+				this.sql.append(",");
+			}
+			this.sql.append(values[i]);
+		}
+		this.sql.append(")");
+		return this;
+	}
+	public DbTool andString(String field, Object obj, String... judge) {
 		return this.andObject(field, obj, judge == null ? DEFAULT_JUDGE : judge[0], false);
 	}
-	public DbTool andNumber(String field, Object obj, String... judge) throws Exception {
-		return this.andObject(field, obj, judge == null ? DEFAULT_JUDGE : judge[0], true);
+	public void andNumber(String field, Object obj, String... judge) {
+		this.andObject(field, obj, judge == null ? DEFAULT_JUDGE : judge[0], true);
 	}
-	public DbTool andObject(String field, Object obj, String judge, boolean isNumber) throws Exception {
+	public DbTool andObject(String field, Object obj, String judge, boolean isNumber) {
 		String[] arr = field.trim().split("\\.");
 		String key = arr.length == 1? field: arr[1];
 		String column = arr.length == 1? getTableKey(key): field;
 		String value = getValue(key, obj);
 		if(!Tools.isEmpty(value)) {
 			if(isNumber) {
-				this.sql.append( " and "+column+" "+judge+" "+value+" ");
+				this.sql.append(" and ").append(column).append(" ").append(judge).append(" ").append(value).append(" ");
 			}else {
 				if("%".equals(judge)) {
-					this.sql.append( " and "+column+" like '%"+value+"%' ");
+					this.sql.append(" and ").append(column).append(" like '%").append(value).append("%' ");
 				}else {
-					this.sql.append( " and "+column+" "+judge+" '"+value+"' ");
+					this.sql.append(" and ").append(column).append(" ").append(judge).append(" '").append(value).append("' ");
 				}
 			}
-			
+
 		}
 		return this;
 	}
-	/**
-	 * setDate用于时间范围（from、to）查找，单个时间查询用setString
-	 * @param key
-	 * @param row
-	 * @return
-	 * @throws Exception
-	 */
-	public DbTool andDate(String field, JSONObject row) throws Exception {
+	//setDate用于时间范围（from、to）查找，单个时间查询用setString
+	public void andDate(String field, JSONObject row) {
 		String[] arr = field.trim().split("\\.");
 		String key = arr.length == 1? field: arr[1];
 		String column = arr.length == 1? getTableKey(key): field;
@@ -516,14 +578,13 @@ public class DbTool extends Basic {
 		if(!Tools.isEmpty(dateFrom)) {
 			String dateTo = row.getString(key+"_to");
 			if(Tools.isEmpty(dateTo)) {
-				this.sql.append( " AND "+column+" >= '" + dateFrom + " 00:00:00' and "+column+" <= '" + dateFrom + " 23:59:59' ");
+				this.sql.append(" AND ").append(column).append(" >= '").append(dateFrom).append(" 00:00:00' and ").append(column).append(" <= '").append(dateFrom).append(" 23:59:59' ");
 			}else {
-				this.sql.append( " AND "+column+" >= '" + dateFrom + " 00:00:00' and "+column+" <= '" + dateTo + " 23:59:59' ");
+				this.sql.append(" AND ").append(column).append(" >= '").append(dateFrom).append(" 00:00:00' and ").append(column).append(" <= '").append(dateTo).append(" 23:59:59' ");
 			}
 		}
-		return this;
 	}
-	public DbTool andSn(String field, JSONObject row) throws Exception {
+	public DbTool andSn(String field, JSONObject row) {
 		String[] arr = field.trim().split("\\.");
 		String key = arr.length == 1? field: arr[1];
 		String column = arr.length == 1? getTableKey(key): field;
@@ -531,14 +592,14 @@ public class DbTool extends Basic {
 		if(!Tools.isEmpty(from)) {
 			String to = row.getString(key+"_to");
 			if(Tools.isEmpty(to)) {
-				this.sql.append( " AND "+column+" like '%" + from + "%' ");
+				this.sql.append(" AND ").append(column).append(" like '%").append(from).append("%' ");
 			}else {
-				this.sql.append( " AND "+column+" >= '" + from + "' and "+column+" <= '" + to + "' ");
+				this.sql.append(" AND ").append(column).append(" >= '").append(from).append("' and ").append(column).append(" <= '").append(to).append("' ");
 			}
 		}
 		return this;
 	}
-	
+
 	public JSONArray count(DbBase db) throws Exception {//hana不支持对order进行count，mysql支持
 		String countSql = "select count(*) as count "+ this.sql.substring(this.sql.toString().toLowerCase().indexOf(" from "));
 		if(countSql.toLowerCase().contains(" order ")) {
@@ -546,7 +607,7 @@ public class DbTool extends Basic {
 		}else if(countSql.toLowerCase().contains(" limit ")) {
 			countSql=countSql.substring(0,countSql.toLowerCase().indexOf(" limit "));
 		}
-		return db.find(countSql);
+		return db.select(countSql);
 	}
 	public JSONArray sum(DbBase db, String projection, boolean deleteLimit) throws Exception {
 		String _sql = this.sql.toString();
@@ -554,27 +615,30 @@ public class DbTool extends Basic {
 		int endIndex1 = _sql.toLowerCase().indexOf(" order ") > 1 ? _sql.toLowerCase().indexOf(" order ") : this.sql.length();
 		int endIndex2 = _sql.toLowerCase().indexOf(" limit ") > 1 ? _sql.toLowerCase().indexOf(" limit ") : this.sql.length();
 		if(deleteLimit) {
-			return db.find("select " + projection +_sql.substring(beginIndex, endIndex1 < endIndex2 ? endIndex1 : endIndex2));
+			return db.select("select " + projection +_sql.substring(beginIndex, Math.min(endIndex1, endIndex2)));
 		}else {
-			return db.find("select " + projection +_sql.substring(beginIndex));
+			return db.select("select " + projection +_sql.substring(beginIndex));
 		}
 	}
-	
-	public JSONArray sortData(JSONArray data) throws Exception {
+
+
+
+
+	public JSONArray sortData(JSONArray data) {
 		return Tools.sort(data,this.sort,this.order);
 	}
-	public JSONArray limitData(JSONArray data) throws Exception {
+	public JSONArray limitData(JSONArray data) {
 		return Tools.limit(data,this.page,this.rows);
 	}
-	
-	
-	
-	
+
+
+
+
 	public String getKey(String key) {
 		String[] arr = key.trim().split("\\.");
 		return arr.length == 1? key: arr[1];
 	}
-	public String getTableKey(String key) throws Exception {
+	public String getTableKey(String key) {
 		if(!Tools.isEmpty(this.columns)) {
 			String column = this.columns.getString(key);
 			if(Tools.isEmpty(column)) {
@@ -588,7 +652,7 @@ public class DbTool extends Basic {
 		}
 		return key;
 	}
-	public String getValue(String key, Object obj) throws Exception {
+	public String getValue(String key, Object obj) {
 		if(Tools.isEmpty(obj)) {
 			return null;
 		}else if(obj instanceof JSONObject){
@@ -601,9 +665,7 @@ public class DbTool extends Basic {
 		return str.replaceAll("\"", "&quot;").replaceAll("'", "&apos;").replaceAll(" ", "&nbsp;")
 				.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>");//.replaceAll("&", "&amp;")
 	}
-	/*private DbBase getDefaultDb() throws Exception {
-		return DbBase.getDruid();
-	}*/
+
 	public String getSql() {
 		System.out.println(ToolsDate.getString("yyyy-MM-dd HH:mm:ss.SSS") +" DbTool: "+ this.sql.toString().replaceAll("\t", " ").replaceAll(" +"," "));
 		return this.sql.toString();
@@ -612,7 +674,7 @@ public class DbTool extends Basic {
 		this.sql = new StringBuffer(sql);
 		return this;
 	}
-	public JSONObject clearNull(JSONObject row) throws Exception {
+	public void clearNull(JSONObject row) {
 		Set<String> set = new HashSet<>();
 		for(String key: row.keySet()){
 			String value = row.getString(key);
@@ -623,39 +685,15 @@ public class DbTool extends Basic {
 		for(String key: set){
 			row.remove(key);
 		}
-		return row;
 	}
-	public JSONArray find() throws Exception {
-		return find(DbBase.DEFAULT_DB);
-	}
-	public JSONArray find(String db_name) throws Exception {
-		return find(DbBase.getDruid(db_name));
-	}
-	public JSONArray find(DbBase db) throws Exception {
-		return db.find(this.getSql());
-	}
-	public JSONObject get() throws Exception {
-		return get(DbBase.DEFAULT_DB);
-	}
-	public JSONObject get(String db_name) throws Exception {
-		return get(DbBase.getDruid(db_name));
-	}
-	public JSONObject get(DbBase db) throws Exception {
-		return db.get(this.getSql());
-	}
-	
-	public void a(Basic bean) {
-		//
-	}
-	public void b(SysUser bean) {
-		//
-	}
+
 	public static void main(String[] args) {
 		try {
-			Basic bean = new Basic();
+			//Basic bean = new Basic();
 			//DbTool.getInstance().b(bean);
-			SysUser bean2 = new SysUser();
-			DbTool.getInstance().a(bean2);
+			//SysUser bean2 = new SysUser();
+			//DbTool.getInstance().clearNull(new JSONObject());
+			System.out.println(DbTool.config);
 			JSONObject obj = new JSONObject();
 			obj.put("table", "t6");
 			obj.put("database", "xyz");
@@ -683,7 +721,7 @@ public class DbTool extends Basic {
 				rows.add(row);
 			}
 			obj.put("rows", rows);
-			System.out.println(DbTool.getInstance().createTableSql(obj));
+			System.out.println(DbTool.getInstance().createTableSql(obj).getSql());
 			//DbTool.getInstance().createTable(DbBase.getJdbc(), obj);
 			/*String a = " name as  n ";
 			String[] arr = a.trim().split(" ");

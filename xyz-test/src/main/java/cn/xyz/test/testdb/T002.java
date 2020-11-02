@@ -20,7 +20,7 @@ public class T002 {
 		row.put("ng", DbTool.escape(row.getString("ng")));
 		DbTool d = DbTool.getInstance();
 		try {
-			System.out.println(d.insert(DbBase.getJdbc(DbBase.DEFAULT_DB), "test3", row, null));
+			System.out.println(d.createInsertSql("test3", row, null).insert());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

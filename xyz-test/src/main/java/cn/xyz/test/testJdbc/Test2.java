@@ -11,7 +11,7 @@ public class Test2 {
 		try {
 			DbBase db = DbBase.getJdbc().startTransaction();
 			db.execute("lock tables t1 write;");
-			JSONArray data = db.find("select * from t1");
+			JSONArray data = db.select("select * from t1");
 			System.out.println(data);
 			Thread.sleep(100000);
 			db.commit();

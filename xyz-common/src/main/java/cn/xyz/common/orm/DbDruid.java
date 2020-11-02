@@ -1,8 +1,6 @@
 package cn.xyz.common.orm;
 
-import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -14,30 +12,28 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 import cn.xyz.common.tools.ToolsProperties;
 
 public class DbDruid extends DbBase{
-	private static Map<String, DataSource> map_ds = new HashMap<>();
-	public static final String[] DB_NAMES = {"oracle", "mysql", "sqlserver", "postgresql", "mongodb", "sybase", "hana"};
+	private static final Map<String, DataSource> map_ds = new HashMap<>();
+	//public static final String[] DB_NAMES = {"oracle", "mysql", "sqlserver", "postgresql", "mongodb", "sybase", "hana"};
 	private DbDruid(String db_name) {
 		this.db_name = db_name;
 	}
 	//加载配置文件
-	static {
-		for (int i = 0; i < DB_NAMES.length; i++) {
-			try(InputStream is = DbDruid.class.getClassLoader().getResourceAsStream("druid/druid_"+ DB_NAMES[i] +".properties")) {
-				Properties properties = ToolsProperties.load("druid/druid_"+ DB_NAMES[i] +".properties");
-				if(properties != null) {
-					DataSource ds = DruidDataSourceFactory.createDataSource(properties);
-					map_ds.put(DB_NAMES[i], ds);
-				}
+	/*static {
+		for (String dbName : DB_NAMES) {
+			try {
+				Properties properties = ToolsProperties.load("druid/druid_" + dbName + ".properties");
+				DataSource ds = DruidDataSourceFactory.createDataSource(properties);
+				map_ds.put(dbName, ds);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-	}
+	}*/
 	//必须通过此方法创建对象
-	public static DbDruid getInstance() throws Exception {
+	public static DbDruid getInstance() {
 		return new DbDruid(DbBase.DEFAULT_DB);
 	}
-	public static DbDruid getInstance(String dbName) throws Exception {
+	public static DbDruid getInstance(String dbName) {
 		return new DbDruid(dbName);
 	}
 	public DataSource getDataSource() {
@@ -62,10 +58,11 @@ public class DbDruid extends DbBase{
 	}
     
     public static void main(String[] args) {
-    	DbDruid db = null;
+    	DbDruid db;
 		try {
+			System.out.println(DbTool.tables_info);
 			db = DbDruid.getInstance(DbBase.MYSQL);
-			System.out.println(db.find("select * from user"));
+			System.out.println(db.select("select * from t1"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

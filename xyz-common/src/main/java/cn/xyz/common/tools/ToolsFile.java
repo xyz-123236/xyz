@@ -5,12 +5,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,8 +65,8 @@ public class ToolsFile {
         //item.write( new File(path,filename) );//第三方提供的  
         //手动写的  
 		try(	OutputStream out = new FileOutputStream(new File(path,new_name));
-				InputStream in = item.getInputStream(); ) {
-			int length = 0 ;  
+				InputStream in = item.getInputStream()) {
+			int length;
 			byte [] buf = new byte[1024] ;  
 			// in.read(buf) 每次读到的数据存放在   buf 数组中  
 			while( (length = in.read(buf) ) != -1) {  
@@ -79,13 +78,7 @@ public class ToolsFile {
 			e.printStackTrace();
 		}
 		return null;
-	}/**
-	 * 
-	 * @param src        访问路径
-	 * @param savePath   保存路径
-	 * @param uploadFile 文件
-	 * @return
-	 */
+	}
 	/*public static JSONObject upload(String url, String savePath, MultipartFile uploadFile, String dir) {
 		JSONObject obj = new JSONObject();
 		try {
@@ -160,11 +153,7 @@ public class ToolsFile {
 		File file = new File(fileName);
 		// 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
 		if (file.exists() && file.isFile()) {
-			if (file.delete()) {
-				return true;
-			} else {
-				return false;
-			}
+			return file.delete();
 		} else {
 			return false;
 		}
@@ -189,16 +178,17 @@ public class ToolsFile {
 		boolean flag = true;
 		// 删除文件夹中的所有文件包括子目录
 		File[] files = dirFile.listFiles();
-		for (int i = 0; i < files.length; i++) {
+		if(Tools.isEmpty(files)) return true;
+		for (File file : files) {
 			// 删除子文件
-			if (files[i].isFile()) {
-				flag = deleteFile(files[i].getAbsolutePath());
+			if (file.isFile()) {
+				flag = deleteFile(file.getAbsolutePath());
 				if (!flag)
 					break;
 			}
 			// 删除子目录
-			else if (files[i].isDirectory()) {
-				flag = deleteDirectory(files[i].getAbsolutePath());
+			else if (file.isDirectory()) {
+				flag = deleteDirectory(file.getAbsolutePath());
 				if (!flag)
 					break;
 			}
@@ -207,11 +197,7 @@ public class ToolsFile {
 			return false;
 		}
 		// 删除当前目录
-		if (dirFile.delete()) {
-			return true;
-		} else {
-			return false;
-		}
+		return dirFile.delete();
 	}
 	public static void download(String savePath, String fileName, HttpServletRequest request, HttpServletResponse response) {
 		response.setContentType("text/html;charset=utf-8");
@@ -223,10 +209,10 @@ public class ToolsFile {
 		//String downLoadPath =filePath.replaceAll("/", "\\\\\\\\");   //replace replaceAll区别
 		
 		try(BufferedInputStream bis = new BufferedInputStream(new FileInputStream(savePath));
-				BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());) {
+				BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
 			long fileLength = new File(savePath).length();
 			response.setContentType("application/x-msdownload;");
-			response.setHeader("Content-disposition", "attachment; filename=" + new String(fileName.getBytes("utf-8"), "ISO8859-1"));
+			response.setHeader("Content-disposition", "attachment; filename=" + new String(fileName.getBytes(StandardCharsets.UTF_8), "ISO8859-1"));
 			response.setHeader("Content-Length", String.valueOf(fileLength));
 			
 			byte[] buff = new byte[2048];
@@ -239,7 +225,7 @@ public class ToolsFile {
 		}
 	}
 	public static void main(String[] args) {
-		System.out.println(formatSize((1024*25+25)*1024*1024l));//测试参数要加l：long
+		System.out.println(formatSize((1024 * 25 + 25) * 1024 * 1024L));//测试参数要加l：long
 		System.out.println(getExt("123.456.789.jpg"));
 	}
 }

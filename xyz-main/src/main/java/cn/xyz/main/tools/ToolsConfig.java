@@ -29,7 +29,7 @@ public class ToolsConfig {
 	//把create放到DispatcherServlet里初始化
 	public static void create() throws Exception {
 		config = new JSONObject();
-		JSONArray data = DbTool.getInstance().select("sys_config").find();
+		JSONArray data = DbTool.getInstance().createSelectSql("sys_config").select();
 		for (int i = 0; i < data.size(); i++) {
 			config.put(data.getJSONObject(i).getString("key"), data.getJSONObject(i).get("value"));
 		}

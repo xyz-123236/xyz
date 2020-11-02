@@ -8,8 +8,6 @@ import java.util.Map;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtils;
 
-import com.alibaba.fastjson.JSON;
-
 import cn.xyz.common.pojo.Basic;
 
 public class ToolsBean {
@@ -40,7 +38,7 @@ public class ToolsBean {
             return null;    
         }   
   
-        Map<String, Object> map = new HashMap<String, Object>();    
+        Map<String, Object> map = new HashMap<>();
   
         Field[] declaredFields = obj.getClass().getDeclaredFields();    
         for (Field field : declaredFields) {    
@@ -68,7 +66,8 @@ public class ToolsBean {
     }    
     public static void main(String[] args) {
     	try {
-    		Map<String, Object> map = new HashMap<String, Object>();
+
+    		Map<String, Object> map = new HashMap<>();
     		map.put("page", 10);
     		map.put("rows", "");
     		Basic b = mapToBean(map, Basic.class );
@@ -77,6 +76,8 @@ public class ToolsBean {
     		Map<?, ?> map2 = objectToMap2(b);
     		System.out.println(map2.get("page"));
     		System.out.println(map2.get("rows"));
+            System.out.println(beanToMap(b));
+            System.out.println(mapToObject2(map,Basic.class));
 			//JSON.parseObject("", Basic.class);
 		} catch (Exception e) {
 			e.printStackTrace();

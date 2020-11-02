@@ -1,8 +1,6 @@
 package cn.xyz.common.tools;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.Properties;
 
@@ -19,20 +17,19 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import cn.xyz.common.pojo.Result;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.pojo.Email;
-import cn.xyz.common.tools.Tools;
 
 public class ToolsEmail {
 	public static Properties properties = null;
     static {
-	    try(InputStreamReader isr = new InputStreamReader(ToolsEmail.class.getClassLoader().getResourceAsStream("resource/email.properties"),"utf-8");) {
-	    	properties = new Properties();
-			properties.load(isr);
-		} catch (IOException e) {
-			e.printStackTrace();
+	    try {
+            properties = ToolsProperties.load("resource/email.properties","utf-8");
+		} catch (Exception e) {
+			Result.error(e);
 		}
 	}
 	public static void SendEmail(Email email) throws Exception {
@@ -92,16 +89,15 @@ public class ToolsEmail {
         // 附件部分
         String[] file_urls = email.getFile_urls();
         if(!Tools.isEmpty(file_urls)) {
-        	for (int i = 0; i < file_urls.length; i++) {
-        		String file_url = file_urls[i];
-        		if(Tools.isEmpty(file_url)) continue;
-        		File file = new File(file_url);
-            	BodyPart messageAttachmentPart = new MimeBodyPart();
+            for (String file_url : file_urls) {
+                if (Tools.isEmpty(file_url)) continue;
+                File file = new File(file_url);
+                BodyPart messageAttachmentPart = new MimeBodyPart();
                 DataSource source = new FileDataSource(file);
                 messageAttachmentPart.setDataHandler(new DataHandler(source));
-                messageAttachmentPart.setFileName(file_url.substring(file_url.lastIndexOf(File.separator)+1, file_url.length()));
+                messageAttachmentPart.setFileName(file_url.substring(file_url.lastIndexOf(File.separator) + 1));
                 multipart.addBodyPart(messageAttachmentPart);
-			}
+            }
         }
         msg.setContent(multipart);
         // 设置显示的发件时间
@@ -119,7 +115,7 @@ public class ToolsEmail {
     }
 
 	
-	public static StringBuilder createTable(String head[],JSONArray data, String title){
+	public static StringBuilder createTable(String[] head,JSONArray data, String title){
 		 
         StringBuilder table=new StringBuilder();
         table.append("    <html>");
@@ -140,11 +136,11 @@ public class ToolsEmail {
         table.append("    ");
         
         table.append("     <body>");
-        table.append("<h2>"+title+"<h2/>");
+        table.append("<h2>").append(title).append("<h2/>");
         table.append("    <table style=\"width:500px; border-spacing:0;\">  ");
         table.append("       <tr>  ");
-        for (int i=0;i<head.length;i++){
-            table.append("          <th>"+head[i]+"</th>  ");
+        for (String s : head) {
+            table.append("          <th>").append(s).append("</th>  ");
         }
         table.append("       </tr>  ");
         for (int i=0;i<data.size();i++){
@@ -152,9 +148,9 @@ public class ToolsEmail {
 			if (i%2==1){
 				tr = "<tr class=\"even\">";
 			}
-			table.append("     "+tr+"    ");
-			table.append("         <td>"+data.getJSONObject(i).getString("name")+"</td>  ");
-			table.append("         <td>"+data.getJSONObject(i).getString("pwd")+"</td>  ");
+			table.append("     ").append(tr).append("    ");
+			table.append("         <td>").append(data.getJSONObject(i).getString("name")).append("</td>  ");
+			table.append("         <td>").append(data.getJSONObject(i).getString("pwd")).append("</td>  ");
 			table.append("       </tr>  ");
 		}
         table.append("    </table> ");
@@ -166,7 +162,7 @@ public class ToolsEmail {
 
     public static void main(String[] args) {
 		try {
-			String head[] = {"账号","密码"};
+			String[] head = {"账号","密码"};
 			JSONArray employees = new JSONArray();
 			JSONObject employee = new JSONObject();
 			employee.put("name", "小明");

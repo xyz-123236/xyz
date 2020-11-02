@@ -10,8 +10,7 @@ public class SysConfigDaoImpl implements SysConfigDao{
 	@Override
 	public JSONArray find() throws Exception {
 		DbBase db = DbBase.getDruid();
-		String sql = DbTool.getInstance().select("sys_config").getSql();
-		return db.find(sql);
+		return DbTool.getInstance().createSelectSql("sys_config").select();
 	}
 
 }

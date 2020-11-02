@@ -11,25 +11,21 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import cn.xyz.common.exception.CustomException;
 import cn.xyz.common.pojo.SysUser;
 
 public class ToolsSys {
 	public static final String LOGIN_USER = "login_user";
 	
-	public static String getUsercode(HttpSession session) throws Exception {
+	public static String getUsercode(HttpSession session) throws CustomException {
 		SysUser login_user = (SysUser) session.getAttribute(LOGIN_USER);
 		if(Tools.isEmpty(login_user)) {
-			throw new Exception("没有登录");
+			throw new CustomException("没有登录");
 		}
 		return login_user.getUsercode();
 	}
-	/**
-	 * *获取客户端ip
-	 * @param request
-	 * @return
-	 * @throws Exception 
-	 */
-	public static String getRemoteIP(HttpServletRequest request) throws Exception {
+
+	public static String getRemoteIP(HttpServletRequest request) {
 		String ip = null;
 		String ipAddresses = request.getHeader("X-Real-IP");// X-Real-IP：nginx服务代理
 		if (Tools.isEmpty(ipAddresses) || "unknown".equalsIgnoreCase(ipAddresses)) {
@@ -79,33 +75,18 @@ public class ToolsSys {
 		
 		3.Java类中获得绝对路径
 		　　根据java.io.File的Doc文挡，可知: 默认情况下new File("/")代表的目录为：System.getProperty("user.dir")。
-	*/	
-	/**
-	 * 获取主机名称
-	 * 
-	 * @return
-	 * @throws UnknownHostException
-	 */
+	*/
+	//获取主机名称
 	public static String getHostName() throws UnknownHostException {
 		return InetAddress.getLocalHost().getHostName();
 	}
 
-	/**
-	 * 获取系统首选IP
-	 * 
-	 * @return
-	 * @throws UnknownHostException
-	 */
+	//获取系统首选IP
 	public static String getLocalIP() throws UnknownHostException {
 		return InetAddress.getLocalHost().getHostAddress();
 	}
 
-	/**
-	 * 获取所有网卡IP，排除回文地址、虚拟地址
-	 * 
-	 * @return
-	 * @throws SocketException
-	 */
+	//获取所有网卡IP，排除回文地址、虚拟地址
 	public static String[] getLocalIPs() throws SocketException {
 		List<String> list = new ArrayList<>();
 		Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
@@ -126,17 +107,10 @@ public class ToolsSys {
 		return list.toArray(new String[0]);
 	}
 
-	/**
-	 * 判断操作系统是否是Windows
-	 * 
-	 * @return
-	 */
+	//判断操作系统是否是Windows
 	public static boolean isWindowsOS() {
 		String osName = System.getProperty("os.name");
-		if (osName.toLowerCase().indexOf("windows") > -1) {
-			return true;
-		}
-		return false;
+		return osName.toLowerCase().contains("windows");
 	}
 
 	public static void main(String[] args) {

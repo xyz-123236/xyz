@@ -8,10 +8,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class ToolsDate {
@@ -29,22 +26,22 @@ public class ToolsDate {
 			return null;
 		}
 		String _date = date.replaceAll("/", "-");
-		String pattern ="";
+		StringBuilder pattern = new StringBuilder();
 		for (int i = 0; i < _date.length(); i++) {
 			String s = _date.substring(i,i+1);
 			if(Pattern.matches("[0-9a-zA-Z]", s)) {
-				pattern += "[0-9a-zA-Z]";
+				pattern.append("[0-9a-zA-Z]");
 			}else {
-				pattern += s;
+				pattern.append(s);
 			}
 		}
-		for (int i = 0; i < patterns.length; i++) {
-			if(Pattern.matches(pattern, patterns[i])) {
-				pattern = patterns[i];
+		for (String s : patterns) {
+			if (Pattern.matches(pattern.toString(), s)) {
+				pattern = new StringBuilder(s);
 				break;
 			}
 		}
-		return getDate(_date, pattern);
+		return getDate(_date, pattern.toString());
 		//return DateUtils.parseDate(date.trim(), Locale.ENGLISH, patterns);
 	}
 	public static Date getDate(String date, String pattern) throws Exception {
@@ -58,7 +55,7 @@ public class ToolsDate {
 		return getLong(getDate(date));
 	}
 	public static long getLong(Date date) {
-		if (date == null) return 0l;
+		if (date == null) return 0L;
 		return date.getTime();
 	}
 	public static String getString() {
@@ -117,7 +114,7 @@ public class ToolsDate {
 			case "season":
 				return Integer.toString(cal.get(Calendar.MONTH) / 3 + 1);
 			case "w":
-				Integer week = cal.get(Calendar.WEEK_OF_YEAR);
+				int week = cal.get(Calendar.WEEK_OF_YEAR);
 				if(week == 1)
 				{
 					if(cal.get(Calendar.MONTH) > 1)
@@ -144,7 +141,7 @@ public class ToolsDate {
 		if(part == 44) {//季度
 			return Integer.toString(cal.get(Calendar.MONTH) / 3 + 1);
 		}
-		Integer result = cal.get(part);
+		int result = cal.get(part);
 		if(part == Calendar.MONTH) {//月
 			result += 1;
 		}
@@ -158,7 +155,7 @@ public class ToolsDate {
 				}
 			}
 		}
-		return result.toString();
+		return Integer.toString(result);
 	}
 	
 	public static Date add(String field, int amount, Date date) {
@@ -210,7 +207,7 @@ public class ToolsDate {
 	}
 	
 
-	public static String createNo(String split) throws Exception {
+	public static String createNo(String split) {
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyyMMddHHmmssSSS");
 		if(Tools.isEmpty(split)) {
 			return sdf.format(new Date()) + (new Random().nextInt(900) + 100);
@@ -221,13 +218,13 @@ public class ToolsDate {
 	public static int diffMonth(String from, String to) throws Exception {
 		Calendar datefrom = Calendar.getInstance();
 		Calendar dateto = Calendar.getInstance();
-		datefrom.setTime(getDate(from));
-		dateto.setTime(getDate(to));
+		datefrom.setTime(Objects.requireNonNull(getDate(from)));
+		dateto.setTime(Objects.requireNonNull(getDate(to)));
 		int y = dateto.get(Calendar.YEAR) - datefrom.get(Calendar.YEAR);
 		return dateto.get(Calendar.MONTH) - datefrom.get(Calendar.MONTH) + y * 12;	
 	}
 	public static int diffDay(String from, String to) throws Exception {
-		return (int) ((getDate(from).getTime() - getDate(to).getTime()) / (1000*3600*24));
+		return (int) ((Objects.requireNonNull(getDate(from)).getTime() - Objects.requireNonNull(getDate(to)).getTime()) / (1000*3600*24));
 	}
 	public static String firstDay() {
 		Calendar c = Calendar.getInstance();    
@@ -259,7 +256,7 @@ public class ToolsDate {
 	public static Date max(String date1, String date2) throws Exception {
 		return max(getDate(date1),getDate(date2));
 	}
-	public static Date max(Date date1, Date date2) throws Exception {
+	public static Date max(Date date1, Date date2) {
 		if(Tools.isEmpty(date1)) return date2;
 		if(Tools.isEmpty(date2)) return date1;
 		if(date1.before(date2)) {
@@ -285,8 +282,7 @@ public class ToolsDate {
 	public static LocalDate getLocalDate(Date date) {
         Instant instant = date.toInstant();
         ZoneId zoneId = ZoneId.systemDefault();
-        LocalDate localDate = instant.atZone(zoneId).toLocalDate();
-        return localDate;
+		return instant.atZone(zoneId).toLocalDate();
     }
 	public static LocalDate getLocalDate(String time, String format) {
 		DateTimeFormatter df = DateTimeFormatter.ofPattern(format);
@@ -301,8 +297,7 @@ public class ToolsDate {
 	public static LocalDateTime getLocalDateTime(Date date) {
         Instant instant = date.toInstant();
         ZoneId zoneId = ZoneId.systemDefault();
-        LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
-        return localDateTime;
+		return instant.atZone(zoneId).toLocalDateTime();
     }
 	public static LocalDateTime getLocalDateTime(String time, String format) {
 		DateTimeFormatter df = DateTimeFormatter.ofPattern(format);
@@ -323,14 +318,12 @@ public class ToolsDate {
 	public static Date getDate(LocalDate localDate) {
         ZoneId zoneId = ZoneId.systemDefault();
         ZonedDateTime zdt = localDate.atStartOfDay(zoneId);
-        Date date = Date.from(zdt.toInstant());
-		return date;
+		return Date.from(zdt.toInstant());
     }
 	public static Date getDate(LocalDateTime localDateTime) {
         ZoneId zoneId = ZoneId.systemDefault();
         ZonedDateTime zdt = localDateTime.atZone(zoneId);
-        Date date = Date.from(zdt.toInstant());
-		return date;
+		return Date.from(zdt.toInstant());
     }
 	
 	public static void main(String[] args) {

@@ -1,7 +1,5 @@
 package cn.xyz.common.orm;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
@@ -23,10 +21,10 @@ public class DbJdbc extends DbBase{
 		this.db_name = db_name;
 	}
 	//必须通过此方法创建对象
-	public static DbJdbc getInstance() throws Exception {
+	public static DbJdbc getInstance() {
 		return new DbJdbc(DbBase.DEFAULT_DB);
 	}
-	public static DbJdbc getInstance(String dbName) throws Exception {
+	public static DbJdbc getInstance(String dbName) {
 		return new DbJdbc(dbName);
 	}
 	public Connection getConnection() throws Exception {
@@ -37,10 +35,10 @@ public class DbJdbc extends DbBase{
 		return this.conn;
 	}
 	public static void main(String[] args) {
-		DbJdbc db = null;
+		DbJdbc db;
 		try {
 			db = DbJdbc.getInstance(DbBase.MYSQL);
-			System.out.println(db.find("select passWord,userName from user"));
+			System.out.println(db.select("select * from t1"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
