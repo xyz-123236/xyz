@@ -1,28 +1,33 @@
 package cn.xyz.common.tools;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.xyz.common.exception.CustomException;
 import org.apache.commons.fileupload.FileItem;
 
 import com.alibaba.fastjson.JSONObject;
+import org.springframework.web.multipart.MultipartFile;
 
 public class ToolsFile {
 	//保存文件的方法单独处来
 	public static String[] unitNames = {"B", "KB", "MB","GB", "TB", "PB"};
+	public static final int MAX_SIZE = 100*1024*1024;
 	public static int radix = 1024;
+	public static HashMap<String, String> extMap = new HashMap<>();
+	static {
+		extMap.put("image", "gif,jpg,jpeg,png,bmp");
+		extMap.put("flash", "swf,flv");
+		extMap.put("media", "swf,flv,mp3,wav,wma,wmv,mid,avi,mpg,asf,rm,rmvb");
+		extMap.put("file", "doc,docx,xls,xlsx,ppt,htm,html,txt,zip,rar,gz,bz2");
+	}
 	public static String formatSize(long size) {
 		if(size <= 0) return "0";
 		int i = (int)(Math.floor(Math.log(size) / Math.log(radix)));
@@ -79,51 +84,41 @@ public class ToolsFile {
 		}
 		return null;
 	}
-	/*public static JSONObject upload(String url, String savePath, MultipartFile uploadFile, String dir) {
+	public static JSONObject upload(String url, String savePath, MultipartFile uploadFile, String dir) throws Exception {
 		JSONObject obj = new JSONObject();
-		try {
-
-			if (uploadFile != null && !uploadFile.isEmpty()) {
-				String new_name = StringUtils.createNo("_");
-				String old_name = uploadFile.getOriginalFilename();
-				String ext = getFileExt(old_name);// 获取文件后缀
-				// String ext = FilenameUtils.getExtension(old_name);
-				long size = uploadFile.getSize();
-				// 判断文件的大小,格式
-				if (size > MAX_SIZE) {
-					return getError("上传文件大小超过限制");
-				}
-				// 检查扩展名
-				if (!Arrays.<String>asList(extMap.get(dir).split(",")).contains(ext)) {
-					return getError("上传文件扩展名是不允许的扩展名。\n只允许" + extMap.get(dir) + "格式。");
-				}
-				// 保存文件
-				File newFile = new File(savePath + File.separator + new_name + "." + ext);
-				if (!newFile.exists()) {
-					newFile.mkdirs();
-				}
-				uploadFile.transferTo(newFile);
-
-				// 附件模型对象
-				Attached attached = new Attached();
-				attached.setOld_name(old_name);// 原文件名
-				attached.setNew_name(new_name);
-				attached.setExt(ext);
-				attached.setSize(getHumanReadableFileSize(size));
-				attached.setUrl(url + "/" + new_name + "." + ext);
-				attached.setSave_path(savePath + File.separator + new_name + "." + ext);
-				obj.put("data", attached);
-				obj.put("fileName", old_name);
-				obj.put("error", 0);
-				obj.put("url", url + "/" + new_name + "." + ext);
-				return obj;
+		if (uploadFile != null && !uploadFile.isEmpty()) {
+			String new_name = ToolsString.getId();
+			String old_name = uploadFile.getOriginalFilename();
+			String ext = getExt(old_name);// 获取文件后缀
+			// String ext = FilenameUtils.getExtension(old_name);
+			long size = uploadFile.getSize();
+			// 判断文件的大小,格式
+			if (size > MAX_SIZE) {
+				throw new CustomException("上传文件大小超过限制" + formatSize(MAX_SIZE));
 			}
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return getError("上传发生错误");
+			// 检查扩展名
+			if (!Tools.isEmpty(dir) && !Arrays.asList(extMap.get(dir).split(",")).contains(ext)) {
+				throw new CustomException("上传文件扩展名是不允许的扩展名。\n只允许" + extMap.get(dir) + "格式。");
+			}
+			// 保存文件
+			File newFile = new File(savePath + File.separator + new_name + "." + ext);
+			if (!newFile.exists()) {
+				if(newFile.mkdirs()){
+					throw new CustomException("创建文件目录失败");
+				}
+			}
+			uploadFile.transferTo(newFile);
+
+			// 附件模型对象
+			obj.put("old_name", old_name);
+			obj.put("new_name", new_name);
+			obj.put("ext", ext);
+			obj.put("size", formatSize(size));
+			obj.put("path", savePath + File.separator + new_name + "." + ext);
+			obj.put("url", url + "/" + new_name + "." + ext);
 		}
-	}*/
+		return obj;
+	}
 
 	/**
 	 * 删除文件，可以是文件或文件夹

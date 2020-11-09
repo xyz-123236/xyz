@@ -317,7 +317,38 @@ public class DbTool extends Basic {
 		}
 		return this;
 	}
-
+	public DbTool createUpdateNoNullSql(String table, JSONObject row, String update_by) throws Exception{
+		this.createUpdateSql(table);
+		JSONObject filedType = this.db.getFiledType(table);
+		String number = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";
+		String string = ",VARCHAR,CHAR,";
+		//String date = ",DATE,DATETIME,TIME,TIMESTAMP,";
+		if(!Tools.isEmpty(row)) {
+			StringBuilder set = new StringBuilder();
+			if(!Tools.isEmpty(update_by)) {
+				row.put("update_by", update_by);
+				row.put("update_date", ToolsDate.getLongString());
+			}
+			String primary_name = getPrimaryName(this.db, table);
+			for(String key: row.keySet()){
+				Object value = row.get(key);
+				String type = filedType.getString(key);
+				if(!Tools.isEmpty(type) && !key.equals(primary_name) && !Tools.isEmpty(value)) {//值为空不修改
+					if(string.contains("," + type + ",")) {
+						set.append(key).append("='").append(Tools.isEmpty(value) ? "" : value).append("',");
+					}else if(number.contains("," + type + ",")) {
+						set.append(key).append(" = ").append(Tools.isEmpty(value) ? "0" : value).append(",");
+					}else{
+						set.append(key).append("=").append(Tools.isEmpty(value) ? null : "'" + value + "'").append(",");
+					}
+				}
+			}
+			this.sql.append(set.substring(0, set.lastIndexOf(",")));
+		}else {
+			throw new Exception("没有要修改的数据");
+		}
+		return this;
+	}
 	public DbTool createUpdateSql(String table) {
 		this.sql = new StringBuffer().append("update ").append(table).append(" set ");
 		return this;

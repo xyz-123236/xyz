@@ -329,6 +329,17 @@ public class ToolsDate {
 	public static void main(String[] args) {
 		try {
 			System.out.println(getLong());
+			System.out.println(System.currentTimeMillis());
+			System.out.println(getLong(LocalDateTime.now()));
+			System.out.println(getLong());
+			System.out.println(System.currentTimeMillis());
+			System.out.println(getLong(LocalDateTime.now()));
+
+			System.out.println(System.currentTimeMillis());
+			System.out.println(getLong());
+			System.out.println(getLong(LocalDateTime.now()));
+			System.out.println(System.currentTimeMillis());
+			System.out.println(getLong());
 			System.out.println(getLong(LocalDateTime.now()));
 //			System.out.println(firstDay());
 //			System.out.println(lastDay());

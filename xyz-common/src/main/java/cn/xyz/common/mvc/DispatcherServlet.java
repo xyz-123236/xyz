@@ -32,8 +32,8 @@ public class DispatcherServlet extends HttpServlet {
     private final List<String> classNames = new ArrayList<>();
     private final Map<String, Object> ioc = new HashMap<>();
     //handlerMapping的类型可以自定义为Handler
-    private final Map<String, Method> handlerMapping = new  HashMap<>();
-    private final Map<String, Object> controllerMap  =new HashMap<>();
+    private final Map<String, Method> handlerMapping = new HashMap<>();
+    private final Map<String, Object> controllerMap = new HashMap<>();
 
     @Override
     public void init(ServletConfig config) throws ServletException {
