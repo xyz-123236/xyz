@@ -8,9 +8,7 @@ import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
 public class TagIf2 extends TagSupport{
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private String role;
 	private String permission;

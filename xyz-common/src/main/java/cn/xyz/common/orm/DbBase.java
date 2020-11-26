@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+import cn.xyz.common.exception.CustomException;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -31,7 +32,7 @@ public abstract class DbBase {
 	private static final String SQL = "SELECT * FROM ";// 数据库操作
 
 	public abstract Connection getConnection() throws Exception;
-	
+
 	public static DbBase getJdbc() {
 		return getJdbc(DbBase.DEFAULT_DB);
 	}
@@ -94,27 +95,33 @@ public abstract class DbBase {
 		}
 	}
 	//close是否关闭,params返回的序号
-	public CallableStatement call(String sql,boolean close,Integer... params) throws Exception {
+	public JSONArray call(String sql,boolean close,Integer... params) throws Exception {
 		CallableStatement cstm = null;
+		ResultSet rs = null;
 		try {
 			cstm = this.getConnection().prepareCall(sql);
 			cstm.execute();
-			/*JSONObject obj = new JSONObject();
-			for (Integer param : params) {
+			System.out.println(cstm.execute());
+			System.out.println(cstm.getResultSet());
+			rs = cstm.getResultSet();
+			//ResultSet rs = cstm.executeQuery();
+			/*for (Integer param : params) {
 				obj.put(param + "", cstm.getObject(param));
 			}*/
-			//ResultSet rs = (ResultSet)cstm.getObject(2);
-			//return obj;
-		} catch (SQLException e) {
-			e.printStackTrace();
+			JSONArray data = rsToArray(rs);
+			return data;
+		} finally {
+			close(rs);
+			closeCall(cstm);
+			closeConnection();
 		}
-		if(close) {
+		/*if(close) {
 			closeCall(cstm);
 			closeConnection();
 			return null;
 		}else {
 			return cstm;
-		}
+		}*/
 	}
 	public static void closeCall(CallableStatement cstm) {
 		try {
@@ -139,7 +146,10 @@ public abstract class DbBase {
 		ResultSet rs = null;
 		try {
 			rs = this.executeQuery(sql, params);
-			return rsToJson(rs);
+			if (rs.next()) {
+				return rsToJson(rs);
+			}
+			return null;
 		} finally {
 			this.close(rs);
 		}
@@ -158,19 +168,18 @@ public abstract class DbBase {
 		return null;
 	}
 
-	public JSONObject insert(String sql, Object... params) throws Exception{
+	public Integer insert(String sql, Object... params) throws Exception{
 		ResultSet rs = null;
 		try {
-			this.fillPstm(sql, params).executeUpdate();
+			int row = this.fillPstm(sql, params).executeUpdate();
+			if(row != 1){
+				throw new CustomException("新增失败");
+			}
 			rs = this.pstm.getGeneratedKeys();
-			/*Integer id = null;
-			if (rs.next()) {  
-				id = rs.getInt(1);  
-		    } else {
-		        throw new Exception("返回主键失败"); 
-		    }
-			return id;*/
-			return rsToJson(rs);
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+			return null;
 		} finally {
 			closeResource(rs);
 		}

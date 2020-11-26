@@ -17,7 +17,7 @@ public class DbJdbc extends DbBase{
 			e.printStackTrace();
 		}
 	}
-	private DbJdbc(String db_name) {
+	DbJdbc(String db_name) {
 		this.db_name = db_name;
 	}
 	//必须通过此方法创建对象

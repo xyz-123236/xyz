@@ -12,7 +12,10 @@ public class ToolsDouble {
 	enum DoubleOpr{
         ADD,SUB,MUL,DIV
     }
-	
+	//PLUS	plus	+	加
+	//MINUS	minus	-	减
+	//TIMES	times	*	乘
+			//OVER
 	//DoubleOpr:运算方式
     public static Double opr(DoubleOpr opr, Object v1, Object v2, int scale) {
         BigDecimal num1 = new BigDecimal(String.valueOf(v1));

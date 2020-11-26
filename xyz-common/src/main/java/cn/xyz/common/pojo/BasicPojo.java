@@ -1,5 +1,10 @@
 package cn.xyz.common.pojo;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class BasicPojo {
 	protected Integer page;// 开始页
 	protected Integer rows;// 页面容量
@@ -12,65 +17,5 @@ public class BasicPojo {
 	protected String update_by;
 	protected String update_date;
 	protected String remark;
-	
-	public Integer getPage() {
-		return this.page;
-	}
-	public void setPage(Integer page) {
-		this.page = page;
-	}
-	public Integer getRows() {
-		return this.rows;
-	}
-	public void setRows(Integer rows) {
-		this.rows = rows;
-	}
-	public String getSort() {
-		return this.sort;
-	}
-	public void setSort(String sort) {
-		this.sort = sort;
-	}
-	public String getOrder() {
-		return this.order;
-	}
-	public void setOrder(String order) {
-		this.order = order;
-	}
-	public String getJsp_name() {
-		return this.jsp_name;
-	}
-	public void setJsp_name(String jsp_name) {
-		this.jsp_name = jsp_name;
-	}
-	public String getCreate_by() {
-		return this.create_by;
-	}
-	public void setCreate_by(String create_by) {
-		this.create_by = create_by;
-	}
-	public String getCreate_date() {
-		return this.create_date;
-	}
-	public void setCreate_date(String create_date) {
-		this.create_date = create_date;
-	}
-	public String getUpdate_by() {
-		return this.update_by;
-	}
-	public void setUpdate_by(String update_by) {
-		this.update_by = update_by;
-	}
-	public String getUpdate_date() {
-		return this.update_date;
-	}
-	public void setUpdate_date(String update_date) {
-		this.update_date = update_date;
-	}
-	public String getRemark() {
-		return this.remark;
-	}
-	public void setRemark(String remark) {
-		this.remark = remark;
-	}
+
 }

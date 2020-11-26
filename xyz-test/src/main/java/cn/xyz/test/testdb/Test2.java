@@ -1,4 +1,4 @@
-package cn.xyz.test.testJdbc;
+package cn.xyz.test.testdb;
 
 import com.alibaba.fastjson.JSONArray;
 

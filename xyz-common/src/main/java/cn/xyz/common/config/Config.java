@@ -7,18 +7,21 @@ import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.tools.ToolsProperties;
 
-public class Config {
-	private static Properties properties = null;
-	public static JSONObject config = new JSONObject();
+public interface Config extends Op, Key, Value {
+
+	String NUMBER_TYPES = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";
+	String DEFAULT_REMOVE_KEYS = "page,rows,sort,order,jsp_name";
+	Properties properties = null;
+	//public static JSONObject config = new JSONObject();
 	//加载系统配置文件
-	static {
-		try {
-			properties = ToolsProperties.load("xyz.properties");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	public static Integer getInt(String key) {
+//	static {
+//		try {
+//			properties = ToolsProperties.load("xyz.properties");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+	/*public static Integer getInt(String key) {
 		
 		return config.getInteger(key);
 	}
@@ -36,7 +39,7 @@ public class Config {
 	}
 	public static JSONArray getJSONArray(String key) {
 		return config.getJSONArray(key);
-	}
+	}*/
 	//把create放到DispatcherServlet里初始化
 	/*public static void create() throws Exception {
 		config = new JSONObject();

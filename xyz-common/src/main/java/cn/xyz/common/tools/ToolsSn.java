@@ -155,7 +155,7 @@ public class ToolsSn {
 			System.out.println(-15%6);*/
 			//int a = 1/0;
 			//System.out.println(Sn.RANGE_DEFAULT.charAt(35));
-			Sn sn = new Sn("0186FK-0000000DK", "0123456789", 1, "8-14");
+			/*Sn sn = new Sn("0186FK-0000000DK", "0123456789", 1, "8-14");
 			System.out.println(createSn(sn));
 			sn = new Sn("0186FK-0000000DK", "0123456789", 2500, "8-14");
 			System.out.println(createSn(sn));
@@ -179,7 +179,7 @@ public class ToolsSn {
 			sn.setJump(1);
 			sn.setRange("0123456789");
 			sn.setPosition("8-14");
-			System.out.println(createSn(sn));
+			System.out.println(createSn(sn));*/
 			//JSONObject obj = createSnList("0186FK-0000000DK", null, 100, 10, 7, 13, 1, 50000, null);
 			//JSONArray data = obj.getJSONArray("data");
 			/*for (int i = 0; i < data.size(); i++) {

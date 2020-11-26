@@ -17,8 +17,7 @@ public class T009 {
 		System.out.println(ld);
 		LocalTime lt = LocalTime.now();
 		System.out.println(lt);
-		LocalDateTime ldt = LocalDateTime.now().minusHours(2);
-		ldt.minusDays(5);
+		LocalDateTime ldt = LocalDateTime.now().minusHours(2).minusDays(5);
 		System.out.println(ldt);
 		System.out.println(Year.now());
 		

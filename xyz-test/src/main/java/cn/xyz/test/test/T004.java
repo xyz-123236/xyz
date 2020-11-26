@@ -4,13 +4,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -33,12 +29,16 @@ public class T004 {
 			}
 			System.out.print(fantiChar);
 		}*/
+		JSONArray data = new JSONArray();
+		data.sort(Comparator.comparing(obj -> ((JSONArray) obj).getString(0)));
 		JSONObject obj = new JSONObject();
+		JSONObject obj2 = new JSONObject();
 		for (int i = 0; i < jianti.length(); i++) {
 			obj.put(fanti.charAt(i)+"", jianti.charAt(i));
+			obj2.put(jianti.charAt(i)+"", fanti.charAt(i));
 		}
 		System.out.println(obj);
-		System.out.println(obj.toJSONString());
+		System.out.println(obj2.toJSONString());
 	}
 	/*public static void main(String[] args) {
 		String a = "插線/B/做耳機/有接頭/FIC等/K518NE等/5V等";

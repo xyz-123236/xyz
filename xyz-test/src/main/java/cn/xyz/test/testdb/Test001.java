@@ -22,7 +22,7 @@ public class Test001 {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Config.config = new JSONObject();
+		//Config.config = new JSONObject();
 		
 	}
 
