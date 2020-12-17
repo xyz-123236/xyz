@@ -61,18 +61,18 @@ public class ToolsExcel {
 	        }
 		}
 	}
-	public static JSONArray hssf(FileInputStream fis, String[] fileds, int sheetIndex) throws Exception {
+	private static JSONArray hssf(FileInputStream fis, String[] fileds, int sheetIndex) throws Exception {
 		try (Workbook wb = new XSSFWorkbook(fis)){
 			return readExcel(wb, fileds, sheetIndex);
 		}
 	}
-	public static JSONArray xssf(FileInputStream fis, String[] fileds, int sheetIndex) throws Exception {
+	private static JSONArray xssf(FileInputStream fis, String[] fileds, int sheetIndex) throws Exception {
 		try (Workbook wb = new HSSFWorkbook(new POIFSFileSystem(fis))){
 			return readExcel(wb, fileds, sheetIndex);
 		}
 	}
 
-	public static JSONArray readExcel(Workbook wb, String[] fileds, int sheetIndex) {
+	private static JSONArray readExcel(Workbook wb, String[] fileds, int sheetIndex) {
         JSONArray data = new JSONArray();
 		Sheet st = wb.getSheetAt(sheetIndex);
 
@@ -86,7 +86,7 @@ public class ToolsExcel {
 		//boolean hasSheet = false;
 		int cellNum = rowHead.getLastCellNum();
 		int rowNum = st.getLastRowNum();
-		for (int j = 2; j <= rowNum; j++) {//行
+		for (int j = 1; j <= rowNum; j++) {//行
 			Row row = st.getRow(j);
 			if (row == null) {
 				continue;
@@ -94,7 +94,7 @@ public class ToolsExcel {
 			//JSONArray values = new JSONArray();
 			JSONObject obj = new JSONObject();
 			//Arrays.fill(values, "");//填充数组Arrays.fill(arrayname ,starting index ,ending index ,value)
-			for (int k = 0; k <= cellNum; k++) {//列
+			for (int k = 0; k < cellNum; k++) {//列
 				String value = "";
 				Cell cell = row.getCell(k);
 				if (cell != null) {
@@ -177,7 +177,7 @@ public class ToolsExcel {
 	        wb.write(out);  
 		}
 	}
-	public static void check(Excel excel) throws CustomException{
+	private static void check(Excel excel) throws CustomException{
 		if(Tools.isEmpty(excel.getFileds())) throw new CustomException("字段不能为空");
 		if(Tools.isEmpty(excel.getHeads())) throw new CustomException("表头不能为空");
 		if(Tools.isEmpty(excel.getData())) throw new CustomException("数据不能为空");
@@ -200,14 +200,14 @@ public class ToolsExcel {
 		if(Tools.isEmpty(excel.getFile_path())) excel.setFile_path("E:/temp/");
 		if(Tools.isEmpty(excel.getSheet_name())) excel.setSheet_name("sheet1");
 	}
-	public static Integer[] handle(int length, int val) {
+	private static Integer[] handle(int length, int val) {
 		Integer[] arr = new Integer[length];
 		for (int i = 0; i < length; i++) {
 			arr[i] = val;
 		}
 		return arr;
 	}
-	public static HSSFWorkbook createWB(Excel excel) throws Exception {
+	private static HSSFWorkbook createWB(Excel excel) throws Exception {
 		try(HSSFWorkbook wb = new HSSFWorkbook()) {
 			check(excel);
 			JSONArray data = excel.getData();
@@ -324,7 +324,7 @@ public class ToolsExcel {
 								cell.setCellValue("");
 							} else if (types[j] == 20) {// int
 								cell.setCellValue((Long.parseLong((map.get(fileds[j])) + "")));
-							} else if (types[j] > 30 || types[j] < 50) {// float
+							} else if (types[j] > 30 && types[j] < 50) {// float
 								cell.setCellValue(new BigDecimal(String.valueOf(map.get(fileds[j]))).setScale(types[j]%10, BigDecimal.ROUND_HALF_UP).doubleValue());
 							} else {
 								cell.setCellValue(map.get(fileds[j]) + "");
@@ -385,12 +385,35 @@ public class ToolsExcel {
 			e.printStackTrace();
 		}
 	}
-	
+	public static JSONArray getData(){
+		JSONArray data = new JSONArray();
+		for (int i = 0; i < 10; i++) {
+			JSONObject row = new JSONObject();
+			row.put("a","a"+i);
+			row.put("b","b"+i);
+			row.put("c","c"+i);
+			data.add(row);
+		}
+		return data;
+	}
 	public static void main(String[] args) {
 		try {
-			JSONArray data = ToolsExcel.readExcel(new File(""),"",new String[]{""});
+			System.out.println(123);
+			File file = new File("E:\\download\\test1.xlsx");
+			JSONArray data = ToolsExcel.readExcel(file, "test1.xlsx", new String[]{"a", "b", "c"});
+			System.out.println(data);
+			Excel excel = new Excel();
+			excel.setFile_path("E:\\download\\");
+			excel.setFile_name("test2");
+			excel.setSheet_name("hhhh");
+			//excel.setTitle("xxxxxxx");
+			excel.setHeads(new String[]{"a","b","c"});
+			excel.setFileds(new String[]{"a","b","c"});
+			excel.setData(ToolsExcel.getData());
+			ToolsExcel.create(excel);
+			/*JSONArray data = ToolsExcel.readExcel(new File(""),"",new String[]{""});
 			System.out.println("data = " + data);
-			ToolsExcel.export("","","","");
+			ToolsExcel.export("","","","");*/
 
 			//data
 		} catch (Exception e) {

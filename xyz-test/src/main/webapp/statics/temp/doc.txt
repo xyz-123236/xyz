@@ -67,7 +67,7 @@ sys_uxxxx_a   	id: sua_id加个_a防止id重复
    维护表页面：添加，修改，删除字段--同时维护数据字典
 通过jsp_name_table设置字段，如需要添加编辑器，
  用户可自定义显示栏位，先选中的排前面，可根据用户是否有自定义栏位，优先显示
-可以选择是否使用编辑器，格式化
+可以选择是否使用编辑器，格式化，是否前端显示，是否下载，是否有归属表（用于多表关联），排序
 
 模块：用户模块，系统维护，个人信息
 
@@ -84,15 +84,24 @@ sys_uxxxx_a   	id: sua_id加个_a防止id重复
 
 
 
+前端多table关联时，下层应把所有父级from及父级选中记录传到后台
 
+实体类进行层级继承字段
 
-
-
-
-
+查询字段用字段名+查询方式命名，不加查询方式，默认是等于（输入可变，不是输入时基本都是不可变的，所以默认用等于，不用like）
+key_i  用in查询
+key_ni  用not in查询
+key_f  from
+key_t  to
+key_df  date_from
+key_dt  date_to
+key_ep  is_empty
+key_nep  is_not_empty
 
 流程activate
 权限shiro，spring Security
 文档swagger
+前端vue，react
+
 
 python

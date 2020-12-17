@@ -92,7 +92,7 @@ public class ToolsDate {
 		return getDatePart(part, getDate(date));
 	}
 	public static String getDatePart(String part,Date date) {
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(Locale.ENGLISH);
 		cal.setTime(date);
 		switch (part) {
 			case "y":
@@ -113,12 +113,12 @@ public class ToolsDate {
 				return Integer.toString(cal.get(Calendar.MILLISECOND));
 			case "season":
 				return Integer.toString(cal.get(Calendar.MONTH) / 3 + 1);
+			case "E":
+				return Integer.toString(cal.get(Calendar.DAY_OF_WEEK));//星期
 			case "w":
-				int week = cal.get(Calendar.WEEK_OF_YEAR);
-				if(week == 1)
-				{
-					if(cal.get(Calendar.MONTH) > 1)
-					{
+				int week = cal.get(Calendar.WEEK_OF_YEAR);//年底的 不满一周 算下一年的 第一周
+				if(week == 1){
+					if(cal.get(Calendar.MONTH) > 1){
 						cal.add(Calendar.DATE, -7);
 						week = cal.get(Calendar.WEEK_OF_YEAR) + 1;
 					}

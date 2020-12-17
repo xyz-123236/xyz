@@ -9,4 +9,5 @@ public interface Key {
     String WHERE = " where ";
     String AND = " and ";
     String OR = " or ";
+    String ON = " on ";
 }

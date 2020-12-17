@@ -30,5 +30,7 @@ public class T001 {
         System.out.println("05 " + T001.class.getResourceAsStream("/db.properties"));//加/ java.io.BufferedInputStream@4eec7777
         System.out.println("05 " + T001.class.getClassLoader().getResourceAsStream("db.properties"));//不加/ java.io.BufferedInputStream@4eec7777
 
+        //ServletActionContext.getServletContext().getRealPath("/"));
+        //ServletContext.getResourceAsStream(String path);
     }
 }

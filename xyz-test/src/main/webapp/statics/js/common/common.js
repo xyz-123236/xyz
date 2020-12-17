@@ -339,3 +339,28 @@ async function sleep(time){
 	await fn(time);
 	console.log("睡眠"+time+"毫秒");
 }*/
+function post(data){
+	$.ajax({
+		type:'POST',
+		url: path + mapping +'/find-sum-weight',
+		data: data,
+		success: function(result) {
+			alert(3);
+			/*if(result.status/100 === 2){
+				$('#weight').datagrid('loadData',result.rows);
+			}else{
+				$.messager.alert('错误', result.msg, 'error');
+			}*/
+		},
+		error: function (){
+			alert(4);
+			//$.messager.alert('错误', '服务器错误', 'error');
+		}
+	}).done(function(result){
+		alert(1);
+		//dfd.resolve(result);
+	}).fail(function(){
+		alert(2);
+		//dfd.reject(false);
+	});
+}

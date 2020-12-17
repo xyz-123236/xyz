@@ -17,7 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 public class Test7 {
 
 	@Before
-	static void beforeEach() {
+	public void beforeEach() {
 		System.out.println("BeforeAll");
 	}
 	@Test
@@ -102,7 +102,7 @@ public class Test7 {
                     word.add(str.substring(m,n+1));
                 }
             }
-                     }
+        }
         for(String a : word){
             System.out.println(a);
         }
@@ -118,7 +118,7 @@ public class Test7 {
         		 stack.push(i+1);
         		 //list.add(0, i+1);
         		 //System.out.println(list);
-        		 System.out.println(stack);
+        		 //System.out.println(stack);
         	 }
         	 if(str.charAt(i)==')'){
         		 //System.out.println(str.subSequence(list.get(0), i));

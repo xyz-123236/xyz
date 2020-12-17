@@ -1,5 +1,7 @@
 package cn.xyz.common.pojo;
 
+import cn.xyz.common.config.Config;
+import cn.xyz.common.exception.CustomException;
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
@@ -10,50 +12,67 @@ import cn.xyz.common.tools.Tools;
 
 public class Result {
 	private static final Logger logger = Logger.getLogger(Result.class.getName());
-
+	public static String success(){
+		return success(Config.EMPTY);
+	}
 	public static String success(String msg){
-		return success(msg, null);
+		return success(new JSONArray(), msg);
 	}
-	public static String success(String msg, Object data){
-		return success(msg, data, null);
+	public static String success(Object data){
+		return success(data, Config.EMPTY);
 	}
-	public static String success(String msg, Object data, Integer total){
-		return result(msg, data, total, true, 200);
+	public static String success(Object data, String msg){
+		return success(data, Config.ZERO, msg);
+	}
+	public static String success(Object data, Integer total){
+		return success(data, total, Config.EMPTY);
+	}
+	public static String success(Object data, Integer total, String msg){
+		return success(data, total, msg, 200);
+	}
+	public static String success(Object data, Integer total, String msg, Integer code){
+		return result(data, total, msg, code, true);
+	}
+
+	public static String error(Exception e) {
+		if(!Tools.isEmpty(e.getMessage()) && e.getMessage().contains("unique constraint violated")) {
+			return error("主键重复");
+		}
+		if(e instanceof CustomException) {
+			return error(e.getMessage());
+		}
+		logger.error("程序异常: ", e);//可发邮件，存数据库
+		return error("程序异常: " + e.getMessage());
 	}
 	public static String error(String msg){
-		return result(msg, null, null, false, 500);
+		return result(null, null, msg, 500, false);
 	}
-	public static String error(Exception e) {
-		return error(e, "程序异常1: " + e.getMessage());
-	}
-	public static String error(Exception e, String msg) {
-		if(!Tools.isEmpty(msg) && e.getMessage().contains("unique constraint violated")) {
-			return error(msg);
-		}
-		logger.error("程序异常: ", e);
-		//发邮件
-		
-		/*if(e instanceof CustomException) {
-			return error(e.getMessage());
-		}*/
-		return error("程序异常: " + e.getMessage());
-		
-	}
-	public static String result() {
-		return result(null, new JSONArray(), 0, true, 200);
-	}
-	public static String result(String msg, Object data, Integer total, boolean status, Integer code) {
+
+	/**
+	 * 返回键值对
+	 * @param data
+	 * @param total
+	 * @param msg
+	 * @param status
+	 * @param code
+	 * @return
+	 */
+	public static String result(Object data, Integer total, String msg, Integer code, boolean status) {
 		JSONObject obj = new JSONObject();
-		obj.put("status", status);
-		obj.put("msg", msg);
 		obj.put("rows", data);
 		obj.put("total", total);
+		obj.put("msg", msg);
 		obj.put("code", code);
+		obj.put("status", status);
 		return obj.toJSONString();
 	}
-	
-	//combobox使用url请求时需要的数据
-	public static String data(Object data) {
+
+	/**
+	 * 返回数组
+	 * @param data
+	 * @return
+	 */
+	public static String result(Object data) {
 		return JSON.toJSONString(data);
 	}
 	
