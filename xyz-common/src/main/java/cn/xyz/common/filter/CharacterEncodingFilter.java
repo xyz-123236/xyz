@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CharacterEncodingFilter implements Filter{
 	
-	private String encoding = null;
+	String encoding = null;
 	@SuppressWarnings("unused")
 	private FilterConfig fg = null;
 		
@@ -36,7 +36,7 @@ public class CharacterEncodingFilter implements Filter{
 	public void init(FilterConfig fg) throws ServletException {			
 		this.fg = fg;
 		this.encoding = fg.getInitParameter("encoding");
-		if(this.encoding == null || "".equals(encoding)) this.encoding = "UTF-8";
+		if(this.encoding == null || "".equals(this.encoding)) this.encoding = "UTF-8";
 	}
 	
 	public class HttpRequestWrapper extends HttpServletRequestWrapper{
@@ -63,7 +63,7 @@ public class CharacterEncodingFilter implements Filter{
 		public String encoding(String value){
 			if(value != null){
 				try {
-					value = new String(value.getBytes("ISO-8859-1"),CharacterEncodingFilter.this.encoding);
+					value = new String(value.getBytes("ISO-8859-1"), CharacterEncodingFilter.this.encoding);
 				} catch (UnsupportedEncodingException e) {
 					
 					e.printStackTrace();

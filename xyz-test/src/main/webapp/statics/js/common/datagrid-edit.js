@@ -445,6 +445,15 @@ function EditDg(index){		//element:table的id
 				_this.originalRow = undefined;	//原行数据
 				MaskUtil.unmask();
 			},100);
+			/*$(_params.element[_this.index]).datagrid({
+				url : path + _params.type + _params.find[_this.index],
+				queryParams: row,
+				loadFilter: function(data){
+					if (!data.status && data.msg){
+						$.messager.alert('错误',data.msg,'error');
+					}
+					return data;
+				}});*/
 		};
 		EditDg.prototype.download = function(){//下载         如果只用明细模块导出，需要修改参数getFormData
 			var _this = this;

@@ -105,12 +105,12 @@ public class LoginFilterAndroid implements Filter{
 	
 	@Override
 	public void destroy() {
-		
+		//
 		
 	}
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {
-		
+		//
 		
 	}
 	

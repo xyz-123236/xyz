@@ -1,4 +1,4 @@
-package cn.xyz.test.testTool;
+/*package cn.xyz.test.testTool;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -134,3 +134,4 @@ public class TestHttpClient {
 
     }
 }
+*/

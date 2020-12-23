@@ -21,7 +21,7 @@ public class Test2Controller {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "login.jsp";
+        return "login2.jsp";
     }
 }
 

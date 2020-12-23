@@ -339,10 +339,10 @@ async function sleep(time){
 	await fn(time);
 	console.log("睡眠"+time+"毫秒");
 }*/
-function post(data){
+function post(url, data){
 	$.ajax({
 		type:'POST',
-		url: path + mapping +'/find-sum-weight',
+		url: url,
 		data: data,
 		success: function(result) {
 			alert(3);

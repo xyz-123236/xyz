@@ -695,7 +695,7 @@ public class DbTool extends Condition<DbTool> {
 			if(!Tools.isEmpty(sortDafault) && (Tools.isEmpty(this.sort) || !removeDafault)) {
 				this.sql.append(sortDafault);
 			}else {
-				sql = new StringBuffer(sql.substring(0, sql.lastIndexOf(",")));
+				this.sql = new StringBuffer(this.sql.substring(0, this.sql.lastIndexOf(",")));
 			}
 		}
 		return this;
@@ -707,7 +707,7 @@ public class DbTool extends Condition<DbTool> {
 		return this;
 	}
 	public DbTool limit() {
-		if(!sql.toString().toLowerCase().contains(" limit ") && this.rows > 0)
+		if(!this.sql.toString().toLowerCase().contains(" limit ") && this.rows > 0)
 		{
 			this.sql.append(" limit ").append(this.rows);
 			this.sql.append(" offset ").append((this.page - 1) * this.rows);

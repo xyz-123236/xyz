@@ -39,7 +39,7 @@ public class Condition<T extends Condition<T>> extends Basic implements Config {
     public T sn(String key, Object obj){ return op(key, obj, SN, false); }
     @SuppressWarnings("unchecked")
     public T op(String field, Object obj, String judge, boolean isNumber) {
-        if(!Tools.isEmpty(sql.toString())) this.sql.append(getKey(this));
+        if(!Tools.isEmpty(this.sql.toString())) this.sql.append(getKey(this));
         String[] arr = field.trim().split("\\.");
         String key = arr.length == 1? field: arr[1];
         String column = arr.length == 1? getTableKey(key): field;

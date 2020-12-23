@@ -14,7 +14,7 @@ public class Email {
 	private boolean html = false;//判断是否为html
 
 	public String getEmail_to() {
-		return email_to;
+		return this.email_to;
 	}
 
 	public void setEmail_to(String email_to) {
@@ -22,7 +22,7 @@ public class Email {
 	}
 
 	public String getEmail_cc() {
-		return email_cc;
+		return this.email_cc;
 	}
 
 	public void setEmail_cc(String email_cc) {
@@ -30,7 +30,7 @@ public class Email {
 	}
 
 	public String getSubject() {
-		return subject;
+		return this.subject;
 	}
 
 	public void setSubject(String subject) {
@@ -38,7 +38,7 @@ public class Email {
 	}
 
 	public String[] getFile_urls() {
-		return file_urls;
+		return this.file_urls;
 	}
 
 	public void setFile_urls(String[] file_urls) {
@@ -46,7 +46,7 @@ public class Email {
 	}
 
 	public String getContent() {
-		return content;
+		return this.content;
 	}
 
 	public void setContent(String content) {
@@ -54,7 +54,7 @@ public class Email {
 	}
 
 	public boolean isHtml() {
-		return html;
+		return this.html;
 	}
 
 	public void setHtml(boolean html) {

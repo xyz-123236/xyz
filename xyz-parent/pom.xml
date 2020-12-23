@@ -268,25 +268,28 @@
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
-		<plugins>
-			<!-- 资源文件拷贝插件 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.7</version>
-				<!-- <configuration>
-					<encoding>UTF-8</encoding>
-				</configuration> -->
-			</plugin>
-			<!-- java编译插件 -->
-			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
-			    <artifactId>maven-compiler-plugin</artifactId>
-			    <version>3.2</version>
-			</plugin>
-		</plugins>
 		<pluginManagement>
 			<plugins>
+				<!-- 资源文件拷贝插件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.7</version>
+					<configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+				</plugin>
+				<!-- java编译插件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.2</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
 				<!-- 配置Tomcat插件 -->
 				<!-- <plugin> <groupId>org.apache.tomcat.maven</groupId> <artifactId>tomcat7-maven-plugin</artifactId> 
 					<version>2.2</version> </plugin> -->
@@ -296,9 +299,18 @@
 					<version>2.2</version>
 				</plugin>
 			</plugins>
-			<!-- https://mvnrepository.com/artifact/org.apache.tomcat.maven/tomcat8-war-runner -->
-
-
 		</pluginManagement>
+		<plugins>
+			<!-- 资源文件拷贝插件 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+			</plugin>
+			<!-- java编译插件 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+		</plugins>
 	</build>
 </project>

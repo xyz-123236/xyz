@@ -1,6 +1,7 @@
 package cn.xyz.common.pojo;
 
 import cn.xyz.common.config.Config;
+import cn.xyz.common.config.Value;
 import cn.xyz.common.exception.CustomException;
 import org.apache.log4j.Logger;
 
@@ -13,19 +14,19 @@ import cn.xyz.common.tools.Tools;
 public class Result {
 	private static final Logger logger = Logger.getLogger(Result.class.getName());
 	public static String success(){
-		return success(Config.EMPTY);
+		return success(Value.EMPTY);
 	}
 	public static String success(String msg){
 		return success(new JSONArray(), msg);
 	}
 	public static String success(Object data){
-		return success(data, Config.EMPTY);
+		return success(data, Value.EMPTY);
 	}
 	public static String success(Object data, String msg){
-		return success(data, Config.ZERO, msg);
+		return success(data, Value.ZERO, msg);
 	}
 	public static String success(Object data, Integer total){
-		return success(data, total, Config.EMPTY);
+		return success(data, total, Value.EMPTY);
 	}
 	public static String success(Object data, Integer total, String msg){
 		return success(data, total, msg, 200);

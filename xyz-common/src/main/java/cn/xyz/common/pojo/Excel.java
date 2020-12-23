@@ -19,7 +19,7 @@ public class Excel {
 	private Integer[] locks;//锁行
 
 	public String getFile_name() {
-		return file_name;
+		return this.file_name;
 	}
 
 	public void setFile_name(String file_name) {
@@ -27,7 +27,7 @@ public class Excel {
 	}
 
 	public String getFile_path() {
-		return file_path;
+		return this.file_path;
 	}
 
 	public void setFile_path(String file_path) {
@@ -35,7 +35,7 @@ public class Excel {
 	}
 
 	public String getSheet_name() {
-		return sheet_name;
+		return this.sheet_name;
 	}
 
 	public void setSheet_name(String sheet_name) {
@@ -43,7 +43,7 @@ public class Excel {
 	}
 
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 
 	public void setTitle(String title) {
@@ -51,7 +51,7 @@ public class Excel {
 	}
 
 	public String[] getHeads() {
-		return heads;
+		return this.heads;
 	}
 
 	public void setHeads(String[] heads) {
@@ -59,7 +59,7 @@ public class Excel {
 	}
 
 	public String[] getFileds() {
-		return fileds;
+		return this.fileds;
 	}
 
 	public void setFileds(String[] fileds) {
@@ -67,7 +67,7 @@ public class Excel {
 	}
 
 	public JSONArray getData() {
-		return data;
+		return this.data;
 	}
 
 	public void setData(JSONArray data) {
@@ -75,7 +75,7 @@ public class Excel {
 	}
 
 	public Integer[] getFormats() {
-		return formats;
+		return this.formats;
 	}
 
 	public void setFormats(Integer[] formats) {
@@ -83,7 +83,7 @@ public class Excel {
 	}
 
 	public Integer[] getWidths() {
-		return widths;
+		return this.widths;
 	}
 
 	public void setWidths(Integer[] widths) {
@@ -91,7 +91,7 @@ public class Excel {
 	}
 
 	public Integer[] getLocks() {
-		return locks;
+		return this.locks;
 	}
 
 	public void setLocks(Integer[] locks) {

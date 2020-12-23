@@ -18,8 +18,8 @@ public abstract class AbstractLogger {
         if(this.level <= level){
             write(message);
         }
-        if(nextLogger !=null){
-            nextLogger.logMessage(level, message);
+        if(this.nextLogger !=null){
+        	this.nextLogger.logMessage(level, message);
         }
     }
 

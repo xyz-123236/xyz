@@ -20,11 +20,32 @@
 	<input type="submit">
 </form>
 <input type="button" onclick="test()" value="test">
+<input type="button" onclick="test3()" value="test3">
 <script type="text/javascript" src="${pageContext.request.contextPath}/statics/js/common/jquery.min-1.11.3.js"></script>
 <script type="text/javascript">
 	$(function(){
 		
 	})
+	function test3(){
+		post("/test/t1/t2",{a:"a"}).done(function(result){
+			alert(result.afa);
+			//dfd.resolve(result);
+		});
+	}
+	function post(url, data){
+		return $.ajax({
+			type:'POST',
+			url: url,
+			data: data,
+			dataType:'json',
+			success: function(result) {
+				alert(result);
+			},
+			error: function (){
+				$.messager.alert('错误', '服务器错误', 'error');
+			}
+		});
+	}
 	function test(){
 		var dfd = $.Deferred();
 		test2(dfd);
@@ -37,7 +58,8 @@
 		for (var i = 0; i < 3; i++) {
 			$.ajax({
 				url:"/test/t1/t1",
-				data:{aa:'123',bb:'234'}
+				data:{aa:'123',bb:'234'},
+				dataType:'json'
 			})
 			.done(function(){ alert(i); dfd.resolve(true);})
 			.fail(function(){ dfd.reject(false); })

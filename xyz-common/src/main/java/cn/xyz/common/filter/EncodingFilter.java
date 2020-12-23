@@ -15,10 +15,10 @@ public class EncodingFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {  
         //设置request编码  
-        request.setCharacterEncoding(encoding);  
+        request.setCharacterEncoding(this.encoding);  
         //设置response编码  
-        response.setContentType("text/html;charset=" + encoding);  
-        response.setCharacterEncoding(encoding);  
+        response.setContentType("text/html;charset=" + this.encoding);  
+        response.setCharacterEncoding(this.encoding);  
         filterChain.doFilter(request, response);         
     }  
   
@@ -26,12 +26,12 @@ public class EncodingFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {  
         String encodingParam = filterConfig.getInitParameter("encoding");  
         if (encodingParam != null) {  
-            encoding = encodingParam;  
+        	this.encoding = encodingParam;  
         }  
     }  
   
     public void destroy() {  
-          
+         // 
     }
     
     /**

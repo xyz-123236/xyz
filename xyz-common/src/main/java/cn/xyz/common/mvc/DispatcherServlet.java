@@ -260,13 +260,16 @@ public class DispatcherServlet extends HttpServlet {
         URL url  =this.getClass().getClassLoader().getResource(packageName.replaceAll("\\.", "/"));
         if(url == null) throw new CustomException("初始扫描包异常");
         File dir = new File(url.getFile());
-        for (File file : Objects.requireNonNull(dir.listFiles())) {
-            if(file.isDirectory()){
-                //递归读取
-                doScanner(packageName+"."+file.getName());
-            }else{
-                String className =packageName +"." +file.getName().replace(".class", "");
-                this.classNames.add(className);
+        File[] files = dir.listFiles();
+        if(!Tools.isEmpty(files)){
+            for (File file : files) {
+                if(file.isDirectory()){
+                    //递归读取
+                    doScanner(packageName+"."+file.getName());
+                }else{
+                    String className =packageName +"." +file.getName().replace(".class", "");
+                    this.classNames.add(className);
+                }
             }
         }
     }
