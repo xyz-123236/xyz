@@ -17,10 +17,11 @@ public class Test19 {
 		try {
 			
 			DbBase db = DbBase.getJdbc(DbBase.SYBASE);
-			//JSONArray data = db.select(" EXEC mes_abse_sum3 '2020', 3, '2020/05/20', '2020/05/20', '0108427', '0108427', '', 'ZZZZZZZZ', '', 'ZZZZZZZZ'");
-			JSONArray data = db.call(" EXEC mes_abse_sum3 '2020', 3, '2020/05/20', '2020/05/20', '0108427', '0108427', '', 'ZZZZZZZZ', '', 'ZZZZZZZZ'",true,1);
+			db.execute(" EXEC mes_abse_sum2 '2021', 1, '2021/01/02', '2021/01/02', '9931834', '9931834', '', 'ZZZZZZZZ', '', 'ZZZZZZZZ'");
+			//JSONArray data = db.select(" EXEC mes_abse_sum3 '2021', 1, '2021/01/02', '2021/01/02', '9931834', '9931834', '', 'ZZZZZZZZ', '', 'ZZZZZZZZ'");
+			//JSONArray data = db.select(" EXEC mes_abse_sum3 '2020', 12, '2020/12/01', '2020/12/31', '9932751', '9932751', '', 'ZZZZZZZZ', '', 'ZZZZZZZZ'",true,1);
 
-			System.out.println(data.size()+":"+data);
+			//System.out.println(data.size()+":"+data);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

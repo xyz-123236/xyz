@@ -36,13 +36,29 @@ function checkFileType(fileName, type){
 	return false;
 }
 
+function formatNumber0(value){
+	if(isEmpty(value)) return 0;
+	if(/^-?\d+\.\d+$/.test(value)){
+		return value.toString().replace(/(\d)(?=(\d{3})+\.)/g,"$1,");
+	}else{
+		return value.toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
+	}
+}
 //返回2位小数/.xx
 function formatNumber2(value){
 	return formatNumber(value, 2);
 }
-//返回3位小数/.xxx
+//返回2位小数/.xx
 function formatNumber3(value){
 	return formatNumber(value, 3);
+}
+//返回4位小数/.xxx
+function formatNumber4(value){
+	return formatNumber(value, 4);
+}
+//返回4位小数/.xxx
+function formatNumber5(value){
+	return formatNumber(value, 8);
 }
 function formatNumber(value, scale){
 	if(isEmpty(value)) value = 0;
@@ -51,7 +67,7 @@ function formatNumber(value, scale){
 	if(isNaN(value)){
 		return value;
 	}else{
-		return parseFloat(value).toFixed(scale);
+		return (parseFloat(value).toFixed(scale) + '').toString().replace(/(\d)(?=(\d{3})+\.)/g,"$1,");
 	}
 }
 //返回年月/yyyy-MM
@@ -281,10 +297,33 @@ $.extend($.fn.validatebox.defaults.rules, {//options:{validType: 'workcenterNo'
 		},  
 		message: '值必须小于0'  
 	},
+	num: {
+		validator: function (value) {
+			return /^-?([1-9][0-9]*|0)([\.][0-9]+)?$/.test(value) && value > 0;
+		},
+		message: '数字不合法'
+	},
 });
 //清除表单数据
 function clearForm(elements){
 	elements.forEach(function (element) {
 		$("#"+element).textbox('setValue','');
+	});
+}
+//post("/test/t1/t2",{a:"a"}).done(function(result){alert(result.afa);});
+function post(url, data){
+	return $.ajax({
+		type:'POST',
+		url: url,
+		data: data,
+		dataType:'json',
+		success: function(result) {
+			if(!result.status){
+				$.messager.alert('错误', result.msg, 'error');
+			}
+		},
+		error: function (){
+			$.messager.alert('错误', '服务器错误', 'error');
+		}
 	});
 }

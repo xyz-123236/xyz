@@ -35,10 +35,11 @@ public class DbJdbc extends DbBase{
 		return this.conn;
 	}
 	public static void main(String[] args) {
-		DbJdbc db;
+		DbBase db;
 		try {
-			db = DbJdbc.getInstance(DbBase.MYSQL);
+			db = DbJdbc.getInstance(DbBase.MYSQL).startTransaction();
 			System.out.println(db.select("select * from t1"));
+			db.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

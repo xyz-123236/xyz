@@ -1,6 +1,5 @@
 package cn.xyz.common.pojo;
 
-import cn.xyz.common.config.Config;
 import cn.xyz.common.config.Value;
 import cn.xyz.common.exception.CustomException;
 import org.apache.log4j.Logger;
@@ -49,15 +48,6 @@ public class Result {
 		return result(null, null, msg, 500, false);
 	}
 
-	/**
-	 * 返回键值对
-	 * @param data
-	 * @param total
-	 * @param msg
-	 * @param status
-	 * @param code
-	 * @return
-	 */
 	public static String result(Object data, Integer total, String msg, Integer code, boolean status) {
 		JSONObject obj = new JSONObject();
 		obj.put("rows", data);
@@ -68,11 +58,6 @@ public class Result {
 		return obj.toJSONString();
 	}
 
-	/**
-	 * 返回数组
-	 * @param data
-	 * @return
-	 */
 	public static String result(Object data) {
 		return JSON.toJSONString(data);
 	}
