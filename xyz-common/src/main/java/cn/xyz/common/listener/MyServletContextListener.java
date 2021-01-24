@@ -7,10 +7,6 @@
  */
 package cn.xyz.common.listener;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -37,7 +33,7 @@ public class MyServletContextListener implements ServletContextListener{
 		
 		System.out.println("********服务器开启******");
 		
-		ServletContext servletContext= event.getServletContext();
+		//ServletContext servletContext= event.getServletContext();
 		
 		
 		//保存在线用户的Map

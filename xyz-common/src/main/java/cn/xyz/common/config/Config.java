@@ -2,11 +2,6 @@ package cn.xyz.common.config;
 
 import java.util.Properties;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-
-import cn.xyz.common.tools.ToolsProperties;
-
 public interface Config extends Op, Key, Value {
 
 	String NUMBER_TYPES = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";

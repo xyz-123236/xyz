@@ -1,8 +1,5 @@
 package cn.xyz.common.pojo;
 
-import lombok.Getter;
-import lombok.Setter;
-
 public class Basic {
 	protected int page;// 开始页
 	protected int rows;// 页面容量

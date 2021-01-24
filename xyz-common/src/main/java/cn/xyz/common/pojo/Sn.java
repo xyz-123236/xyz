@@ -1,10 +1,5 @@
 package cn.xyz.common.pojo;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Setter
-@Getter
 public class Sn {
 	private String snFrom;//开始序号
 	private String snTo;//结束序号

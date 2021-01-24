@@ -1,11 +1,7 @@
 package cn.xyz.common.pojo;
 
 import com.alibaba.fastjson.JSONArray;
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
 public class Excel {
 	private String file_name;//文件名
 	private String file_path;//文件路径

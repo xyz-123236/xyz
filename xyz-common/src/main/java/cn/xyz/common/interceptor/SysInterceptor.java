@@ -1,17 +1,11 @@
 package cn.xyz.common.interceptor;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import cn.xyz.common.pojo.SysUser;
-import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 
@@ -43,17 +37,17 @@ public class SysInterceptor extends HandlerInterceptorAdapter {
 		if (null != loginUser) {
 			return true;
 		} else {
-			String loginCookieUserName = "";
-			String loginCookiePassword = "";
+			//String loginCookieUserName = "";
+			//String loginCookiePassword = "";
 
 			Cookie[] cookies = request.getCookies();
 			if (null != cookies) {
 				for (Cookie cookie : cookies) {
 					// if("/".equals(cookie.getPath())){ //getPath为null
 					if ("loginUserName".equals(cookie.getName())) {
-						loginCookieUserName = cookie.getValue();
+						//loginCookieUserName = cookie.getValue();
 					} else if ("loginPassword".equals(cookie.getName())) {
-						loginCookiePassword = cookie.getValue();
+						//loginCookiePassword = cookie.getValue();
 					}
 					// }
 				}

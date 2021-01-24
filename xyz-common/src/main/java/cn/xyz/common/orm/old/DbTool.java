@@ -1,21 +1,11 @@
 package cn.xyz.common.orm.old;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.pojo.Basic;
 import cn.xyz.common.tools.Tools;
 import cn.xyz.common.tools.ToolsDate;
-import cn.xyz.common.tools.ToolsJson;
 
 public class DbTool extends Basic{
 	private StringBuffer sql;

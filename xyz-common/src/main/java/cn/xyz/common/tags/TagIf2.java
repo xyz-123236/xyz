@@ -2,7 +2,6 @@ package cn.xyz.common.tags;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
@@ -18,7 +17,7 @@ public class TagIf2 extends TagSupport{
 		System.out.println(this.role);
 		System.out.println(this.permission);
         JspWriter out=super.pageContext.getOut();
-        HttpSession sessiion = super.pageContext.getSession();
+        //HttpSession sessiion = super.pageContext.getSession();
         try {
 			out.println("<h3>"+this.role+"--"+this.permission+"</h3>");
 		} catch (IOException e) {

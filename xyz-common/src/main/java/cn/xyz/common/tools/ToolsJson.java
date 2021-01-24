@@ -85,7 +85,7 @@ public class ToolsJson {
 		JSONObject row = new JSONObject();
 		row.put("a","111");
 		row.put("b","222");
-		String[] c = {"a","c"};
+		//String[] c = {"a","c"};
 		try {
 			//removeKey(row,DbTool.DEFAULT_REMOVE_KEYS,c);
 			System.out.println(row);

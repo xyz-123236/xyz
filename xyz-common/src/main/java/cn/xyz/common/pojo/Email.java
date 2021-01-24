@@ -1,10 +1,6 @@
 package cn.xyz.common.pojo;
 
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
 public class Email {
 	private String email_to;//发给谁，可多个，逗号分隔
 	private String email_cc;//抄送给谁，可多个，逗号分隔

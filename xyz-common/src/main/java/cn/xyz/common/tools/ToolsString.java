@@ -2,13 +2,13 @@ package cn.xyz.common.tools;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.fastjson.JSONObject;
-
 public class ToolsString {
-	public static JSONObject fileds = new JSONObject();
+	public static Map<String, String> fileds = new Hashtable<>();
 	public static final String DEFAULT_REGEX = ",";
 	static {
 		fileds.put("emp_name", "displayname");
@@ -19,7 +19,7 @@ public class ToolsString {
 	}
 	public static String filedConvert(String filed){
 		if(fileds.containsKey(filed)) {
-			return fileds.getString(filed);
+			return fileds.get(filed);
 		}
 		return filed.toLowerCase().trim();
 	}
@@ -89,7 +89,7 @@ public class ToolsString {
 	private static int num = 0;
 	public static synchronized String getId() {
 		num = ++num % 1000;
-		return ToolsDate.getLong()+String.format("%03d", num);
+		return System.currentTimeMillis() + String.format("%03d", num);
 	}
 	public static synchronized String getId(HttpServletRequest request) {
 		num = ++num % 1000;
@@ -106,7 +106,8 @@ public class ToolsString {
 	public static void main(String[] args) {
 		try {
 			long a = new Date().getTime();
-			String id;
+			//String id;
+			System.out.println(System.currentTimeMillis());
 			System.out.println(new Date().getTime()-a);
 			/*for (int i = 0; i < 100; i++) {
 				id = UUID.randomUUID().toString().replaceAll("-", "");

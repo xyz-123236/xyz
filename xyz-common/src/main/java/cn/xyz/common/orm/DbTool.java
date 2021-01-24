@@ -259,7 +259,7 @@ public class DbTool extends Condition<DbTool> {
 		this.sql = new StringBuffer();
 		if(!Tools.isEmpty(row)) {
 			JSONObject filedType = this.db.getFiledType(table);
-			String primary_name = getPrimaryName(this.db, table);
+			//String primary_name = getPrimaryName(this.db, table);
 			StringBuilder fileds = new StringBuilder();
 			StringBuilder values = new StringBuilder();
 			if(!Tools.isEmpty(create_by)) {
@@ -329,8 +329,8 @@ public class DbTool extends Condition<DbTool> {
 	public DbTool createUpdateNotNullSql(String table, JSONObject row, String update_by) throws Exception{
 		this.createUpdateSql(table);
 		JSONObject filedType = this.db.getFiledType(table);
-		String number = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";
-		String string = ",VARCHAR,CHAR,";
+		//String number = ",INTEGER,BIGINT,FLOAT,INT,DOUBLE,";
+		//String string = ",VARCHAR,CHAR,";
 		//String date = ",DATE,DATETIME,TIME,TIMESTAMP,";
 		if(!Tools.isEmpty(row)) {
 			StringBuilder set = new StringBuilder();

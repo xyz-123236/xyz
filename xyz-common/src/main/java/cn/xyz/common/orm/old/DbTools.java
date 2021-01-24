@@ -1,15 +1,5 @@
 package cn.xyz.common.orm.old;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -17,7 +7,6 @@ import cn.xyz.common.pojo.Basic;
 import cn.xyz.common.tools.Tools;
 import cn.xyz.common.tools.ToolsDate;
 import cn.xyz.common.tools.ToolsJson;
-import cn.xyz.common.tools.ToolsString;
 
 public class DbTools extends Basic {
 	public static String[] DEFAULT_REMOVE_KEYS = {"page","rows","sort","order","jsp_name"};
