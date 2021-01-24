@@ -103,6 +103,18 @@ public class ToolsString {
 		}
 		return id.toString();
 	}
+	//追加字符串：content包含str不追加，不包含追加
+	public static String addString(String content, String str, String split) {
+		if(Tools.isEmpty(str)) return content;
+		if(Tools.isEmpty(content)) {
+			content = str;
+		}else {
+			if(content.indexOf(str) < 0) {
+				content += split + str;
+			}
+		}
+		return content;
+	}
 	public static void main(String[] args) {
 		try {
 			long a = new Date().getTime();

@@ -107,7 +107,7 @@ public class Condition<T extends Condition<T>> extends Basic implements Config {
         if(Tools.isEmpty(obj)) {
             return null;
         }else if(obj instanceof JSONObject){
-            return ((JSONObject)obj).getString(key).trim();
+            return escape(((JSONObject)obj).getString(key).trim());
         }else if(obj.getClass().isArray()){
             Object[] objs = (Object[]) obj;
             boolean isString = (obj instanceof String[]);
@@ -117,17 +117,21 @@ public class Condition<T extends Condition<T>> extends Basic implements Config {
                     sb.append(COMMA);
                 }
                 if(isString){
-                    sb.append(SQM).append(objs[i]).append(SQM);
+                    sb.append(SQM).append(escape(objs[i].toString())).append(SQM);
                 }else{
                     sb.append(objs[i]);
                 }
             }
             return sb.toString();
         }else {
-            return obj.toString().trim();
+            return escape(obj.toString().trim());
         }
     }
-
+    public static String escape(String str) {
+        if(str == null) return null;
+        return str.replaceAll("\"", "&quot;").replaceAll("'", "&apos;").replaceAll(" ", "&nbsp;")
+                .replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>");
+    }
     public String getKey(Condition<T> t){
         if(t instanceof And){
             return AND;

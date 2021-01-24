@@ -79,7 +79,7 @@ public class Test3Controller {
 			System.out.println(3);
 			//crowdUser = crowdHttpAuthenticator.authenticate(request, response, "tang.wu", "Tw*0133363");
 			List<Group> groups = crowdClient.getGroupsForUser("tang.wu", 0, -1);
-			List<User> list = crowdClient.getUsersOfGroup("portal-environmental", 0, -1);
+			List<User> list = crowdClient.getUsersOfGroup("portal-purchase", 0, -1);
 			for (int i = 0; i < list.size(); i++) {
 				System.out.println(JSON.toJSONString(list.get(i)));
 			}
