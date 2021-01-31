@@ -50,24 +50,26 @@ public class ToolsExcel {
 		return readExcel(file, fileName, fileds, 0);
 	}
 	public static JSONArray readExcel(File file, String fileName, String[] fileds, int sheetIndex) throws Exception {
-		String ext = fileName.substring(fileName.lastIndexOf(".")+1);
-		try (FileInputStream fis = new FileInputStream(file)){
-			if ("xls".equals(ext)) {
-				return xssf(fis, fileds, sheetIndex);
-	        }else if("xlsx".equals(ext)) {
-	        	return hssf(fis, fileds, sheetIndex);
-	        }else {
-	        	return null;
-	        }
+		try (InputStream is = new FileInputStream(file)){
+			return readExcel(is, fileName, fileds, sheetIndex);
 		}
 	}
-	private static JSONArray hssf(FileInputStream fis, String[] fileds, int sheetIndex) throws Exception {
-		try (Workbook wb = new XSSFWorkbook(fis)){
+	public static JSONArray readExcel(InputStream is, String fileName, String[] fileds, int sheetIndex) throws Exception {
+		if (fileName.matches("^.+\\.(?i)(xls)$")) {
+			return xssf(is, fileds, sheetIndex);
+		}else if(fileName.matches("^.+\\.(?i)(xlsx)$")) {
+			return hssf(is, fileds, sheetIndex);
+		}else {
+			throw new CustomException("文件类型不是Excel");
+		}
+	}
+	private static JSONArray hssf(InputStream is, String[] fileds, int sheetIndex) throws Exception {
+		try (Workbook wb = new XSSFWorkbook(is)){
 			return readExcel(wb, fileds, sheetIndex);
 		}
 	}
-	private static JSONArray xssf(FileInputStream fis, String[] fileds, int sheetIndex) throws Exception {
-		try (Workbook wb = new HSSFWorkbook(new POIFSFileSystem(fis))){
+	private static JSONArray xssf(InputStream is, String[] fileds, int sheetIndex) throws Exception {
+		try (Workbook wb = new HSSFWorkbook(new POIFSFileSystem(is))){
 			return readExcel(wb, fileds, sheetIndex);
 		}
 	}
@@ -400,6 +402,7 @@ public class ToolsExcel {
 		try {
 			System.out.println(123);
 			File file = new File("E:\\download\\test1.xlsx");
+
 			JSONArray data = ToolsExcel.readExcel(file, "test1.xlsx", new String[]{"a", "b", "c"});
 			System.out.println(data);
 			Excel excel = new Excel();
