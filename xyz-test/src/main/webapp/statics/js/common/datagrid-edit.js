@@ -16,7 +16,7 @@ var _params = {
 	form: 		[],//table的表单
 	
 	//path: 	$('#path').val(),
-	relate: 	true//默认多模块关联
+	relate: 	true//默认多模块关联：可以改为状态：1-不关联，2-层级关联，
 }
 
 function EditDg(index){		//element:table的id

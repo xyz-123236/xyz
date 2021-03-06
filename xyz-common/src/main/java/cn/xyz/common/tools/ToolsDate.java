@@ -13,6 +13,9 @@ import java.util.regex.Pattern;
 
 public class ToolsDate {
 	//加入数据库，启动加入缓存（设置能修改与不能修改）
+	public final static String DP_DATE = "yyyy-MM-dd";
+	public final static String DP_DATE_TIME = "yyyy-MM-dd HH:mm:ss";
+	public final static String DP_DATE_LONG_TIME = "yyyy-MM-dd HH:mm:ss.SSS";
 	public final static String DEFAULT_DATE_PATTERN = "yyyy-MM-dd";
 	public final static String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 	public static String[] months = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};

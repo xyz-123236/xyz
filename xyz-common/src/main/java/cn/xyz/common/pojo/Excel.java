@@ -1,6 +1,9 @@
 package cn.xyz.common.pojo;
 
+import cn.xyz.common.pojo.html.Td;
 import com.alibaba.fastjson.JSONArray;
+
+import java.util.List;
 
 public class Excel {
 	private String file_name;//文件名
@@ -13,6 +16,7 @@ public class Excel {
 	private Integer[] formats;//格式化:字符串11/12/13，整数20，小数31/32/33/34
 	private Integer[] widths;//宽度
 	private Integer[] locks;//锁行
+	private List<Td> tds;
 
 	public String getFile_name() {
 		return this.file_name;

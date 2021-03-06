@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.xyz.common.tools.Tools;
+import org.apache.xmlbeans.impl.piccolo.util.DuplicateKeyException;
 
 public class Result {
 	private static final Logger logger = Logger.getLogger(Result.class.getName());
@@ -35,7 +36,10 @@ public class Result {
 	}
 
 	public static String error(Exception e) {
-		if(!Tools.isEmpty(e.getMessage()) && e.getMessage().contains("unique constraint violated")) {
+		if(!Tools.isEmpty(e.getMessage()) && e.getMessage().contains("unique constraint violated")) {//hana
+			return error("主键重复");
+		}
+		if(e instanceof DuplicateKeyException) {//mysql
 			return error("主键重复");
 		}
 		if(e instanceof CustomException) {

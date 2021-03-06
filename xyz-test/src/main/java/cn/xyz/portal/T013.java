@@ -6,15 +6,17 @@ import java.util.List;
 import java.util.Vector;
 
 public class T013 {
-    public static int a = 0;
-
+    //public static int a = 0;
+    static final ThreadLocal<Integer> tl = new ThreadLocal<>();
     private static boolean pro(Vector<Double> v, int index, Double[] array, Vector<Vector<Double>> all, double amount) {
+        int a = tl.get();
         a++;
+        tl.set(a);
         if(a > 10000){
-            return false;
+            //return false;
         }
         if(all.size() > 0){
-            return false;
+            //return false;
         }
         v.add(array[index]);
 
@@ -54,7 +56,7 @@ public class T013 {
 
     public static void main(String[] args) {
         Vector<Vector<Double>> all = new Vector<>();
-        Double[] array = new Double[]{460.0, 720.0, 1250.0, 1800.0, 2200.0, 3080.0, 4100.0, 4750.0,
+        Double[] array = new Double[]{460.0, 720.0, 1250.0, 1800.0, 2200.0, 3080.0, 4100.0, 4750.0, 200.0, 266.0, 6000.0, 900.0,
                 300.0, 500.0, 600.0, 1200.0, 1500.0, 630.0, 1752.0, 1562.0, 466.0, 1532.0, 5661.0, 5618.0, 2451.0, 5465.0, 4652.0, 5652.0, 4561.0, 5201.0,
                 6510.0, 6900.0, 22749.1, 22749.1, 22749.1};
         Arrays.sort(array);
@@ -74,15 +76,17 @@ public class T013 {
             System.out.println(b);
             return;
         }
+        tl.set(0);
         Double[] arr = list.toArray(new Double[0]);
         for (int i = 0; i < arr.length; i++) {
             Vector<Double> v = new Vector<>();
-            if(all.size() > 0) break;
+            //if(all.size() > 0) break;
             pro(v, i, arr, all, amount);
         }
         for (Vector<Double> doubles : all) {
             System.out.println(doubles.toString());
         }
-        System.out.println(a);
+
+        System.out.println(tl.get());
     }
 }
