@@ -14,7 +14,9 @@ public class T022 {
 
         Map<String, JSONObject> map = new HashMap<>();
         //System.out.println(map.get("aa").getString("bb"));
+        //仅返回值，不改变map
         System.out.println(map.getOrDefault("aa", new JSONObject()).getOrDefault("bb","cc"));
+        //返回值，并改变map
         map.computeIfAbsent("java框架", key -> new JSONObject()).put("Spring","mvc");
 
 

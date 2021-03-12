@@ -157,7 +157,8 @@ public class ToolsExcel {
 	
 	public static void download(Excel excel, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		try (OutputStream os = response.getOutputStream();
-				HSSFWorkbook wb = createWB(excel)){
+				HSSFWorkbook wb = new HSSFWorkbook()){
+			createWB(wb, excel);
 			String file_name = encodeChineseDownloadFileName(request, excel.getFile_name() + ".xls");
 			response.setHeader("Content-disposition", file_name);
 			response.setContentType("application/vnd.ms-excel");
@@ -169,7 +170,8 @@ public class ToolsExcel {
 	}
 	public static void create(Excel excel) throws Exception {
 		try (OutputStream out = new FileOutputStream(excel.getFile_path() + excel.getFile_name() + ".xls");
-				HSSFWorkbook wb = createWB(excel)){
+				HSSFWorkbook wb = new HSSFWorkbook()){
+			createWB(wb, excel);
 			File newFile = new File(excel.getFile_path());
 			if (!newFile.exists()) {
 				if(!newFile.mkdirs()){
@@ -209,8 +211,8 @@ public class ToolsExcel {
 		}
 		return arr;
 	}
-	private static HSSFWorkbook createWB(Excel excel) throws Exception {
-		try(HSSFWorkbook wb = new HSSFWorkbook()) {
+	private static HSSFWorkbook createWB(HSSFWorkbook wb, Excel excel) throws Exception {
+		//try(HSSFWorkbook wb = new HSSFWorkbook()) {
 			check(excel);
 			JSONArray data = excel.getData();
 			String sheet_name = excel.getSheet_name();
@@ -351,7 +353,7 @@ public class ToolsExcel {
 				sheet.protectSheet("123456");
 			}
 			return wb; 
-		}
+		//}
 	}
 	/**
 	 * 对文件流输出下载的中文文件名进行编码 屏蔽各种浏览器版本的差异性

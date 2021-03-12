@@ -38,7 +38,7 @@ public class ToolsEmail {
         props.setProperty("mail.transport.protocol", properties.getProperty("protocol")); // 使用的协议（JavaMail规范要求）
         props.setProperty("mail.smtp.host", properties.getProperty("host")); // 发件人的邮箱的 SMTP 服务器地址
         props.setProperty("mail.smtp.port", properties.getProperty("port")); 
-        props.setProperty("mail.smtp.socketFactory.class", properties.getProperty("fc"));
+        props.setProperty("mail.smtp.socketFactory.class", properties.getProperty("sfc"));
         props.setProperty("mail.smtp.auth", properties.getProperty("auth")); // 需要请求认证
         props.setProperty("mail.smtp.ssl.enable", properties.getProperty("ssl"));// 开启ssl
 

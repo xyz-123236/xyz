@@ -29,14 +29,15 @@ public class T001 {
 	}
 	@Test
 	public void test3() {
-		User user = new  User();
-		user.setName("姓名1");
-		user.setAge(1);
-		user.setManager_id(0L);
-		user.setEmail("test1@test.cn");
-		user.setCreate_time(LocalDateTime.now());
-		int rows = userMapper.insert(user);
-		System.out.println("=========="+rows);
+			User user = new  User();
+			//user.setName("姓名11");
+			user.setAge(11);
+			user.setManager_id(2L);
+			user.setEmail("test"+11+"@test.cn");
+			user.setCreate_time(LocalDateTime.now());
+			user.setRemark("test");
+			int rows = userMapper.insert(user);
+			System.out.println("=========="+rows);
 
 	}
 }
