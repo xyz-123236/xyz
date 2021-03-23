@@ -30,11 +30,10 @@ public class T001 {
 	@Test
 	public void test3() {
 			User user = new  User();
-			//user.setName("姓名11");
-			user.setAge(11);
+			user.setName("姓名25");
+			user.setAge(25);
 			user.setManager_id(2L);
-			user.setEmail("test"+11+"@test.cn");
-			user.setCreate_time(LocalDateTime.now());
+			user.setEmail("test"+25+"@test.cn");
 			user.setRemark("test");
 			int rows = userMapper.insert(user);
 			System.out.println("=========="+rows);

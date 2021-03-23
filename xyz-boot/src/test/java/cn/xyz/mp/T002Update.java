@@ -27,8 +27,9 @@ public class T002Update {
     @Test
     public void test2() {
         User user = new  User();
-        user.setU_id(1369607453568876545L);
-        user.setAge(20);
+        user.setU_id(1369607454646812674L);
+        user.setAge(30);
+        user.setVersion(1);
         int update = userMapper.updateById(user);
         System.out.println(update);
     }
@@ -39,6 +40,7 @@ public class T002Update {
         uw.eq("age", 20);
         User user = new  User();
         user.setEmail("test20@test.cn");
+        user.setVersion(1);
         int update = userMapper.update(user, uw);
         System.out.println(update);
     }
@@ -76,6 +78,14 @@ public class T002Update {
     public void test7() {//链式调用 传userMapper
         boolean update = new LambdaUpdateChainWrapper<User>(userMapper) //userMapper
                 .eq(User::getAge, 5).set(User::getEmail, "test5@test.cn").update();
+        System.out.println(update);
+    }
+
+    @Test
+    public void test8() {
+        User user = userMapper.selectById(1369607454646812674L);
+        user.setAge(30);
+        int update = userMapper.updateById(user);
         System.out.println(update);
     }
 }

@@ -5,16 +5,16 @@
 
 <mapper namespace="cn.xyz.mapper.UserMapper">
 
-    <select id="selectAll" resultType="cn.xyz.pojo.User">
+    <select id="selectAll" resultType="user">
         select * from user ${ew.customSqlSegment}
     </select>
 
 
-    <select id="get" parameterType="cn.xyz.pojo.User" resultType="cn.xyz.pojo.User">
+    <select id="get" parameterType="user" resultType="user">
         select * from user where age > #{age}
     </select>
 
-    <select id="findPage" resultType="cn.xyz.pojo.User">
+    <select id="findPage" resultType="user">
         select * from user ${ew.customSqlSegment}
     </select>
 </mapper>

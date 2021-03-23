@@ -14,13 +14,11 @@ import java.util.Iterator;
 
 public class ToolsXml {
     public static void createXML(String filePath, String fileName, Document doc) {
-        FileWriter out = null;
-        try {
+        try (FileWriter out = new FileWriter(filePath + fileName)){//写入文件
         	File newFile = new File(filePath);
 			if (!newFile.exists()) {
 				newFile.mkdirs();
 			}
-            out = new FileWriter(filePath + fileName);  //写入文件
             //createDocument().write(out);
             OutputFormat format = OutputFormat.createPrettyPrint();  //转换成字符串
             format.setEncoding("UTF-8");
@@ -33,14 +31,6 @@ public class ToolsXml {
             writer.write(doc);
         } catch (IOException e) {
             e.printStackTrace();
-        }finally{
-            if (out!=null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
     public static void print(Element root){

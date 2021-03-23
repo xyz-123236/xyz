@@ -11,38 +11,33 @@ public class ToolsCsv {
         createCSV(fileName, filePath, head, data, order, ",");
     }
     public static void createCSV(String fileName, String filePath, JSONObject head, JSONArray data, String[] order, String separator) {
-        File csvFile = null;
-        BufferedWriter csvWriter = null;
-        try {
-            csvFile = new File(filePath + fileName);
-            File parent = csvFile.getParentFile();
-            if (parent != null && !parent.exists()) {
-                parent.mkdirs();
-            }
-            csvFile.createNewFile();
-            csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), "gbk"), 1024);
+    	try {
+	    	File csvFile = new File(filePath + fileName);
+	        File parent = csvFile.getParentFile();
+	        if (parent != null && !parent.exists()) {
+	            parent.mkdirs();
+	        }
+			csvFile.createNewFile();
+			try(BufferedWriter csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), "gbk"), 1024)) {
+	            // 写入文件头部
+	            if(!Tools.isEmpty(head)) {
+	                writeRow(head, csvWriter, order, separator);
+	            }
 
-            // 写入文件头部
-            if(!Tools.isEmpty(head)) {
-                writeRow(head, csvWriter, order, separator);
-            }
-
-            // 写入文件内容
-            if(!Tools.isEmpty(data)) {
-                for (int i = 0; i < data.size(); i++) {
-                    writeRow(data.getJSONObject(i), csvWriter, order, separator);
-                }
-            }
-            csvWriter.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                csvWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+	            // 写入文件内容
+	            if(!Tools.isEmpty(data)) {
+	                for (int i = 0; i < data.size(); i++) {
+	                    writeRow(data.getJSONObject(i), csvWriter, order, separator);
+	                }
+	            }
+	            csvWriter.flush();
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+        
     }
 
     private static void writeRow(JSONObject row, BufferedWriter csvWriter, String[] order, String separator) throws IOException {

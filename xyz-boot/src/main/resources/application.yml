@@ -1,18 +1,27 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/xyz?autoReconnect=true&Unicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=GMT%2B8&useSSL=false
+    url: jdbc:p6spy:mysql://localhost:3306/xyz?autoReconnect=true&Unicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=GMT%2B8&useSSL=false
     username: root
     password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
 
 logging:
   level:
     root: error
     #基础包
-    cn.xyz: debug
+    cn.xyz: debug  #trace
     #指定报的日志级别
     #org.springframework: debug
 mybatis-plus:
   mapper-locations: classpath:/mapper/*.xml, classpath:/mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: false #取消数据库下划线与实体类驼峰的转换
+  type-aliases-package: cn.xyz.pojo
+  #global-config:
+    #db-config:
+      #id-type: id_worker
+  global-config:
+    db-config:
+      logic-delete-value: 1 #默认
+      logic-not-delete-value: 0 #默认

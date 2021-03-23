@@ -8,26 +8,26 @@ public class T012 {
             4375, 5184, 6510, 6900, 9000 };
     int X = 0;
     public T012(){
-        for(int i=0;i<array.length;i++){
+        for(int i=0;i<this.array.length;i++){
             Vector<Integer> v=new Vector<Integer>();
             pro(v,i);
         }
-        for(int i=0;i<all.size();i++){
-            System.out.println(all.get(i).toString());
+        for(int i=0;i<this.all.size();i++){
+            System.out.println(this.all.get(i).toString());
         }
     }
     private boolean pro(Vector<Integer> v,int index){
-        v.add(array[index]);
+        v.add(this.array[index]);
         int sum=sum(v);
         if(sum<=13750){
             if(sum==13750){
-                all.add((Vector<Integer>)v.clone());
+            	this.all.add((Vector<Integer>)v.clone());
                 v.remove(v.size()-1);
-                System.out.println(X);
+                System.out.println(this.X);
                 return true;
             }
-            for(int i=index+1;i<array.length;i++){
-                X++;
+            for(int i=index+1;i<this.array.length;i++){
+            	this.X++;
                 if(!pro(v,i)){
                     break;
                 }
@@ -39,7 +39,7 @@ public class T012 {
             return false;
         }
     }
-    private int sum(Vector<Integer> v){
+    private static int sum(Vector<Integer> v){
         int sum=0;
         for(int i=0;i<v.size();i++){
             sum+=v.get(i);

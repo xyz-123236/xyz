@@ -1,5 +1,6 @@
 package cn.xyz.common.pojo.html;
 
+
 public class Td {
     private String filed;
     private String filed_name;
@@ -22,35 +23,4 @@ public class Td {
         }
     }
 
-    public String getFiled() {
-        return filed;
-    }
-
-    public void setFiled(String filed) {
-        this.filed = filed;
-    }
-
-    public String getFiled_name() {
-        return filed_name;
-    }
-
-    public void setFiled_name(String filed_name) {
-        this.filed_name = filed_name;
-    }
-
-    public Integer getWidth() {
-        return width;
-    }
-
-    public void setWidth(Integer width) {
-        this.width = width;
-    }
-
-    public String getAlign() {
-        return align;
-    }
-
-    public void setAlign(String align) {
-        this.align = align;
-    }
 }

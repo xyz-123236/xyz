@@ -2,7 +2,6 @@ package cn.xyz.test.test;
 
 import cn.xyz.test.pojo.Basic;
 import com.alibaba.fastjson.JSONObject;
-import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
 
 import java.util.ArrayList;
 import java.util.Arrays;

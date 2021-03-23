@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 //用实体类作为Wrapper参数，会使用@TableField(condition="%s&lt;#{%s}")生成条件
 @EqualsAndHashCode(callSuper = true)//AR
 @Data
-@TableName("user")//别名
+@TableName("user")//别名0
 public class User extends Model<User> {//extends Model<User> =>>  AR
 
     private static final long serialVersionUID = 1L;
@@ -24,9 +24,19 @@ public class User extends Model<User> {//extends Model<User> =>>  AR
     private Integer age;
     private String email;
     private Long manager_id;
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime create_time;
+    @TableField(fill = FieldFill.UPDATE)
+    private LocalDateTime update_time;
+    @Version
+    private Integer version;//多读用乐观锁，多写用悲观锁
+    @TableLogic
+    @TableField(select = false)
+    private Integer deleted;
+
     @TableField(exist = false)//false不是数据库字段
     private transient String remark;
     //private static String remark;//静态只有一份
     //private transient String remark;//不参与序列化
+
 }

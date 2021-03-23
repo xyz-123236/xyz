@@ -11,11 +11,10 @@ import java.io.*;
 public class ToolsFtp {
     public static JSONObject uploadFileFtp(String host, String username, String password, String filename, String filePath, String basePath) {
         FTPClient ftp = new FTPClient();
-        FileInputStream input = null;
+        
         JSONObject obj = new JSONObject();
-        try {
+        try (FileInputStream input = new FileInputStream(new File(filePath))){
             ftp.enterLocalPassiveMode();
-            input=new FileInputStream(new File(filePath));
             ftp.connect(host);// 连接FTP服务器
             // 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
             ftp.login(username, password);// 登录
@@ -61,13 +60,7 @@ public class ToolsFtp {
                     e.printStackTrace();
                 }
             }
-            if(input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            
         }
     }
     public static boolean downloadFile(String host, String username, String password, String remotePath, String localPath) {
@@ -89,9 +82,9 @@ public class ToolsFtp {
                 //if (ff.getName().equals(fileName)) {
                 File localFile = new File(localPath + "/" + ff.getName());
 
-                OutputStream is = new FileOutputStream(localFile);
-                ftp.retrieveFile(ff.getName(), is);
-                is.close();
+                try(OutputStream is = new FileOutputStream(localFile)){
+                	ftp.retrieveFile(ff.getName(), is);
+                }
                 //}
             }
 
@@ -104,6 +97,7 @@ public class ToolsFtp {
                 try {
                     ftp.disconnect();
                 } catch (IOException ignored) {
+                	//
                 }
             }
         }
