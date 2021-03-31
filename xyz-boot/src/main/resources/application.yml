@@ -8,7 +8,7 @@ spring:
 
 logging:
   level:
-    root: error
+    root: info
     #基础包
     cn.xyz: debug  #trace
     #指定报的日志级别
