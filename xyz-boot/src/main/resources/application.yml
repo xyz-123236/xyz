@@ -25,3 +25,5 @@ mybatis-plus:
     db-config:
       logic-delete-value: 1 #默认
       logic-not-delete-value: 0 #默认
+server:
+  port: 8080

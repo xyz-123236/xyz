@@ -186,4 +186,15 @@ public class T002Select {
                 .eq(User::getAge, 3).list();
         list.forEach(System.out::println);
     }
+
+    @Test
+    public void test16() {
+        //SELECT u_id,name,age,email,manager_id,create_time FROM user
+        // WHERE (age > ? AND email IS NOT NULL) OR name = ?
+        MyQueryWrapper<User> qw = new MyQueryWrapper<>();
+        qw.eq("age",null).ne("name","姓名3").eq("age", 7).le("age", 7)
+        ;
+        List<User> users = userMapper.selectList(qw);
+        users.forEach(System.out::println);
+    }
 }
