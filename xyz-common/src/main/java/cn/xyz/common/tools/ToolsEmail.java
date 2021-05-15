@@ -29,7 +29,7 @@ public class ToolsEmail {
 	    try {
             properties = ToolsProperties.load("resource/email.properties","utf-8");
 		} catch (Exception e) {
-			Result.error(e);
+            Result.error(e);
 		}
 	}
 	public static void SendEmail(Email email) throws Exception {

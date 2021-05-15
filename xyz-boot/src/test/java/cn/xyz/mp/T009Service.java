@@ -3,7 +3,10 @@ package cn.xyz.mp;
 import cn.xyz.mapper.UserMapper;
 import cn.xyz.pojo.User;
 import cn.xyz.service.UserService;
+import cn.xyz.tool.MyQuery;
+import cn.xyz.tool.ToolQuery;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,7 +15,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest//测试的包名要与启动MainApplication一致，否则要加(classes = MainApplication.class)
@@ -30,7 +35,18 @@ public class T009Service {
 		User one = userService.getOne(Wrappers.<User>lambdaQuery().eq(User::getAge, 3));
 		System.out.println(one);
 	}
-
+	@Test
+	public void test9() {
+		Map<String, String> param = new HashMap<>();
+		MyQuery<User> myQuery = ToolQuery.buildMyQuery(param);
+		User one = userService.getOne(myQuery.getWrapper());
+		System.out.println(one);
+		Page<User> userPage = userService.page(myQuery.getPage(),myQuery.getWrapper());
+		System.out.println(userPage.getPages());
+		System.out.println(userPage.getTotal());
+		List<User> records = userPage.getRecords();
+		records.forEach(System.out::println);
+	}
 	@Test
 	public void test3() {//saveOrUpdateBatch
 		User user1 = new  User();

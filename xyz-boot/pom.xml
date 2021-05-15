@@ -8,14 +8,19 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.xyz</groupId>
-    <artifactId>spring-boot</artifactId>
+    <artifactId>xyz-boot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-boot</name>
+    <name>xyz-boot</name>
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
     <dependencies>
+        <!--<dependency>
+            <groupId>cn.xyz</groupId>
+            <artifactId>xyz-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

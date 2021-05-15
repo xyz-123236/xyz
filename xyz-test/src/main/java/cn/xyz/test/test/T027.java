@@ -12,5 +12,7 @@ public class T027 {
 
         String ss = a.replaceAll("\\d", "");
         System.out.println(ss.split("-").length);
+
+        System.out.println(a.charAt(3));
     }
 }

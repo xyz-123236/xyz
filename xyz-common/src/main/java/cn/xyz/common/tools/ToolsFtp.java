@@ -86,6 +86,9 @@ public class ToolsFtp {
                 	ftp.retrieveFile(ff.getName(), is);
                 }
                 //}
+                //InputStream in = ftp.retrieveFileStream(path)  时 in都要close之后才能重新调用retrieveFileStream方法, 如果不close ,则会在第二次时in为null,或者直接假死
+                //在每次执行完下载操作之后，completePendingCommand()会一直在等FTP Server返回226 Transfer complete，但是FTP Server只有在接受到InputStream 执行close方法时，才会返回。所以一定先要执行close方法。不然在第一次下载一个文件成功之后，之后再次获取inputStream 就会返回null
+                ftp.completePendingCommand();
             }
 
             ftp.logout();

@@ -1,11 +1,8 @@
-package cn.xyz.common.pojo;
+package cn.xyz.pojo;
 
-import cn.xyz.common.config.Value;
-import cn.xyz.common.exception.CustomException;
-import cn.xyz.common.tools.Tools;
+
+import cn.xyz.config.CustomException;
 import lombok.Data;
-
-import com.alibaba.fastjson.JSONArray;
 
 @Data
 public class Result {
@@ -37,19 +34,19 @@ public class Result {
 
 
 	public static Result success(){
-		return success(Value.EMPTY);
+		return success("");
 	}
-	public static Result success(String msg){
+	/*public static Result success(String msg){
 		return success(new JSONArray(), msg);
-	}
+	}*/
 	public static Result success(Object data){
-		return success(data, Value.EMPTY);
+		return success(data, "");
 	}
 	public static Result success(Object data, String msg){
-		return success(data, Value.ZERO, msg);
+		return success(data, 0, msg);
 	}
 	public static Result success(Object data, Integer total){
-		return success(data, total, Value.EMPTY);
+		return success(data, total, "");
 	}
 	public static Result success(Object data, Integer total, String msg){
 		return success(data, total, msg, 200);
@@ -75,9 +72,9 @@ public class Result {
 	}
 
 	public static Result error(Exception e) {
-		if(!Tools.isEmpty(e.getMessage()) && e.getMessage().contains("unique constraint violated")) {
+		/*if(!Tools.isEmpty(e.getMessage()) && e.getMessage().contains("unique constraint violated")) {
 			return error("主键重复");
-		}
+		}*/
 		if(e instanceof CustomException) {
 			return error(e.getMessage());
 		}
