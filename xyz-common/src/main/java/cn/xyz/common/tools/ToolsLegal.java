@@ -2,6 +2,8 @@ package cn.xyz.common.tools;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -160,7 +162,127 @@ public class ToolsLegal {
         solarInfo[0] = year;
         return solarInfo;
     }
-
+    /**
+     * 将公历日期转换为农历日期，且标识是否是闰月
+     * (如果当年有闰月，被闰的阴历月份所对应的阳历日期计算出来不对，后期自己根据本方法leap3 返回值判断如果为1，给月份+1，如果为0就是正确的，不用在操作，阴历闰月对应的阳历日期计算出来的阴历闰月日期正确，leap3为0)
+     * @param year
+     * @param month 传入需要为单数如 08 为8
+     * @param monthDay
+     * @return 返回公历日期对应的农历日期，year0，month1，day2，leap3(0 为计算正常  1 月份会比正确少一个月，需要月份+1)
+     */
+    public static final int[] solarToLunar(int year, int month, int monthDay) {
+        int[] lunarDate = new int[4];
+        Date baseDate = new GregorianCalendar(1900, 0, 31).getTime();
+        Date objDate = new GregorianCalendar(year, month - 1, monthDay).getTime();
+        int offset = (int) ((objDate.getTime() - baseDate.getTime()) / 86400000L);
+        // 用offset减去每农历年的天数计算当天是农历第几天
+        // iYear最终结果是农历的年份, offset是当年的第几天
+        int iYear, daysOfYear = 0;
+        for (iYear = MIN_YEAR; iYear <= MAX_YEAR && offset > 0; iYear++) {
+            daysOfYear = daysInLunarYear(iYear);
+            offset -= daysOfYear;
+        }
+        if (offset < 0) {
+            offset += daysOfYear;
+            iYear--;
+        }
+        // 农历年份
+        lunarDate[0] = iYear;
+        int leapMonth = leapMonth(iYear);
+        // 闰哪个月,1-12
+        boolean isLeap = false;
+        // 用当年的天数offset,逐个减去每月（农历）的天数，求出当天是本月的第几天
+        int iMonth, daysOfMonth = 0;
+        for (iMonth = 1; iMonth <= 13 && offset > 0; iMonth++) {
+            daysOfMonth = daysInLunarMonth(iYear, iMonth);
+            offset -= daysOfMonth;
+        }
+        // 当前月超过闰月，要校正
+        if (leapMonth != 0 && iMonth > leapMonth) {
+            --iMonth;
+            if (iMonth == leapMonth) {
+                isLeap = true;
+            }
+        }
+        // offset小于0时，也要校正
+        if (offset < 0) {
+            offset += daysOfMonth;
+            --iMonth;
+        }
+        lunarDate[1] = iMonth;
+        lunarDate[2] = offset + 1;
+        lunarDate[3] = isLeap ? 1 : 0;
+        return lunarDate;
+    }
+    /**
+     * 传回农历year年month月的总天数
+     *
+     * @param year   要计算的年份
+     * @param month        要计算的月
+     * @return 传回天数
+     */
+    final public static int daysInMonth(int year, int month) {
+        return daysInMonth(year, month, false);
+    }
+    /**
+     * 传回农历year年month月的总天数
+     *
+     * @param year   要计算的年份
+     * @param month    要计算的月
+     * @param leap   当月是否是闰月
+     * @return 传回天数，如果闰月是错误的，返回0.
+     */
+    public static final int daysInMonth(int year, int month, boolean leap) {
+        int leapMonth = leapMonth(year);
+        int offset = 0;
+        // 如果本年有闰月且month大于闰月时，需要校正
+        if (leapMonth != 0 && month > leapMonth) {
+            offset = 1;
+        }
+        // 不考虑闰月
+        if (!leap) {
+            return daysInLunarMonth(year, month + offset);
+        } else {
+            // 传入的闰月是正确的月份
+            if (leapMonth != 0 && leapMonth == month) {
+                return daysInLunarMonth(year, month + 1);
+            }
+        }
+        return 0;
+    }
+    /**
+     * 传回农历 year年的总天数
+     *
+     * @param year 将要计算的年份
+     * @return 返回传入年份的总天数
+     */
+    private static int daysInLunarYear(int year) {
+        int i, sum = 348;
+        if (leapMonth(year) != 0) {
+            sum = 377;
+        }
+        int monthInfo = LUNAR_INFO[year - MIN_YEAR] & 0x0FFF80;
+        for (i = 0x80000; i > 0x7; i >>= 1) {
+            if ((monthInfo & i) != 0) {
+                sum += 1;
+            }
+        }
+        return sum;
+    }
+    /**
+     * 传回农历 year年month月的总天数，总共有13个月包括闰月
+     *
+     * @param year  将要计算的年份
+     * @param month 将要计算的月份
+     * @return 传回农历 year年month月的总天数
+     */
+    private static int daysInLunarMonth(int year, int month) {
+        if ((LUNAR_INFO[year - MIN_YEAR] & (0x100000 >> month)) == 0) {
+            return 29;
+        } else {
+            return 30;
+        }
+    }
     /**
      * 传回农历 year年闰哪个月 1-12 , 没闰传回 0
      * @param year 将要计算的年份
