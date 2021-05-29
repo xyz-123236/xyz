@@ -128,6 +128,7 @@ public class ToolsSort<T> {
         return 0;
     }
     public static int compare(String a, String b) {
+        if (Tools.isEmpty(a) && Tools.isEmpty(b)) return 0;
         if (Tools.isEmpty(a)) return -1;
         if (Tools.isEmpty(b)) return 1;
         if (a.equals(b)) return 0;
@@ -145,6 +146,9 @@ public class ToolsSort<T> {
             } else {
                 return ar[1].compareToIgnoreCase(br[1]);
             }
+        }
+        if(al.size() == bl.size()){
+            return 0;
         }
         return -1;
     }
