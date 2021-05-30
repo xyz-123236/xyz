@@ -1,9 +1,0 @@
-CREATE TABLE `user` (
-  `id` bigint(20) NOT NULL,
-  `name` varchar(30) DEFAULT NULL,
-  `age` int(11) DEFAULT NULL,
-  `email` varchar(50) DEFAULT NULL,
-  `manager_id` bigint(20) DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
